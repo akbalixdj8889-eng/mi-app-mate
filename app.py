@@ -145,6 +145,23 @@ if 'paso' not in st.session_state:
         'examen_finalizado': False  # Control de fin de juego
     })
     #5. FUNCIONES DE APOYO (MOTOR GRÁFICO Y LÓGICA) ---
+
+
+def enviar_a_google(nombre, curso, mision, aciertos, powerup):
+    url_script = "https://script.google.com/macros/s/AKfycbyX5JRshORtaiXVXTXF73nblLEj3M4oX79hF_heKDbEHnuPwfH0PqJBTDXM8_gqYHx4cQ/exec"
+    datos = {
+        "nombre": nombre,
+        "curso": curso,
+        "mision": mision,
+        "aciertos": aciertos,
+        "powerup": "Sí" if not powerup else "No" # Si power_5050 es False, es porque lo usó
+    }
+    try:
+        requests.post(url_script, json=datos)
+    except:
+        pass # Para que el juego no se trabe si falla el internet
+
+
 def crear_imagen(texto, opciones, ocultas=[]):
     """
     Genera una imagen blanca con el texto de la pregunta y sus opciones.
@@ -300,7 +317,24 @@ elif st.session_state.paso == 'examen':
         st.session_state.t_inicio_pregunta = time.time()
         st.rerun()
 
+
 # --- PANTALLA 3: FEEDBACK ---
+elif st.session_state.paso == 'feedback':
+    # ENVIAR DATOS SOLO UNA VEZ
+    if not st.session_state.get('datos_enviados', False):
+        enviar_a_google(
+            st.session_state.nombre, 
+            st.session_state.curso, 
+            st.session_state.mision, 
+            st.session_state.aciertos,
+            st.session_state.power_5050
+        )
+        st.session_state.datos_enviados = True # Evita duplicados al refrescar
+
+    st.markdown(f"<div class='status-panel'>RESUMEN: {st.session_state.nombre}</div>", unsafe_allow_html=True)
+   
+# ... (resto de tu código de feedback)
+
 elif st.session_state.paso == 'feedback':
     st.markdown(f"<div class='status-panel'>RESUMEN: {st.session_state.nombre}</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='question-card' style='text-align:center;'>", unsafe_allow_html=True)
