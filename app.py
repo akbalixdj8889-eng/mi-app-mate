@@ -13,11 +13,9 @@ ENTRY_CURSO  = "entry.2027082892"
 ENTRY_NOTA   = "entry.1011634935"
 ENTRY_TIEMPO = "entry.1300499693"
 
-st.set_page_config(page_title="Examen 5 Preguntas", page_icon="📝")
+st.set_page_config(page_title="Misiones Matemáticas - Noveno", page_icon="🚀")
 
-# --- BANCO DE PREGUNTAS (Puedes agregar las 10 aquí) ---
-
-# --- BANCO DE PREGUNTAS COMPLETO (10 Preguntas de tu LaTeX) ---
+# --- BANCO DE PREGUNTAS COMPLETO ---
 BANCO_PREGUNTAS = [
     # MISIÓN 1: CONCEPTOS Y ECUACIONES
     {"id": 1, "mision": 1, "pregunta": "Puntos A(-6, 1) y B(6, 6). ¿Pendiente m y corte Y (b)?", "opciones": ["A) m=5/12, b=3.5", "B) m=-5/12, b=3.5", "C) m=12/5, b=-3", "D) m=5/12, b=-3.5"], "correcta": "A", "tiempo": 240},
@@ -34,101 +32,91 @@ BANCO_PREGUNTAS = [
     {"id": 10, "mision": 2, "pregunta": "Daniel (deuda $500, abona $15/sem). Sofía (deuda $800, abona $40/sem). ¿Semana de igualdad?", "opciones": ["A) Sem 6", "B) Sem 10", "C) Sem 12", "D) Sem 14"], "correcta": "C", "tiempo": 360}
 ]
 
-BANCO_NOVENO = [
-    {"id": 1, "pregunta": "Pasa por A=(-6, 1) y B=(6, 6). ¿m y b?", "opciones": ["A) m=5/12, b=3.5", "B) m=-5/12, b=3.5", "C) m=12/5, b=-3", "D) m=5/12, b=-3.5"], "correcta": "A", "tiempo": 180},
-    {"id": 2, "pregunta": "Ecuación por A(-4, 8) y B(2, -1):", "opciones": ["A) y=3/2x + 2", "B) y=-3/2x + 2", "C) y=-2/3x + 2", "D) y=3/2x - 2"], "correcta": "B", "tiempo": 180},
-    {"id": 3, "pregunta": "Punto P(3, -4) y m = -1/3. ¿Fórmula?", "opciones": ["A) y=-1/3x - 3", "B) y=-1/3x + 3", "C) y=1/3x - 3", "D) y=-3x - 3"], "correcta": "A", "tiempo": 180},
-    {"id": 4, "pregunta": "¿Recta PARALELA a y = -5/6x - 1?", "opciones": ["A) y=6/5x + 4", "B) y=5/6x - 1", "C) y=-5/6x + 9", "D) y=-6/5x + 2"], "correcta": "C", "tiempo": 120},
-    {"id": 5, "pregunta": "Recta y = -1/4x + 5 es PERPENDICULAR a:", "opciones": ["A) y=-4x + 2", "B) y=1/4x - 5", "C) y=4x - 8", "D) y=-4/1x + 3"], "correcta": "C", "tiempo": 120}
-]
-
-def crear_imagen_pregunta(texto, opciones):
+# --- FUNCIÓN GENERADORA DE IMAGEN ---
+def crear_imagen(texto, opciones):
     fig, ax = plt.subplots(figsize=(8, 4))
-    ax.set_facecolor('#f0f2f6')
+    ax.set_facecolor('#fdfdfd')
+    # Texto con ruido anti-IA
     contenido = f"{texto}\n\n" + "\n".join(opciones)
-    ax.text(0.05, 0.5, contenido, fontsize=14, fontweight='bold', wrap=True)
+    ax.text(0.05, 0.5, contenido, fontsize=13, fontweight='bold', wrap=True, family='serif')
+    for _ in range(4):
+        ax.plot([random.random()*8, random.random()*8], [0, 1], color='red', alpha=0.05, lw=1)
     ax.axis('off')
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight')
     plt.close()
     return buf
 
-# --- INICIALIZACIÓN DE SESIÓN ---
-if 'paso' not in st.session_state:
-    st.session_state.paso = "registro"
-    st.session_state.preguntas_respondidas = 0
-    st.session_state.aciertos = 0
-    st.session_state.historial = []
+# --- INICIALIZACIÓN DE ESTADOS ---
+if 'mision_actual' not in st.session_state:
+    st.session_state.update({
+        'paso': 'registro', 'mision_actual': 1, 'n_pregunta': 0,
+        'aciertos': 0, 'lista_preguntas': [], 'inicio_total': 0
+    })
 
-# --- PANTALLA 1: REGISTRO ---
-if st.session_state.paso == "registro":
-    st.title("🎯 Reto de Matemáticas: 5 Preguntas")
-    st.write("Ingresa tus datos una sola vez para comenzar el examen.")
-    
-    nom = st.text_input("Nombre completo:")
-    cur = st.selectbox("Curso:", ["901", "902", "903"])
-    
-    if st.button("Comenzar Examen"):
+# --- FLUJO: REGISTRO ---
+if st.session_state.paso == 'registro':
+    st.title("🚀 Misiones Matemáticas: Nivel Noveno")
+    st.write("Debes completar la **Misión 1** con al menos 3 aciertos para desbloquear la **Misión 2**.")
+    nom = st.text_input("Nombre:")
+    cur = st.selectbox("Curso:", ["901", "902"])
+    if st.button("INICIAR AVENTURA"):
         if nom:
-            st.session_state.nombre = nom
-            st.session_state.curso = cur
-            st.session_state.paso = "examen"
-            # Seleccionar 5 preguntas aleatorias sin repetir
-            st.session_state.lista_examen = random.sample(BANCO_NOVENO, 5)
-            st.session_state.inicio_total = time.time()
+            st.session_state.nombre, st.session_state.curso = nom, cur
+            st.session_state.lista_preguntas = random.sample([p for p in BANCO_PREGUNTAS if p['mision'] == 1], 5)
+            st.session_state.paso, st.session_state.inicio_total = 'examen', time.time()
             st.rerun()
 
-# --- PANTALLA 2: EXAMEN ---
-elif st.session_state.paso == "examen":
-    n = st.session_state.preguntas_respondidas
-    pregunta = st.session_state.lista_examen[n]
+# --- FLUJO: EXAMEN ---
+elif st.session_state.paso == 'examen':
+    idx = st.session_state.n_pregunta
+    p = st.session_state.lista_preguntas[idx]
     
-    st.info(f"Pregunta {n+1} de 5")
-    st.write(f"Estudiante: **{st.session_state.nombre}**")
-
-    # Imagen blindada
-    img = crear_imagen_pregunta(pregunta['pregunta'], pregunta['opciones'])
-    st.image(img)
+    st.subheader(f"Misión {st.session_state.mision_actual} - Pregunta {idx+1}/5")
+    st.image(crear_imagen(p['pregunta'], p['opciones']))
     
-    ans = st.radio("Tu respuesta:", ["A", "B", "C", "D"], key=f"p_{n}", index=None)
-
-    if st.button("Siguiente Pregunta ➡️"):
+    ans = st.radio("Selecciona tu respuesta:", ["A", "B", "C", "D"], key=f"r_{st.session_state.mision_actual}_{idx}", index=None)
+    
+    if st.button("Siguiente ➡️"):
         if ans:
-            # Validar y Guardar
-            es_correcta = (ans == pregunta['correcta'])
-            if es_correcta: st.session_state.aciertos += 1
+            if ans == p['correcta']: st.session_state.aciertos += 1
+            st.session_state.n_pregunta += 1
             
-            st.session_state.preguntas_respondidas += 1
-            
-            # ¿Ya terminó las 5?
-            if st.session_state.preguntas_respondidas >= 5:
-                st.session_state.paso = "finalizado"
+            if st.session_state.n_pregunta >= 5:
+                st.session_state.paso = 'feedback_mision'
             st.rerun()
+
+# --- FLUJO: FEEDBACK DE MISIÓN ---
+elif st.session_state.paso == 'feedback_mision':
+    puntos = st.session_state.aciertos
+    st.title("Fin de la Misión")
+    st.metric("Puntaje Obtenido", f"{puntos} / 5")
+    
+    # Reporte a Google
+    requests.post(URL_FORM, data={
+        ENTRY_NOMBRE: st.session_state.nombre,
+        ENTRY_CURSO: st.session_state.curso,
+        ENTRY_NOTA: f"Misión {st.session_state.mision_actual}: {puntos}/5",
+        ENTRY_TIEMPO: f"{int(time.time()-st.session_state.inicio_total)}s"
+    })
+
+    if st.session_state.mision_actual == 1:
+        if puntos >= 3:
+            st.success("🎉 ¡MISIÓN 1 COMPLETADA! Has desbloqueado la Misión 2.")
+            if st.button("IR A LA MISIÓN 2"):
+                st.session_state.update({
+                    'mision_actual': 2, 'n_pregunta': 0, 'aciertos': 0, 'paso': 'examen',
+                    'lista_preguntas': random.sample([p for p in BANCO_PREGUNTAS if p['mision'] == 2], 4),
+                    'inicio_total': time.time()
+                })
+                st.rerun()
         else:
-            st.warning("Por favor selecciona una respuesta.")
-
-# --- PANTALLA 3: RESULTADOS Y ENVÍO ---
-elif st.session_state.paso == "finalizado":
-    st.title("✅ ¡Examen Terminado!")
-    puntaje = st.session_state.aciertos
-    tiempo_fin = int(time.time() - st.session_state.inicio_total)
-    
-    st.balloons()
-    st.metric("Tu puntaje final", f"{puntaje} / 5")
-    
-    # Enviar un solo reporte consolidado a Google Sheets
-    nota_final = f"Puntaje: {puntaje}/5"
-    try:
-        requests.post(URL_FORM, data={
-            ENTRY_NOMBRE: st.session_state.nombre,
-            ENTRY_CURSO: st.session_state.curso,
-            ENTRY_NOTA: nota_final,
-            ENTRY_TIEMPO: f"{tiempo_fin}s"
-        })
-        st.success("Tus resultados han sido enviados al profesor.")
-    except:
-        st.error("Error al enviar. Avisa al profesor.")
-
-    if st.button("Reiniciar para otro estudiante"):
-        st.session_state.clear()
-        st.rerun()
+            st.error("❌ No lograste los aciertos necesarios para la Misión 2. Repasa y vuelve a intentar.")
+            if st.button("REINTENTAR MISIÓN 1"):
+                st.session_state.update({'paso': 'registro', 'aciertos': 0, 'n_pregunta': 0})
+                st.rerun()
+    else:
+        st.success("🎓 ¡Has terminado todas las misiones disponibles!")
+        if st.button("FINALIZAR"):
+            st.session_state.clear()
+            st.rerun()
