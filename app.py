@@ -64,19 +64,19 @@ BANCO_PREGUNTAS = [
     },
     {
         "id": 8, "mision": 2, 
-        "pregunta": "Carpintero cobra $20 base + $15 por cada 4h. Si x son horas y y el costo, ¿cuánto cuesta un trabajo de 12h?", 
+        "pregunta": "Carpintero cobra $20 base más $15 por cada 4h. Si x son horas y y el costo, ¿cuánto cuesta un trabajo de 12h?", 
         "opciones": ["$65", "$45", "$35", "$70"], 
         "correcta_texto": "$65", "tiempo": 300
     },
     {
         "id": 9, "mision": 2, 
-        "pregunta": "Globo A (10m, sube 5/4 m/s). Globo B (40m, baja 7/4 m/s). ¿En qué segundo estarán a la misma altura?", 
+        "pregunta": "Globo A (10m, sube 5m cada 4s). Globo B (40m, baja 7/4 m/s). ¿En qué segundo estarán a la misma altura?", 
         "opciones": ["10 segundos", "8 segundos", "12 segundos", "15 segundos"], 
         "correcta_texto": "10 segundos", "tiempo": 360
     },
     {
         "id": 10, "mision": 2, 
-        "pregunta": "Daniel debe $500 y abona $30 c/2 sem. Sofía debe $800 y abona $80 c/2 sem. ¿En qué semana sus deudas son iguales?", 
+        "pregunta": "Daniel debe $500 y abona $30 cada 2 sem. Sofía debe $800 y abona $80 cada  2 sem. ¿En qué semana sus deudas son iguales?", 
         "opciones": ["Semana 12", "Semana 6", "Semana 10", "Semana 14"], 
         "correcta_texto": "Semana 12", "tiempo": 360
     }
