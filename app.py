@@ -10,87 +10,62 @@ ENTRY_CURSO  = "entry.2027082892"
 ENTRY_NOTA   = "entry.1011634935"
 ENTRY_TIEMPO = "entry.1300499693"
 
-st.set_page_config(page_title="Reto Matemático", page_icon="🔢")
+st.set_page_config(page_title="Examen Seguro", page_icon="🔒")
 
-# --- ESTADOS DE SESIÓN ---
-if 'trampas' not in st.session_state:
-    st.session_state.trampas = 0
-if 'evaluando' not in st.session_state:
-    st.session_state.evaluando = False
+# --- ESTILOS PARA EVITAR COPIAR/PEGAR ---
+st.markdown("""
+    <style>
+    input { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+    .stNumberInput { pointer-events: auto; }
+    </style>
+""", unsafe_allow_html=True)
 
-# --- DETECTOR DE TRAMPAS ---
-# Usamos visibilidad de página (Page Visibility API)
-js_detector = st.components.v1.html(
-    """
-    <script>
-    var count = 0;
-    document.addEventListener("visibilitychange", function() {
-        if (document.visibilityState === 'hidden') {
-            count++;
-            window.parent.postMessage({
-                type: 'streamlit:setComponentValue',
-                value: count
-            }, '*');
-        }
-    });
-    </script>
-    """,
-    height=0,
-)
+if 'inicio' not in st.session_state:
+    st.session_state.inicio = None
 
-if js_detector is not None:
-    try:
-        st.session_state.trampas = int(js_detector)
-    except:
-        pass
+def enviar(nombre, curso, nota, seg):
+    payload = {ENTRY_NOMBRE: nombre, ENTRY_CURSO: curso, ENTRY_NOTA: nota, ENTRY_TIEMPO: f"{seg}s"}
+    requests.post(URL_FORM, data=payload)
 
-def enviar_a_google(nombre, curso, nota, segundos, trampas):
-    nota_final = f"{nota} (Salió {trampas} veces)"
-    # Corregido: Usamos un diccionario limpio sin llaves dobles
-    payload = {
-        ENTRY_NOMBRE: nombre,
-        ENTRY_CURSO: curso,
-        ENTRY_NOTA: nota_final,
-        ENTRY_TIEMPO: str(segundos) + "s"
-    }
-    try:
-        requests.post(URL_FORM, data=payload, timeout=5)
-    except:
-        st.error("Error de conexión al enviar datos")
+st.title("🛡️ Reto Matemático Anti-IA")
 
-st.title("🔢 Reto Matemático Blindado")
-
-# --- FLUJO ---
-if not st.session_state.evaluando:
-    nombre = st.text_input("Nombre completo:")
-    curso = st.selectbox("Curso:", ["601", "602", "701", "702"])
-    if st.button("Empezar Reto"):
-        if nombre:
-            st.session_state.estudiante = nombre
-            st.session_state.curso = curso
-            st.session_state.inicio_total = time.time()
-            st.session_state.evaluando = True
-            st.rerun()
+if not st.session_state.inicio:
+    nom = st.text_input("Nombre:")
+    cur = st.selectbox("Curso:", ["601", "701"])
+    if st.button("INICIAR EXAMEN (Tienes 20 segundos)"):
+        st.session_state.inicio = time.time()
+        st.session_state.nom = nom
+        st.session_state.cur = cur
+        st.rerun()
 else:
-    if st.session_state.trampas > 0:
-        st.error(f"⚠️ ¡Atención! Has salido de la pestaña {st.session_state.trampas} veces.")
+    # CÁLCULO DE TIEMPO
+    transcurrido = int(time.time() - st.session_state.inicio)
+    restante = 20 - transcurrido
 
-    if 'a' not in st.session_state:
-        st.session_state.a = random.randint(2, 12)
-        st.session_state.b = random.randint(1, 20)
-        st.session_state.x_true = random.randint(1, 10)
-        st.session_state.c = st.session_state.a * st.session_state.x_true + st.session_state.b
-
-    st.subheader(f"Resuelve: {st.session_state.a}x + {st.session_state.b} = {st.session_state.c}")
-    resp = st.number_input("Valor de x:", step=1, value=0)
-
-    if st.button("Enviar Finalizar"):
-        tiempo_total = int(time.time() - st.session_state.inicio_total)
-        resultado = "Correcto" if resp == st.session_state.x_true else f"Incorrecto (puso {resp})"
-        
-        enviar_a_google(st.session_state.estudiante, st.session_state.curso, resultado, tiempo_total, st.session_state.trampas)
-        st.success(f"¡Enviado! Salidas detectadas: {st.session_state.trampas}")
-        
-        if st.button("Hacer otro ejercicio"):
-            st.session_state.clear()
+    if restante <= 0:
+        st.error("❌ ¡TIEMPO AGOTADO! El examen ha sido anulado por sospecha de consulta externa.")
+        enviar(st.session_state.nom, st.session_state.cur, "ANULADO (Exceso de tiempo)", transcurrido)
+        if st.button("Reintentar"):
+            st.session_state.inicio = None
             st.rerun()
+    else:
+        st.metric("Tiempo restante", f"{restante}s")
+        
+        # Generar ejercicio (fijo durante la sesión)
+        if 'num' not in st.session_state:
+            st.session_state.a = random.randint(2, 9)
+            st.session_state.x = random.randint(1, 10)
+            st.session_state.res = st.session_state.a * st.session_state.x
+
+        # MOSTRAR EJERCICIO COMO ENCABEZADO GRANDE (Más difícil de leer para algunas IAs simples)
+        st.subheader(f"¿Cuánto vale X?")
+        st.info(f"### {st.session_state.a} * X = {st.session_state.res}")
+        
+        ans = st.number_input("Escribe tu respuesta:", step=1, value=0)
+
+        if st.button("ENTREGAR AHORA"):
+            nota = "Correcto" if ans == st.session_state.x else f"Incorrecto (Puso {ans})"
+            enviar(st.session_state.nom, st.session_state.cur, nota, transcurrido)
+            st.success("¡Enviado con éxito!")
+            st.session_state.inicio = None
+            if st.button("Hacer otro"): st.rerun()
