@@ -1,58 +1,82 @@
 import streamlit as st
 import random
 import time
+import requests
 
-# Configuración de la página para que parezca una App móvil
-st.set_page_config(page_title="Reto Matemático", page_icon="🔢")
+# --- CONFIGURACIÓN ---
+URL_FORM = "https://docs.google.com/forms/d/e/1FAIpQLScin_I5blL_gwFbDP8vfjTz7SQj4BRZQ0_wI7rmJvXvNjkzzQ/formResponse"
+ENTRY_NOMBRE = "entry.1544483154"
+ENTRY_CURSO  = "entry.2027082892"
+ENTRY_NOTA   = "entry.1011634935"
+ENTRY_TIEMPO = "entry.1300499693"
 
-st.title("⚡ Reto de Ecuaciones")
-st.write("Resuelve antes de que se acabe el tiempo. ¡Si sales de la app, pierdes!")
+st.set_page_config(page_title="Reto Matemático Pro", page_icon="🔢")
 
-# 1. Generador de parámetros aleatorios (Como en Moodle)
-if 'a' not in st.session_state:
-    st.session_state.a = random.randint(2, 10)
-    st.session_state.b = random.randint(1, 20)
-    st.session_state.x_true = random.randint(1, 10)
-    # Generamos la ecuación: ax + b = c  => c = a*x + b
-    st.session_state.c = st.session_state.a * st.session_state.x_true + st.session_state.b
-    st.session_state.start_time = time.time()
+# Función para enviar los datos a Google
+def enviar_a_google(nombre, curso, nota, segundos):
+    data = {
+        ENTRY_NOMBRE: nombre,
+        ENTRY_CURSO: curso,
+        ENTRY_NOTA: nota,
+        ENTRY_TIEMPO: f"{segundos}s"
+    }
+    try:
+        requests.post(URL_FORM, data=data)
+        return True
+    except:
+        return False
 
-# 2. Lógica del Cronómetro (60 segundos)
-duracion = 60
-tiempo_transcurrido = time.time() - st.session_state.start_time
-tiempo_restante = max(0, duracion - int(tiempo_transcurrido))
-
-if tiempo_restante > 0:
-    st.metric(label="Tiempo restante", value=f"{tiempo_restante}s")
+# --- PANTALLA DE INICIO ---
+if 'estudiante' not in st.session_state:
+    st.title("🚀 ¡Bienvenido al Reto!")
+    nombre = st.text_input("Nombre completo:")
+    curso = st.selectbox("Selecciona tu curso:", ["601", "602", "701", "702"]) # Puedes editarlos
     
-    # Mostrar la ecuación de forma visual
-    st.subheader(f"Resuelve para $x$:")
-    st.info(f"## {st.session_state.a}x + {st.session_state.b} = {st.session_state.c}")
-
-    # Entrada de respuesta
-    respuesta = st.number_input("Tu respuesta:", step=1, key="input_usuario")
-
-    if st.button("Enviar Respuesta"):
-        if respuesta == st.session_state.x_true:
-            st.success(f"¡Correcto! Lo lograste en {int(tiempo_transcurrido)} segundos.")
-            st.balloons()
-            # Botón para reiniciar
-            if st.button("Siguiente ejercicio"):
-                del st.session_state.a
-                st.rerun()
+    if st.button("Empezar Evaluación"):
+        if nombre:
+            st.session_state.estudiante = nombre
+            st.session_state.curso = curso
+            st.session_state.inicio_total = time.time()
+            st.rerun()
         else:
-            st.error("Incorrecto. Intenta de nuevo (el tiempo sigue corriendo).")
-else:
-    st.error("¡Se acabó el tiempo! La IA fue más lenta que el reloj, pero tú también.")
-    if st.button("Reintentar con otro ejercicio"):
-        del st.session_state.a
-        st.rerun()
+            st.warning("Escribe tu nombre para continuar.")
 
-# 3. Nota de seguridad (Detección de cambio de pestaña básica)
+# --- PANTALLA DE EXAMEN ---
+else:
+    st.write(f"Estudiante: **{st.session_state.estudiante}** | Curso: **{st.session_state.curso}**")
+    
+    if 'a' not in st.session_state:
+        st.session_state.a = random.randint(2, 12)
+        st.session_state.b = random.randint(1, 25)
+        st.session_state.x_true = random.randint(1, 10)
+        st.session_state.c = st.session_state.a * st.session_state.x_true + st.session_state.b
+
+    st.subheader(f"Resuelve: {st.session_state.a}x + {st.session_state.b} = {st.session_state.c}")
+    resp = st.number_input("¿Cuánto vale x?", step=1)
+
+    if st.button("Enviar y Terminar"):
+        tiempo_final = int(time.time() - st.session_state.inicio_total)
+        resultado = "Correcto" if resp == st.session_state.x_true else f"Error (puso {resp})"
+        
+        exito = enviar_a_google(st.session_state.estudiante, st.session_state.curso, resultado, tiempo_final)
+        
+        if exito:
+            st.success("✅ ¡Datos guardados! Ya puedes cerrar la app.")
+            if resp == st.session_state.x_true:
+                st.balloons()
+        else:
+            st.error("❌ Error de conexión al guardar. Avisa a tu profesor.")
+            
+        if st.button("Reiniciar"):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
+
+# Bloqueo de trampa (onblur)
 st.components.v1.html("""
     <script>
     window.onblur = function() {
-        alert("¡Cuidado! Se ha detectado que saliste de la aplicación. Esto quedará registrado.");
+        alert("¡Ojo! Detectamos que saliste de la app. El tiempo sigue corriendo.");
     };
     </script>
 """, height=0)
