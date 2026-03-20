@@ -19,6 +19,7 @@ if 'evaluando' not in st.session_state:
     st.session_state.evaluando = False
 
 # --- DETECTOR DE TRAMPAS ---
+# El secreto aquí es que 'js_val' debe ser procesado CADA VEZ que el script corre
 js_val = st.components.v1.html(
     """
     <script>
@@ -35,11 +36,11 @@ js_val = st.components.v1.html(
     height=0,
 )
 
+# Si el navegador envía un número nuevo, lo sumamos al acumulador
 if js_val is not None:
-    try:
+    # Solo actualizamos si el valor que viene de JS es mayor al que tenemos
+    if int(js_val) > st.session_state.trampas:
         st.session_state.trampas = int(js_val)
-    except:
-        pass
 
 def enviar_a_google(nombre, curso, nota, segundos, trampas):
     nota_final = f"{nota} (Salió {trampas} veces)"
@@ -63,9 +64,10 @@ if not st.session_state.evaluando:
             st.session_state.evaluando = True
             st.rerun()
 else:
+    # Mostramos las trampas acumuladas
     t = st.session_state.trampas
     if t > 0:
-        st.warning(f"⚠️ Has salido de la app {t} veces.")
+        st.error(f"⚠️ Has salido de la app {t} veces. ¡Concéntrate!")
 
     if 'a' not in st.session_state:
         st.session_state.a = random.randint(2, 12)
@@ -81,7 +83,7 @@ else:
         res = "Correcto" if resp == st.session_state.x_true else "Incorrecto"
         
         enviar_a_google(st.session_state.estudiante, st.session_state.curso, res, tiempo, st.session_state.trampas)
-        st.success("¡Resultado enviado con éxito!") # Aquí estaba el error anterior
+        st.success(f"¡Resultado enviado! (Trampas detectadas: {st.session_state.trampas})")
         
         if st.button("Reiniciar"):
             st.session_state.clear()
