@@ -18,47 +18,45 @@ if 'trampas' not in st.session_state:
 if 'evaluando' not in st.session_state:
     st.session_state.evaluando = False
 
-# --- DETECTOR DE TRAMPAS (JS MEJORADO) ---
-# Usamos un ID único para que Streamlit no ignore el componente
+# --- DETECTOR DE TRAMPAS ---
+# Usamos visibilidad de página (Page Visibility API)
 js_detector = st.components.v1.html(
-    f"""
-    <html>
-        <body>
-            <script>
-            var count = {st.session_state.trampas};
-            window.parent.document.onvisibilitychange = function() {{
-                if (window.parent.document.visibilityState === 'hidden') {{
-                    count++;
-                    window.parent.postMessage({{
-                        type: 'streamlit:setComponentValue',
-                        value: count
-                    }}, '*');
-                }}
-            }};
-            </script>
-        </body>
-    </html>
+    """
+    <script>
+    var count = 0;
+    document.addEventListener("visibilitychange", function() {
+        if (document.visibilityState === 'hidden') {
+            count++;
+            window.parent.postMessage({
+                type: 'streamlit:setComponentValue',
+                value: count
+            }, '*');
+        }
+    });
+    </script>
     """,
     height=0,
 )
 
-# Captura del valor con validación extra
 if js_detector is not None:
     try:
-        val = int(js_detector)
-        if val > st.session_state.trampas:
-            st.session_state.trampas = val
-            st.rerun() # Forzamos recarga para mostrar el aviso
+        st.session_state.trampas = int(js_detector)
     except:
         pass
 
 def enviar_a_google(nombre, curso, nota, segundos, trampas):
     nota_final = f"{nota} (Salió {trampas} veces)"
-    data = {{ENTRY_NOMBRE: nombre, ENTRY_CURSO: curso, ENTRY_NOTA: nota_final, ENTRY_TIEMPO: f"{{segundos}}s"}}
+    # Corregido: Usamos un diccionario limpio sin llaves dobles
+    payload = {
+        ENTRY_NOMBRE: nombre,
+        ENTRY_CURSO: curso,
+        ENTRY_NOTA: nota_final,
+        ENTRY_TIEMPO: str(segundos) + "s"
+    }
     try:
-        requests.post(URL_FORM, data=data, timeout=5)
+        requests.post(URL_FORM, data=payload, timeout=5)
     except:
-        pass
+        st.error("Error de conexión al enviar datos")
 
 st.title("🔢 Reto Matemático Blindado")
 
@@ -74,9 +72,8 @@ if not st.session_state.evaluando:
             st.session_state.evaluando = True
             st.rerun()
 else:
-    # Notificación de falta
     if st.session_state.trampas > 0:
-        st.error(f"⚠️ ¡ALERTA! Has salido de la prueba {st.session_state.trampas} veces.")
+        st.error(f"⚠️ ¡Atención! Has salido de la pestaña {st.session_state.trampas} veces.")
 
     if 'a' not in st.session_state:
         st.session_state.a = random.randint(2, 12)
@@ -88,13 +85,12 @@ else:
     resp = st.number_input("Valor de x:", step=1, value=0)
 
     if st.button("Enviar Finalizar"):
-        tiempo = int(time.time() - st.session_state.inicio_total)
-        res = "Correcto" if resp == st.session_state.x_true else f"Incorrecto (puso {resp})"
+        tiempo_total = int(time.time() - st.session_state.inicio_total)
+        resultado = "Correcto" if resp == st.session_state.x_true else f"Incorrecto (puso {resp})"
         
-        enviar_a_google(st.session_state.estudiante, st.session_state.curso, res, tiempo, st.session_state.trampas)
-        st.success(f"Registrado. Salidas detectadas: {st.session_state.trampas}")
+        enviar_a_google(st.session_state.estudiante, st.session_state.curso, resultado, tiempo_total, st.session_state.trampas)
+        st.success(f"¡Enviado! Salidas detectadas: {st.session_state.trampas}")
         
-        if st.button("Nuevo Ejercicio"):
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
+        if st.button("Hacer otro ejercicio"):
+            st.session_state.clear()
             st.rerun()
