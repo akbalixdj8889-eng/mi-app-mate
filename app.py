@@ -16,6 +16,24 @@ ENTRY_TIEMPO = "entry.1300499693"
 st.set_page_config(page_title="Examen 5 Preguntas", page_icon="📝")
 
 # --- BANCO DE PREGUNTAS (Puedes agregar las 10 aquí) ---
+
+# --- BANCO DE PREGUNTAS COMPLETO (10 Preguntas de tu LaTeX) ---
+BANCO_PREGUNTAS = [
+    # MISIÓN 1: CONCEPTOS Y ECUACIONES
+    {"id": 1, "mision": 1, "pregunta": "Puntos A(-6, 1) y B(6, 6). ¿Pendiente m y corte Y (b)?", "opciones": ["A) m=5/12, b=3.5", "B) m=-5/12, b=3.5", "C) m=12/5, b=-3", "D) m=5/12, b=-3.5"], "correcta": "A", "tiempo": 240},
+    {"id": 2, "mision": 1, "pregunta": "Ecuación de la recta por A(-4, 8) y B(2, -1):", "opciones": ["A) y=3/2x + 2", "B) y=-3/2x + 2", "C) y=-2/3x + 2", "D) y=3/2x - 2"], "correcta": "B", "tiempo": 240},
+    {"id": 3, "mision": 1, "pregunta": "Recta por P(3, -4) con m = -1/3. ¿Fórmula?", "opciones": ["A) y=-1/3x - 3", "B) y=-1/3x + 3", "C) y=1/3x - 3", "D) y=-3x - 3"], "correcta": "A", "tiempo": 180},
+    {"id": 4, "mision": 1, "pregunta": "¿Qué recta es PARALELA a y = -5/6x - 1?", "opciones": ["A) y=6/5x + 4", "B) y=5/6x - 1", "C) y=-5/6x + 9", "D) y=-6/5x + 2"], "correcta": "C", "tiempo": 120},
+    {"id": 5, "mision": 1, "pregunta": "La recta y = -1/4x + 5 es PERPENDICULAR a:", "opciones": ["A) y=-4x + 2", "B) y=1/4x - 5", "C) y=4x - 8", "D) y=-4/1x + 3"], "correcta": "C", "tiempo": 120},
+    {"id": 6, "mision": 1, "pregunta": "Recta m = 4/5 por P(5, 7). ¿Cuál cumple?", "opciones": ["A) y=4/5x + 3 y pasa por (0,3)", "B) y=-4/5x + 3 y pasa por (5,-1)", "C) y=4/5x - 3 y pasa por (10,5)", "D) y=5/4x + 3 y pasa por (4,8)"], "correcta": "A", "tiempo": 200},
+
+    # MISIÓN 2: APLICACIONES (Mundo Real)
+    {"id": 7, "mision": 2, "pregunta": "Depósito de 80 gal. Pierde 3 gal cada 2 horas. ¿Función?", "opciones": ["A) y=3/2x + 80", "B) y=-2/3x + 80", "C) y=-3/2x + 80", "D) y=-3/2x - 80"], "correcta": "C", "tiempo": 300},
+    {"id": 8, "mision": 2, "pregunta": "Carpintero: $20 base + $15 c/4h. ¿Costo por 12 horas?", "opciones": ["A) $45", "B) $65", "C) $35", "D) $70"], "correcta": "B", "tiempo": 300},
+    {"id": 9, "mision": 2, "pregunta": "Globo A (10m, sube 5/4 m/s). Globo B (40m, baja 7/4 m/s). ¿En qué segundo se cruzan?", "opciones": ["A) 8s", "B) 10s", "C) 12s", "D) 15s"], "correcta": "B", "tiempo": 360},
+    {"id": 10, "mision": 2, "pregunta": "Daniel (deuda $500, abona $15/sem). Sofía (deuda $800, abona $40/sem). ¿Semana de igualdad?", "opciones": ["A) Sem 6", "B) Sem 10", "C) Sem 12", "D) Sem 14"], "correcta": "C", "tiempo": 360}
+]
+
 BANCO_NOVENO = [
     {"id": 1, "pregunta": "Pasa por A=(-6, 1) y B=(6, 6). ¿m y b?", "opciones": ["A) m=5/12, b=3.5", "B) m=-5/12, b=3.5", "C) m=12/5, b=-3", "D) m=5/12, b=-3.5"], "correcta": "A", "tiempo": 180},
     {"id": 2, "pregunta": "Ecuación por A(-4, 8) y B(2, -1):", "opciones": ["A) y=3/2x + 2", "B) y=-3/2x + 2", "C) y=-2/3x + 2", "D) y=3/2x - 2"], "correcta": "B", "tiempo": 180},
