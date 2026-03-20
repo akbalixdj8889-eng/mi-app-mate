@@ -290,10 +290,12 @@ elif st.session_state.paso == 'examen':
                 st.session_state.power_5050 = False
                 st.rerun()
 
-    # Selección de respuesta
+   
+        # Selección de respuesta
     ans = st.radio("TU ELECCIÓN:", ["A", "B", "C", "D"], key=f"r_{idx}", index=None, horizontal=True)
     
-  if st.button("ENVIAR RESPUESTA ➡️"):
+    # El botón DEBE estar alineado con el radio de arriba
+    if st.button("ENVIAR RESPUESTA ➡️"):
         if ans:
             # Verificación de acierto
             if ans == st.session_state[f"q_cor_{idx}"]:
@@ -309,30 +311,47 @@ elif st.session_state.paso == 'examen':
 
             # --- LÓGICA DE CAMBIO DE MISIÓN ---
             if st.session_state.n_pregunta >= len(st.session_state.lista_examen):
-                # Si estamos en Misión 1 y sacó 3 o más
                 if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
                     st.success("¡MISIÓN 1 COMPLETADA! Preparando Misión 2...")
                     time.sleep(2)
                     
-                    # Configuramos la Misión 2
                     pool_2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
                     st.session_state.lista_examen = random.sample(pool_2, min(5, len(pool_2)))
                     
-                    # Reiniciamos contadores para el nuevo nivel
                     st.session_state.update({
                         'mision': 2,
                         'n_pregunta': 0,
-                        'aciertos': 0, # Opcional: puedes dejar que los aciertos sean acumulativos
+                        'aciertos': 0, 
                         't_inicio_pregunta': time.time()
                     })
                 else:
-                    # Si no alcanzó los 3 o ya terminó la Misión 2
                     st.session_state.paso = 'feedback'
 
             st.rerun()
 
-
-
+    # --- Control de Tiempo (Auto-refresh) ---
+    # Este bloque también debe estar dentro del "elif st.session_state.paso == 'examen':"
+    if porcentaje > 0:
+        time.sleep(1)
+        st.rerun()
+    else:
+        st.error("¡TIEMPO AGOTADO!")
+        time.sleep(1)
+        
+        st.session_state.n_pregunta += 1
+        st.session_state.usar_5050 = False 
+        st.session_state.t_inicio_pregunta = time.time()
+        
+        if st.session_state.n_pregunta >= len(st.session_state.lista_examen):
+            if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
+                pool_2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
+                st.session_state.lista_examen = random.sample(pool_2, min(5, len(pool_2)))
+                st.session_state.update({'mision': 2, 'n_pregunta': 0, 'aciertos': 0})
+            else:
+                st.session_state.paso = 'feedback'
+        
+        st.rerun()
+        
 # --- Control de Tiempo (Auto-refresh) ---
     if porcentaje > 0:
         time.sleep(1)
