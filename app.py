@@ -78,8 +78,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
         # --- 3. BANCO DE PREGUNTAS ACTUALIZADO Y HUMANIZADO ---
-if 'banco_completo' not in st.session_state:
-    st.session_state.banco_completo = [
+if 'banco_completo' not in st.session_state:st.session_state.banco_completo = [
         # --- TEMA A: RETOS DE NAVEGACIÓN Y VIDA REAL ---
         {"id": "A1", "mision": 1, "pregunta": "Un dron vuela en línea recta pasando por los puntos A=(-4,8) y B=(4,2). ¿Cuál es su pendiente (m) y su punto de corte (b)?", "opciones": ["m = 5, b = -3/4", "m = 3/4, b = -5", "m = -3/4, b = -5", "m = -3/4, b = 5"], "correcta_texto": "m = -3/4, b = 5", "t_max": 75},
         {"id": "A2", "mision": 1, "pregunta": "Halla la ecuación de la recta que conecta las coordenadas A(1, 3) y B(2, 10) en el mapa del tesoro:", "opciones": ["y = 3/7x + 4", "y = 2/7x - 4", "y = -2/7x - 4", "y = 7x - 4"], "correcta_texto": "y = 7x - 4", "t_max": 75},
@@ -110,7 +109,6 @@ if 'banco_completo' not in st.session_state:
         {"id": "D6", "mision": 1, "pregunta": "Un soporte arquitectónico tiene pendiente m = 4/5 y pasa por P(5, 7). ¿En qué punto cortará al eje Y?", "opciones": ["y = 4/5x + 3 (Corta en 3)", "y = -4/5x + 3", "y = 4/5x - 3", "y = 5/4x + 3"], "correcta_texto": "y = 4/5x + 3 (Corta en 3)", "t_max": 75},
         {"id": "D7", "mision": 2, "pregunta": "Un depósito de 80 galones pierde 3 galones cada 2 horas por una fuga. ¿Qué función describe la pérdida?", "opciones": ["y = 3/2x + 80", "y = -2/3x + 80", "y = -3/2x + 80", "y = -3/2x - 80"], "correcta_texto": "-3/2x + 80", "t_max": 90},
         {"id": "D10", "mision": 2, "pregunta": "Daniel tiene $500 y gasta $30 c/2 semanas. Sofía tiene $800 y gasta $80 c/2 semanas. ¿En qué semana tendrán lo mismo?", "opciones": ["6", "10", "12", "14"], "correcta_texto": "12", "t_max": 120}
-    ]
     ]
 
 #--- 4. INICIALIZACIÓN DE ESTADO (EL CEREBRO DEL JUEGO) ---
