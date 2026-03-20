@@ -28,18 +28,42 @@ def enviar_a_google(nombre, curso, nota, segundos, trampas):
 
 st.title("🔢 Reto Matemático Blindado")
 
-# --- LÓGICA DE DETECCIÓN (JavaScript invisible) ---
-# Este código le avisa a Streamlit cada vez que el usuario cambia de pestaña
-st.components.v1.html(f"""
+
+
+# --- LÓGICA DE DETECCIÓN (Copia esto sobre tu bloque de JS actual) ---
+# Usamos un componente que "escucha" el valor de JavaScript
+from streamlit_gsheets import GSheetsConnection # No la necesitas, ignora esto
+
+# Código JavaScript para detectar desenfoque (blur)
+# El secreto es usar st.components.v1.html con un pequeño truco de 'st_bridge'
+if 'trampas' not in st.session_state:
+    st.session_state.trampas = 0
+
+# Este bloque captura el evento de salir de la pestaña
+components_value = st.components.v1.html(
+    """
     <script>
     var count = 0;
-    window.onblur = function() {{
+    // Función que se ejecuta al salir de la pestaña
+    window.onblur = function() {
         count++;
-        // Enviamos una señal a la URL para que Streamlit se entere
-        window.parent.postMessage({{type: 'streamlit:setComponentValue', value: count}}, '*');
-    }};
+        // Enviamos el dato a la aplicación de Streamlit
+        window.parent.postMessage({
+            type: 'streamlit:setComponentValue',
+            value: count
+        }, '*');
+    };
     </script>
-""", height=0)
+    """,
+    height=0,
+)
+
+# --- ACTUALIZAR EL CONTADOR ---
+# Si el componente detecta un cambio, lo sumamos al estado de la sesión
+if components_value is not None:
+    st.session_state.trampas = components_value
+
+
 
 # --- PANTALLA DE INICIO ---
 if 'estudiante' not in st.session_state:
