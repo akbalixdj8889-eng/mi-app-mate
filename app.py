@@ -12,41 +12,49 @@ ENTRY_TIEMPO = "entry.1300499693"
 
 st.set_page_config(page_title="Reto Matemático", page_icon="🔢")
 
-# --- INICIALIZACIÓN ---
+# --- ESTADOS DE SESIÓN ---
 if 'trampas' not in st.session_state:
     st.session_state.trampas = 0
 if 'evaluando' not in st.session_state:
     st.session_state.evaluando = False
 
-# --- DETECTOR DE TRAMPAS (JS) ---
-js_val = st.components.v1.html(
-    """
-    <script>
-    var count = 0;
-    window.onblur = function() {
-        count++;
-        window.parent.postMessage({
-            type: 'streamlit:setComponentValue',
-            value: count
-        }, '*');
-    };
-    </script>
+# --- DETECTOR DE TRAMPAS (JS MEJORADO) ---
+# Usamos un ID único para que Streamlit no ignore el componente
+js_detector = st.components.v1.html(
+    f"""
+    <html>
+        <body>
+            <script>
+            var count = {st.session_state.trampas};
+            window.parent.document.onvisibilitychange = function() {{
+                if (window.parent.document.visibilityState === 'hidden') {{
+                    count++;
+                    window.parent.postMessage({{
+                        type: 'streamlit:setComponentValue',
+                        value: count
+                    }}, '*');
+                }}
+            }};
+            </script>
+        </body>
+    </html>
     """,
     height=0,
 )
 
-# PROCESO SEGURO DEL VALOR
-if js_val is not None:
+# Captura del valor con validación extra
+if js_detector is not None:
     try:
-        # Solo actualizamos si el nuevo valor es un número válido
-        nuevo_conteo = int(js_val)
-        st.session_state.trampas = nuevo_conteo
-    except (ValueError, TypeError):
+        val = int(js_detector)
+        if val > st.session_state.trampas:
+            st.session_state.trampas = val
+            st.rerun() # Forzamos recarga para mostrar el aviso
+    except:
         pass
 
 def enviar_a_google(nombre, curso, nota, segundos, trampas):
     nota_final = f"{nota} (Salió {trampas} veces)"
-    data = {ENTRY_NOMBRE: nombre, ENTRY_CURSO: curso, ENTRY_NOTA: nota_final, ENTRY_TIEMPO: f"{segundos}s"}
+    data = {{ENTRY_NOMBRE: nombre, ENTRY_CURSO: curso, ENTRY_NOTA: nota_final, ENTRY_TIEMPO: f"{{segundos}}s"}}
     try:
         requests.post(URL_FORM, data=data, timeout=5)
     except:
@@ -58,7 +66,7 @@ st.title("🔢 Reto Matemático Blindado")
 if not st.session_state.evaluando:
     nombre = st.text_input("Nombre completo:")
     curso = st.selectbox("Curso:", ["601", "602", "701", "702"])
-    if st.button("Empezar"):
+    if st.button("Empezar Reto"):
         if nombre:
             st.session_state.estudiante = nombre
             st.session_state.curso = curso
@@ -66,9 +74,9 @@ if not st.session_state.evaluando:
             st.session_state.evaluando = True
             st.rerun()
 else:
-    # Mostramos advertencia solo si hay trampas
+    # Notificación de falta
     if st.session_state.trampas > 0:
-        st.error(f"⚠️ Salidas de pestaña detectadas: {st.session_state.trampas}")
+        st.error(f"⚠️ ¡ALERTA! Has salido de la prueba {st.session_state.trampas} veces.")
 
     if 'a' not in st.session_state:
         st.session_state.a = random.randint(2, 12)
@@ -77,15 +85,16 @@ else:
         st.session_state.c = st.session_state.a * st.session_state.x_true + st.session_state.b
 
     st.subheader(f"Resuelve: {st.session_state.a}x + {st.session_state.b} = {st.session_state.c}")
-    resp = st.number_input("x =", step=1, value=0)
+    resp = st.number_input("Valor de x:", step=1, value=0)
 
-    if st.button("Enviar Final"):
+    if st.button("Enviar Finalizar"):
         tiempo = int(time.time() - st.session_state.inicio_total)
-        res = "Correcto" if resp == st.session_state.x_true else "Incorrecto"
+        res = "Correcto" if resp == st.session_state.x_true else f"Incorrecto (puso {resp})"
         
         enviar_a_google(st.session_state.estudiante, st.session_state.curso, res, tiempo, st.session_state.trampas)
-        st.success(f"¡Enviado! Trampas registradas: {st.session_state.trampas}")
+        st.success(f"Registrado. Salidas detectadas: {st.session_state.trampas}")
         
-        if st.button("Hacer otro"):
-            st.session_state.clear()
+        if st.button("Nuevo Ejercicio"):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
             st.rerun()
