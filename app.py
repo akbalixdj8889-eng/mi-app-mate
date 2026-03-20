@@ -13,74 +13,63 @@ ENTRY_CURSO  = "entry.2027082892"
 ENTRY_NOTA   = "entry.1011634935"
 ENTRY_TIEMPO = "entry.1300499693"
 
-st.set_page_config(page_title="Examen Noveno - Shuffled", page_icon="🎲")
+st.set_page_config(page_title="Misiones Noveno - Full Bank", page_icon="🚀")
 
-# --- BANCO DE PREGUNTAS COMPLETO ---
+# --- BANCO DE PREGUNTAS COMPLETO (Temas A, B, C, D) ---
 BANCO_PREGUNTAS = [
-    # MISIÓN 1: CONCEPTOS Y ECUACIONES (6 preguntas)
-    {
-        "id": 1, "mision": 1, 
-        "pregunta": "Para la función que pasa por A=(-6, 1) y B=(6, 6), ¿cuál es la pendiente m y el corte con el eje Y (b)?", 
-        "opciones": ["m = 5/12, b = 3.5", "m = -5/12, b = 3.5", "m = 12/5, b = -3", "m = 5/12, b = -3.5"], 
-        "correcta_texto": "m = 5/12, b = 3.5", "tiempo": 240
-    },
-    {
-        "id": 2, "mision": 1, 
-        "pregunta": "Ecuación de la recta que pasa por los puntos A(-4, 8) y B(2, -1):", 
-        "opciones": ["y = -3/2x + 2", "y = 3/2x + 2", "y = -2/3x + 2", "y = 3/2x - 2"], 
-        "correcta_texto": "y = -3/2x + 2", "tiempo": 240
-    },
-    {
-        "id": 3, "mision": 1, 
-        "pregunta": "La recta que pasa por el punto P(3, -4) con una pendiente m = -1/3 tiene como fórmula:", 
-        "opciones": ["y = -1/3x - 3", "y = -1/3x + 3", "y = 1/3x - 3", "y = -3x - 3"], 
-        "correcta_texto": "y = -1/3x - 3", "tiempo": 180
-    },
-    {
-        "id": 4, "mision": 1, 
-        "pregunta": "¿Cuál de las siguientes rectas es PARALELA a y = -5/6x - 1?", 
-        "opciones": ["y = -5/6x + 9", "y = 6/5x + 4", "y = 5/6x - 1", "y = -6/5x + 2"], 
-        "correcta_texto": "y = -5/6x + 9", "tiempo": 120
-    },
-    {
-        "id": 5, "mision": 1, 
-        "pregunta": "La recta y = -1/4x + 5 es PERPENDICULAR a la recta:", 
-        "opciones": ["y = 4x - 8", "y = -4x + 2", "y = 1/4x - 5", "y = -4/1x + 3"], 
-        "correcta_texto": "y = 4x - 8", "tiempo": 120
-    },
-    {
-        "id": 6, "mision": 1, 
-        "pregunta": "La recta con pendiente m = 4/5 y que pasa por el punto P(5, 7) cumple que:", 
-        "opciones": ["y = 4/5x + 3 y pasa por (0, 3)", "y = -4/5x + 3 y pasa por (5, -1)", "y = 4/5x - 3 y pasa por (10, 5)", "y = 5/4x + 3 y pasa por (4, 8)"], 
-        "correcta_texto": "y = 4/5x + 3 y pasa por (0, 3)", "tiempo": 200
-    },
+    # --- TEMA A ---
+    {"id": "A1", "mision": 1, "pregunta": "Para la función que pasa por los puntos A=(-4,8) y B=(4,2), ¿Cuál es la pendiente y el corte en el eje Y?", "opciones": ["m = 5, b = -3/4", "m = 3/4, b = -5", "m = -3/4, b = -5", "m = -3/4, b = 5"], "correcta_texto": "m = -3/4, b = 5", "tiempo": 240},
+    {"id": "A2", "mision": 1, "pregunta": "Al dibujar la ecuación se determina que la ecuación de la recta que pasa por los puntos A(1, 3) y B(2, 10) es:", "opciones": ["y = 3/7x + 4", "y = 2/7x - 4", "y = -2/7x - 4", "y = -2/7x + 4"], "correcta_texto": "y = 2/7x - 4", "tiempo": 240},
+    {"id": "A3", "mision": 1, "pregunta": "La recta que pasa por el punto P(-6, 2) con pendiente m = -2/3 tiene como fórmula:", "opciones": ["y = -2/3x - 2", "y = -2/3x - 3", "y = -3/2x - 3", "y = -3/2x - 2"], "correcta_texto": "y = -2/3x - 2", "tiempo": 180},
+    {"id": "A4", "mision": 1, "pregunta": "¿Cuál de las siguientes rectas es paralela a y = -4/5x - 3?", "opciones": ["y = -4/5x + 3", "y = 5/4x + 2", "y = 4/5x + 10", "y = -5/4x - 7"], "correcta_texto": "y = -4/5x + 3", "tiempo": 120},
+    {"id": "A5", "mision": 1, "pregunta": "La recta y = 2/3x + 1 es perpendicular a la recta:", "opciones": ["y = 2/3x - 5", "y = 3/2x + 2", "y = -2/3x + 4", "y = -3/2x + 5"], "correcta_texto": "y = -3/2x + 5", "tiempo": 120},
+    {"id": "A6", "mision": 1, "pregunta": "La recta con pendiente m = -5/4 y que pasa por el punto p:(4,2) cumple que tiene como ecuación:", "opciones": ["y = -4/5x + 5 pasa por (9,-2)", "y = -5/4x + 7 pasa por (8,-3)", "y = -5/4x + 7 pasa por (8,2)", "y = -4/5x + 5 pasa por (0,5)"], "correcta_texto": "y = -5/4x + 7 pasa por (8,-3)", "tiempo": 200},
+    {"id": "A7", "mision": 2, "pregunta": "El horno inicia en 15°C y sube 10°C cada 3 minutos. La función es:", "opciones": ["y = 15x + 3/10", "y = 3/10x + 15", "y = 15x + 10/3", "y = 10/3x + 15"], "correcta_texto": "y = 10/3x + 15", "tiempo": 300},
+    {"id": "A8", "mision": 2, "pregunta": "Un taxi cobra una tarifa fija de $7 más $2 por cada 3 km recorridos. ¿Cuánto costará un viaje de 15 km?", "opciones": ["$10", "$23", "$17", "$15"], "correcta_texto": "$17", "tiempo": 300},
+    {"id": "A9", "mision": 2, "pregunta": "Tanque A: 2 min=10L, 8 min=40L. Tanque B: 1 min=50L, 11 min=10L. ¿A los cuántos minutos tienen la misma cantidad?", "opciones": ["4", "6", "8", "10"], "correcta_texto": "6", "tiempo": 360},
+    {"id": "A10", "mision": 2, "pregunta": "Andrés tiene $150 y ahorra $50/sem. Beatriz tiene $950 y gasta $150/sem. ¿En qué semana igualan capital?", "opciones": ["2", "3", "4", "5"], "correcta_texto": "4", "tiempo": 360},
 
-    # MISIÓN 2: APLICACIONES (4 preguntas)
-    {
-        "id": 7, "mision": 2, 
-        "pregunta": "Un depósito inicia con 80 galones y pierde 3 galones cada 2 horas. ¿Cuál es la función?", 
-        "opciones": ["y = -3/2x + 80", "y = 3/2x + 80", "y = -2/3x + 80", "y = -3/2x - 80"], 
-        "correcta_texto": "y = -3/2x + 80", "tiempo": 300
-    },
-    {
-        "id": 8, "mision": 2, 
-        "pregunta": "Carpintero cobra $20 base más $15 por cada 4h. Si x son horas y y el costo, ¿cuánto cuesta un trabajo de 12h?", 
-        "opciones": ["$65", "$45", "$35", "$70"], 
-        "correcta_texto": "$65", "tiempo": 300
-    },
-    {
-        "id": 9, "mision": 2, 
-        "pregunta": "Globo A (10m, sube 5m cada 4s). Globo B (40m, baja 7/4 m/s). ¿En qué segundo estarán a la misma altura?", 
-        "opciones": ["10 segundos", "8 segundos", "12 segundos", "15 segundos"], 
-        "correcta_texto": "10 segundos", "tiempo": 360
-    },
-    {
-        "id": 10, "mision": 2, 
-        "pregunta": "Daniel debe $500 y abona $30 cada 2 sem. Sofía debe $800 y abona $80 cada  2 sem. ¿En qué semana sus deudas son iguales?", 
-        "opciones": ["Semana 12", "Semana 6", "Semana 10", "Semana 14"], 
-        "correcta_texto": "Semana 12", "tiempo": 360
-    }
+    # --- TEMA B ---
+    {"id": "B1", "mision": 1, "pregunta": "Para la función que pasa por A=(-3, 5) y B=(3, 1), ¿cuál es la pendiente m y el corte b?", "opciones": ["m = 2/3, b = 3", "m = -2/3, b = 3", "m = -3/2, b = -3", "m = 3/2, b = 3"], "correcta_texto": "m = -2/3, b = 3", "tiempo": 240},
+    {"id": "B2", "mision": 1, "pregunta": "Ecuación de la recta que pasa por A(-2, -5) y B(5, -7):", "opciones": ["y = -2/7x - 39/7", "y = 2/7x + 39/7", "y = -7/2x - 4", "y = 7/2x + 4"], "correcta_texto": "y = -2/7x - 39/7", "tiempo": 240},
+    {"id": "B3", "mision": 1, "pregunta": "Recta por P(5, -2) con m = -4/5:", "opciones": ["y = -4/5x + 2", "y = -4/5x - 6", "y = 4/5x + 2", "y = -5/4x + 2"], "correcta_texto": "y = -4/5x + 2", "tiempo": 180},
+    {"id": "B4", "mision": 1, "pregunta": "¿Cuál es paralela a y = 3/7x + 5?", "opciones": ["y = -3/7x + 5", "y = 7/3x - 1", "y = 3/7x - 8", "y = -7/3x + 2"], "correcta_texto": "y = 3/7x - 8", "tiempo": 120},
+    {"id": "B5", "mision": 1, "pregunta": "Recta perpendicular a y = -5/2x - 4:", "opciones": ["y = 5/2x + 1", "y = 2/5x + 10", "y = -2/5x - 4", "y = -5/2x + 3"], "correcta_texto": "y = 2/5x + 10", "tiempo": 120},
+    {"id": "B6", "mision": 1, "pregunta": "Pendiente m = 1/3 y pasa por P(6, 4):", "opciones": ["y = 1/3x + 2 y pasa por (0, 2)", "y = 3x - 2 y pasa por (1, 1)", "y = 1/3x + 4 y pasa por (3, 5)", "y = -1/3x + 2 y pasa por (6, 0)"], "correcta_texto": "y = 1/3x + 2 y pasa por (0, 2)", "tiempo": 200},
+    {"id": "B7", "mision": 2, "pregunta": "Enfriador inicia a 20°C y baja 4°C cada 3 min. La función es:", "opciones": ["y = 3/4x + 20", "y = -4/3x + 20", "y = 4/3x - 20", "y = -3/4x + 20"], "correcta_texto": "y = -4/3x + 20", "tiempo": 300},
+    {"id": "B8", "mision": 2, "pregunta": "Mensajería: $10 base + $3 por cada 4 km. ¿Costo por 20 km?", "opciones": ["$15", "$20", "$25", "$30"], "correcta_texto": "$25", "tiempo": 300},
+    {"id": "B9", "mision": 2, "pregunta": "Contenedor A: 15L (+3/2 L/min). Contenedor B: 45L (-5/2 L/min). ¿Cuándo se igualan?", "opciones": ["6 minutos", "7.5 minutos", "10 minutos", "15 minutos"], "correcta_texto": "7.5 minutos", "tiempo": 360},
+    {"id": "B10", "mision": 2, "pregunta": "Camilo: $400 (gasta $25/2 sem). Sara: $100 (ahorra $75/2 sem). ¿En qué semana igualan?", "opciones": ["Semana 4", "Semana 6", "Semana 8", "Semana 10"], "correcta_texto": "Semana 6", "tiempo": 360},
+
+    # --- TEMA C ---
+    {"id": "C1", "mision": 1, "pregunta": "Pasa por A=(-5, 7) y B=(5, 3), ¿Pendiente m y corte b?", "opciones": ["m = 2/5, b = 5", "m = -5/2, b = 5", "m = -2/5, b = 5", "m = 5/2, b = -5"], "correcta_texto": "m = -2/5, b = 5", "tiempo": 240},
+    {"id": "C2", "mision": 1, "pregunta": "Ecuación de la recta por A(-3, 1) y B(6, 7):", "opciones": ["y = 2/3x + 3", "y = -2/3x + 3", "y = 3/2x - 1", "y = 2/3x - 3"], "correcta_texto": "y = 2/3x + 3", "tiempo": 240},
+    {"id": "C3", "mision": 1, "pregunta": "Recta por P(-4, 2) con m = 3/4:", "opciones": ["y = 3/4x - 5", "y = 3/4x + 5", "y = -3/4x + 5", "y = 4/3x + 5"], "correcta_texto": "y = 3/4x + 5", "tiempo": 180},
+    {"id": "C4", "mision": 1, "pregunta": "¿Cuál es paralela a y = -2/9x + 10?", "opciones": ["y = 9/2x + 10", "y = -2/9x - 4", "y = 2/9x + 4", "y = -9/2x + 1"], "correcta_texto": "y = -2/9x - 4", "tiempo": 120},
+    {"id": "C5", "mision": 1, "pregunta": "Recta perpendicular a y = 7/3x - 2:", "opciones": ["y = -3/7x + 6", "y = 3/7x + 6", "y = -7/3x - 2", "y = 7/3x + 4"], "correcta_texto": "y = -3/7x + 6", "tiempo": 120},
+    {"id": "C6", "mision": 1, "pregunta": "Pendiente m = -3/2 y pasa por P(4, -1):", "opciones": ["y = -3/2x + 5 y pasa por (0, 5)", "y = 3/2x - 7 y pasa por (2, -4)", "y = -3/2x + 5 y pasa por (2, 1)", "y = 2/3x + 1 y pasa por (3, 3)"], "correcta_texto": "y = -3/2x + 5 y pasa por (0, 5)", "tiempo": 200},
+    {"id": "C7", "mision": 2, "pregunta": "Vehículo con 40L consume 5L cada 4 km. La función es:", "opciones": ["y = 4/5x + 40", "y = -5/4x + 40", "y = 5/4x - 40", "y = -4/5x + 40"], "correcta_texto": "y = -5/4x + 40", "tiempo": 300},
+    {"id": "C8", "mision": 2, "pregunta": "Reparación: $15 visita + $5 cada 2 horas. ¿Costo por 7 horas?", "opciones": ["$30.0", "$32.5", "$35.0", "$17.5"], "correcta_texto": "$32.5", "tiempo": 300},
+    {"id": "C9", "mision": 2, "pregunta": "Tanque A: 100L (-10/3 L/min). Tanque B: 20L (+10/3 L/min). ¿Cuándo se igualan?", "opciones": ["10 minutos", "12 minutos", "15 minutos", "18 minutos"], "correcta_texto": "12 minutos", "tiempo": 360},
+    {"id": "C10", "mision": 2, "pregunta": "Marta: debe $600 (paga $40/3 sem). Luis: debe $1000 (paga $120/3 sem). ¿Semana de igualdad?", "opciones": ["Semana 12", "Semana 15", "Semana 18", "Semana 20"], "correcta_texto": "Semana 15", "tiempo": 360},
+
+    # --- TEMA D ---
+    {"id": "D1", "mision": 1, "pregunta": "Pasa por A=(-6, 1) y B=(6, 6), ¿Pendiente m y corte b?", "opciones": ["m = 5/12, b = 3.5", "m = -5/12, b = 3.5", "m = 12/5, b = -3", "m = 5/12, b = -3.5"], "correcta_texto": "m = 5/12, b = 3.5", "tiempo": 240},
+    {"id": "D2", "mision": 1, "pregunta": "Ecuación de la recta por A(-4, 8) y B(2, -1):", "opciones": ["y = 3/2x + 2", "y = -3/2x + 2", "y = -2/3x + 2", "y = 3/2x - 2"], "correcta_texto": "y = -3/2x + 2", "tiempo": 240},
+    {"id": "D3", "mision": 1, "pregunta": "Recta por P(3, -4) con m = -1/3:", "opciones": ["y = -1/3x - 3", "y = -1/3x + 3", "y = 1/3x - 3", "y = -3x - 3"], "correcta_texto": "y = -1/3x - 3", "tiempo": 180},
+    {"id": "D4", "mision": 1, "pregunta": "¿Cuál es paralela a y = -5/6x - 1?", "opciones": ["y = 6/5x + 4", "y = 5/6x - 1", "y = -5/6x + 9", "y = -6/5x + 2"], "correcta_texto": "y = -5/6x + 9", "tiempo": 120},
+    {"id": "D5", "mision": 1, "pregunta": "Recta perpendicular a y = -1/4x + 5:", "opciones": ["y = -4x + 2", "y = 1/4x - 5", "y = 4x - 8", "y = -4/1x + 3"], "correcta_texto": "y = 4x - 8", "tiempo": 120},
+    {"id": "D6", "mision": 1, "pregunta": "Pendiente m = 4/5 y pasa por P(5, 7):", "opciones": ["y = 4/5x + 3 y pasa por (0, 3)", "y = -4/5x + 3 y pasa por (5, -1)", "y = 4/5x - 3 y pasa por (10, 5)", "y = 5/4x + 3 y pasa por (4, 8)"], "correcta_texto": "y = 4/5x + 3 y pasa por (0, 3)", "tiempo": 200},
+    {"id": "D7", "mision": 2, "pregunta": "Depósito inicia con 80 gal y pierde 3 gal cada 2 horas. La función es:", "opciones": ["y = 3/2x + 80", "y = -2/3x + 80", "y = -3/2x + 80", "y = -3/2x - 80"], "correcta_texto": "y = -3/2x + 80", "tiempo": 300},
+    {"id": "D8", "mision": 2, "pregunta": "Carpintero: $20 base + $15 cada 4 horas. ¿Costo por 12 horas?", "opciones": ["$45", "$65", "$35", "$70"], "correcta_texto": "$65", "tiempo": 300},
+    {"id": "D9", "mision": 2, "pregunta": "Globo A: 10m (+5/4 m/s). Globo B: 40m (-7/4 m/s). ¿En qué segundo se igualan?", "opciones": ["8 segundos", "10 segundos", "12 segundos", "15 segundos"], "correcta_texto": "10 segundos", "tiempo": 360},
+    {"id": "D10", "mision": 2, "pregunta": "Daniel: debe $500 (paga $30/2 sem). Sofía: debe $800 (paga $80/2 sem). ¿Semana de igualdad?", "opciones": ["Semana 6", "Semana 10", "Semana 12", "Semana 14"], "correcta_texto": "Semana 12", "tiempo": 360}
 ]
+
+# --- LÓGICA DE STREAMLIT ---
+# (Aquí sigue el resto del código del flujo de misiones, registro y mezcla de opciones 
+# que ya construimos en el paso anterior, solo que ahora usará este BANCO_PREGUNTAS)
+
 
 # --- FUNCIÓN GENERADORA DE IMAGEN ---
 def crear_imagen(texto, opciones_letras):
