@@ -293,28 +293,70 @@ elif st.session_state.paso == 'examen':
     # Selección de respuesta
     ans = st.radio("TU ELECCIÓN:", ["A", "B", "C", "D"], key=f"r_{idx}", index=None, horizontal=True)
     
-    if st.button("ENVIAR RESPUESTA ➡️"):
+  if st.button("ENVIAR RESPUESTA ➡️"):
         if ans:
+            # Verificación de acierto
             if ans == st.session_state[f"q_cor_{idx}"]:
                 st.session_state.aciertos += 1
                 st.toast("¡Punto para ti!", icon="🔥")
             else:
                 st.toast("Incorrecto...", icon="❌")
             
+            # Avance de pregunta
             st.session_state.n_pregunta += 1
-            st.session_state.usar_5050 = False # Reset para la siguiente pregunta
+            st.session_state.usar_5050 = False
             st.session_state.t_inicio_pregunta = time.time()
+
+            # --- LÓGICA DE CAMBIO DE MISIÓN ---
+            if st.session_state.n_pregunta >= len(st.session_state.lista_examen):
+                # Si estamos en Misión 1 y sacó 3 o más
+                if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
+                    st.success("¡MISIÓN 1 COMPLETADA! Preparando Misión 2...")
+                    time.sleep(2)
+                    
+                    # Configuramos la Misión 2
+                    pool_2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
+                    st.session_state.lista_examen = random.sample(pool_2, min(5, len(pool_2)))
+                    
+                    # Reiniciamos contadores para el nuevo nivel
+                    st.session_state.update({
+                        'mision': 2,
+                        'n_pregunta': 0,
+                        'aciertos': 0, # Opcional: puedes dejar que los aciertos sean acumulativos
+                        't_inicio_pregunta': time.time()
+                    })
+                else:
+                    # Si no alcanzó los 3 o ya terminó la Misión 2
+                    st.session_state.paso = 'feedback'
+
             st.rerun()
 
-    # Control de Tiempo (Auto-refresh)
+
+
+# --- Control de Tiempo (Auto-refresh) ---
     if porcentaje > 0:
         time.sleep(1)
         st.rerun()
     else:
+        # Se acabó el tiempo
         st.error("¡TIEMPO AGOTADO!")
         time.sleep(1)
+        
+        # Avanzamos a la siguiente pregunta (sin sumar acierto)
         st.session_state.n_pregunta += 1
+        st.session_state.usar_5050 = False # Resetear power-up si estaba activo
         st.session_state.t_inicio_pregunta = time.time()
+        
+        # VERIFICACIÓN IGUAL A LA DEL BOTÓN: ¿Terminó el examen por tiempo?
+        if st.session_state.n_pregunta >= len(st.session_state.lista_examen):
+            if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
+                # Si a pesar de que se le acabó el tiempo en la última, ya tenía 3 aciertos...
+                pool_2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
+                st.session_state.lista_examen = random.sample(pool_2, min(5, len(pool_2)))
+                st.session_state.update({'mision': 2, 'n_pregunta': 0, 'aciertos': 0})
+            else:
+                st.session_state.paso = 'feedback'
+        
         st.rerun()
 
 
