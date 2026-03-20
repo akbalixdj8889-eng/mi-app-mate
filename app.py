@@ -148,7 +148,8 @@ if 'paso' not in st.session_state:
 
 
 def enviar_a_google(nombre, curso, mision, aciertos, powerup):
-    url_script = "https://script.google.com/macros/s/AKfycbyX5JRshORtaiXVXTXF73nblLEj3M4oX79hF_heKDbEHnuPwfH0PqJBTDXM8_gqYHx4cQ/exec"
+    url_script = 
+    "https://script.google.com/macros/s/AKfycbyX5JRshORtaiXVXTXF73nblLEj3M4oX79hF_heKDbEHnuPwfH0PqJBTDXM8_gqYHx4cQ/exec"
     datos = {
         "nombre": nombre,
         "curso": curso,
