@@ -18,8 +18,7 @@ if 'trampas' not in st.session_state:
 if 'evaluando' not in st.session_state:
     st.session_state.evaluando = False
 
-# --- DETECTOR DE TRAMPAS ---
-# El secreto aquí es que 'js_val' debe ser procesado CADA VEZ que el script corre
+# --- DETECTOR DE TRAMPAS (JS) ---
 js_val = st.components.v1.html(
     """
     <script>
@@ -36,17 +35,20 @@ js_val = st.components.v1.html(
     height=0,
 )
 
-# Si el navegador envía un número nuevo, lo sumamos al acumulador
+# PROCESO SEGURO DEL VALOR
 if js_val is not None:
-    # Solo actualizamos si el valor que viene de JS es mayor al que tenemos
-    if int(js_val) > st.session_state.trampas:
-        st.session_state.trampas = int(js_val)
+    try:
+        # Solo actualizamos si el nuevo valor es un número válido
+        nuevo_conteo = int(js_val)
+        st.session_state.trampas = nuevo_conteo
+    except (ValueError, TypeError):
+        pass
 
 def enviar_a_google(nombre, curso, nota, segundos, trampas):
     nota_final = f"{nota} (Salió {trampas} veces)"
     data = {ENTRY_NOMBRE: nombre, ENTRY_CURSO: curso, ENTRY_NOTA: nota_final, ENTRY_TIEMPO: f"{segundos}s"}
     try:
-        requests.post(URL_FORM, data=data)
+        requests.post(URL_FORM, data=data, timeout=5)
     except:
         pass
 
@@ -64,10 +66,9 @@ if not st.session_state.evaluando:
             st.session_state.evaluando = True
             st.rerun()
 else:
-    # Mostramos las trampas acumuladas
-    t = st.session_state.trampas
-    if t > 0:
-        st.error(f"⚠️ Has salido de la app {t} veces. ¡Concéntrate!")
+    # Mostramos advertencia solo si hay trampas
+    if st.session_state.trampas > 0:
+        st.error(f"⚠️ Salidas de pestaña detectadas: {st.session_state.trampas}")
 
     if 'a' not in st.session_state:
         st.session_state.a = random.randint(2, 12)
@@ -78,13 +79,13 @@ else:
     st.subheader(f"Resuelve: {st.session_state.a}x + {st.session_state.b} = {st.session_state.c}")
     resp = st.number_input("x =", step=1, value=0)
 
-    if st.button("Finalizar"):
+    if st.button("Enviar Final"):
         tiempo = int(time.time() - st.session_state.inicio_total)
         res = "Correcto" if resp == st.session_state.x_true else "Incorrecto"
         
         enviar_a_google(st.session_state.estudiante, st.session_state.curso, res, tiempo, st.session_state.trampas)
-        st.success(f"¡Resultado enviado! (Trampas detectadas: {st.session_state.trampas})")
+        st.success(f"¡Enviado! Trampas registradas: {st.session_state.trampas}")
         
-        if st.button("Reiniciar"):
+        if st.button("Hacer otro"):
             st.session_state.clear()
             st.rerun()
