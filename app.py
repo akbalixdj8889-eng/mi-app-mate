@@ -76,57 +76,41 @@ st.markdown("""
     }
     </style>
     """, unsafe_allow_html=True)
-# 3. BANCO DE PREGUNTAS (DATOS MAESTROS) ---
-# Inicializamos el banco de preguntas en el estado de la sesión si no existe
+
+        # --- 3. BANCO DE PREGUNTAS ACTUALIZADO Y HUMANIZADO ---
 if 'banco_completo' not in st.session_state:
     st.session_state.banco_completo = [
-        # --- TEMA A ---
-        {"id": "A1", "mision": 1, "pregunta": "Pasa por A=(-4,8) y B=(4,2). ¿m y b?", "opciones": ["m = 5, b = -3/4", "m = 3/4, b = -5", "m = -3/4, b = -5", "m = -3/4, b = 5"], "correcta_texto": "m = -3/4, b = 5", "t_max": 60},
-        {"id": "A2", "mision": 1, "pregunta": "Ecuación por A(1, 3) y B(2, 10):", "opciones": ["y = 3/7x + 4", "y = 2/7x - 4", "y = -2/7x - 4", "y = -2/7x + 4"], "correcta_texto": "y = 2/7x - 4", "t_max": 60},
-        {"id": "A3", "mision": 1, "pregunta": "P(-6, 2) con m = -2/3. ¿Fórmula?", "opciones": ["y = -2/3x - 2", "y = -2/3x - 3", "y = -3/2x - 3", "y = -3/2x - 2"], "correcta_texto": "y = -2/3x - 2", "t_max": 60},
-        {"id": "A4", "mision": 1, "pregunta": "¿Paralela a y = -4/5x - 3?", "opciones": ["y = -4/5x + 3", "y = 5/4x + 2", "y = 4/5x + 10", "y = -5/4x - 7"], "correcta_texto": "y = -4/5x + 3", "t_max": 45},
-        {"id": "A5", "mision": 1, "pregunta": "Perpendicular a y = 2/3x + 1:", "opciones": ["y = 2/3x - 5", "y = 3/2x + 2", "y = -2/3x + 4", "y = -3/2x + 5"], "correcta_texto": "y = -3/2x + 5", "t_max": 45},
-        {"id": "A6", "mision": 1, "pregunta": "m = -5/4 por p:(4,2):", "opciones": ["y = -4/5x + 5 (9,-2)", "y = -5/4x + 7 (8,-3)", "y = -5/4x + 7 (8,2)", "y = -4/5x + 5 (0,5)"], "correcta_texto": "y = -5/4x + 7 (8,-3)", "t_max": 60},
-        {"id": "A7", "mision": 2, "pregunta": "Horno inicia 15°C y sube 10°C c/3 min. ¿Función?", "opciones": ["y = 15x + 3/10", "y = 3/10x + 15", "y = 15x + 10/3", "y = 10/3x + 15"], "correcta_texto": "y = 10/3x + 15", "t_max": 90},
-        {"id": "A8", "mision": 2, "pregunta": "Taxi: $7 base + $2 c/3 km. ¿Costo por 15 km?", "opciones": ["$10", "$23", "$17", "$15"], "correcta_texto": "$17", "t_max": 90},
-        {"id": "A9", "mision": 2, "pregunta": "Tanque A (2m=10L, 8m=40L). Tanque B (1m=50L, 11m=10L). ¿Cruce?", "opciones": ["4", "6", "8", "10"], "correcta_texto": "6", "t_max": 120},
-        {"id": "A10", "mision": 2, "pregunta": "Andrés $150 (+$50/s). Beatriz $950 (-$150/s). ¿Semana igual?", "opciones": ["2", "3", "4", "5"], "correcta_texto": "4", "t_max": 120},
+        # --- TEMA A: RETOS DE NAVEGACIÓN Y VIDA REAL ---
+        {"id": "A1", "mision": 1, "pregunta": "Un dron vuela en línea recta pasando por los puntos A=(-4,8) y B=(4,2). ¿Cuál es su pendiente (m) y su punto de corte (b)?", "opciones": ["m = 5, b = -3/4", "m = 3/4, b = -5", "m = -3/4, b = -5", "m = -3/4, b = 5"], "correcta_texto": "m = -3/4, b = 5", "t_max": 75},
+        {"id": "A2", "mision": 1, "pregunta": "Halla la ecuación de la recta que conecta las coordenadas A(1, 3) y B(2, 10) en el mapa del tesoro:", "opciones": ["y = 3/7x + 4", "y = 2/7x - 4", "y = -2/7x - 4", "y = 7x - 4"], "correcta_texto": "y = 7x - 4", "t_max": 75},
+        {"id": "A3", "mision": 1, "pregunta": "Un rayo láser sale del punto P(-6, 2) con una inclinación m = -2/3. ¿Cuál es su fórmula matemática?", "opciones": ["y = -2/3x - 2", "y = -2/3x - 3", "y = -3/2x - 3", "y = -3/2x - 2"], "correcta_texto": "y = -2/3x - 2", "t_max": 75},
+        {"id": "A4", "mision": 1, "pregunta": "El camino de un barco es y = -4/5x - 3. ¿Cuál de estas rutas es PARALELA a la del barco?", "opciones": ["y = -4/5x + 3", "y = 5/4x + 2", "y = 4/5x + 10", "y = -5/4x - 7"], "correcta_texto": "y = -4/5x + 3", "t_max": 60},
+        {"id": "A5", "mision": 1, "pregunta": "Para cruzar un río de forma PERPENDICULAR a la corriente (y = 2/3x + 1), ¿qué trayectoria debes seguir?", "opciones": ["y = 2/3x - 5", "y = 3/2x + 2", "y = -2/3x + 4", "y = -3/2x + 5"], "correcta_texto": "y = -3/2x + 5", "t_max": 60},
         
-        # --- TEMA B ---
-        {"id": "B1", "mision": 1, "pregunta": "Por A=(-3, 5) y B=(3, 1). ¿m y b?", "opciones": ["m = 2/3, b = 3", "m = -2/3, b = 3", "m = -3/2, b = -3", "m = 3/2, b = 3"], "correcta_texto": "m = -2/3, b = 3", "t_max": 60},
-        {"id": "B2", "mision": 1, "pregunta": "Ecuación por A(-2, -5) y B(5, -7):", "opciones": ["y = -2/7x - 39/7", "y = 2/7x + 39/7", "y = -7/2x - 4", "y = 7/2x + 4"], "correcta_texto": "y = -2/7x - 39/7", "t_max": 60},
-        {"id": "B3", "mision": 1, "pregunta": "P(5, -2) con m = -4/5:", "opciones": ["y = -4/5x + 2", "y = -4/5x - 6", "y = 4/5x + 2", "y = -5/4x + 2"], "correcta_texto": "y = -4/5x + 2", "t_max": 60},
-        {"id": "B4", "mision": 1, "pregunta": "¿Paralela a y = 3/7x + 5?", "opciones": ["y = -3/7x + 5", "y = 7/3x - 1", "y = 3/7x - 8", "y = -7/3x + 2"], "correcta_texto": "y = 3/7x - 8", "t_max": 45},
-        {"id": "B5", "mision": 1, "pregunta": "Perpendicular a y = -5/2x - 4:", "opciones": ["y = 5/2x + 1", "y = 2/5x + 10", "y = -2/5x - 4", "y = -5/2x + 3"], "correcta_texto": "y = 2/5x + 10", "t_max": 45},
-        {"id": "B6", "mision": 1, "pregunta": "m = 1/3 por P(6, 4):", "opciones": ["y = 1/3x + 2 (0, 2)", "y = 3x - 2 (1, 1)", "y = 1/3x + 4 (3, 5)", "y = -1/3x + 2 (6, 0)"], "correcta_texto": "y = 1/3x + 2 (0, 2)", "t_max": 60},
-        {"id": "B7", "mision": 2, "pregunta": "Enfriador 20°C baja 4°C c/3 min. ¿Función?", "opciones": ["y = 3/4x + 20", "y = -4/3x + 20", "y = 4/3x - 20", "y = -3/4x + 20"], "correcta_texto": "y = -4/3x + 20", "t_max": 90},
-        {"id": "B8", "mision": 2, "pregunta": "Mensajería: $10 base + $3 c/4 km. ¿Costo por 20 km?", "opciones": ["$15", "$20", "$25", "$30"], "correcta_texto": "$25", "t_max": 90},
-        {"id": "B9", "mision": 2, "pregunta": "Tanque A 15L (+3/2). Tanque B 45L (-5/2). ¿Cruce?", "opciones": ["6", "7.5", "10", "15"], "correcta_texto": "7.5", "t_max": 120},
-        {"id": "B10", "mision": 2, "pregunta": "Camilo $400 (-$25/2s). Sara $100 (+$75/2s). ¿Semana?", "opciones": ["4", "6", "8", "10"], "correcta_texto": "6", "t_max": 120},
+        {"id": "A7", "mision": 2, "pregunta": "Un horno de cerámica inicia a 15°C y sube su temperatura 10°C cada 3 minutos. ¿Qué función representa este calor?", "opciones": ["y = 15x + 3/10", "y = 3/10x + 15", "y = 15x + 10/3", "y = 10/3x + 15"], "correcta_texto": "y = 10/3x + 15", "t_max": 90},
+        {"id": "A8", "mision": 2, "pregunta": "Un taxi cobra $7 de tarifa base y suma $2 por cada 3 km recorridos. ¿Cuánto pagarás por un viaje de 15 km?", "opciones": ["$10", "$23", "$17", "$15"], "correcta_texto": "$17", "t_max": 90},
+        {"id": "A9", "mision": 2, "pregunta": "El tanque A sube (2min=10L, 8min=40L). El tanque B baja (1min=50L, 11min=10L). ¿En qué minuto tienen la misma agua?", "opciones": ["4", "6", "8", "10"], "correcta_texto": "6", "t_max": 120},
+        {"id": "A10", "mision": 2, "pregunta": "Andrés tiene $150 y ahorra $50/semana. Beatriz tiene $950 y gasta $150/semana. ¿En qué semana tendrán lo mismo?", "opciones": ["2", "3", "4", "5"], "correcta_texto": "4", "t_max": 120},
 
-        # --- TEMA C ---
-        {"id": "C1", "mision": 1, "pregunta": "Por A=(-5, 7) y B=(5, 3). ¿m y b?", "opciones": ["m = 2/5, b = 5", "m = -5/2, b = 5", "m = -2/5, b = 5", "m = 5/2, b = -5"], "correcta_texto": "m = -2/5, b = 5", "t_max": 60},
-        {"id": "C2", "mision": 1, "pregunta": "Ecuación por A(-3, 1) y B(6, 7):", "opciones": ["y = 2/3x + 3", "y = -2/3x + 3", "y = 3/2x - 1", "y = 2/3x - 3"], "correcta_texto": "y = 2/3x + 3", "t_max": 60},
-        {"id": "C3", "mision": 1, "pregunta": "P(-4, 2) con m = 3/4:", "opciones": ["y = 3/4x - 5", "y = 3/4x + 5", "y = -3/4x + 5", "y = 4/3x + 5"], "correcta_texto": "y = 3/4x + 5", "t_max": 60},
-        {"id": "C4", "mision": 1, "pregunta": "¿Paralela a y = -2/9x + 10?", "opciones": ["y = 9/2x + 10", "y = -2/9x - 4", "y = 2/9x + 4", "y = -9/2x + 1"], "correcta_texto": "y = -2/9x - 4", "t_max": 45},
-        {"id": "C5", "mision": 1, "pregunta": "Perpendicular a y = 7/3x - 2:", "opciones": ["y = -3/7x + 6", "y = 3/7x + 6", "y = -7/3x - 2", "y = 7/3x + 4"], "correcta_texto": "y = -3/7x + 6", "t_max": 45},
-        {"id": "C6", "mision": 1, "pregunta": "m = -3/2 por P(4, -1):", "opciones": ["y = -3/2x + 5 (0, 5)", "y = 3/2x - 7 (2, -4)", "y = -3/2x + 5 (2, 1)", "y = 2/3x + 1 (3, 3)"], "correcta_texto": "y = -3/2x + 5 (0, 5)", "t_max": 60},
-        {"id": "C7", "mision": 2, "pregunta": "Vehículo 40L consume 5L c/4 km. ¿Función?", "opciones": ["y = 4/5x + 40", "y = -5/4x + 40", "y = 5/4x - 40", "y = -4/5x + 40"], "correcta_texto": "y = -5/4x + 40", "t_max": 90},
-        {"id": "C8", "mision": 2, "pregunta": "Reparación: $15 base + $5 c/2h. ¿Costo por 7 horas?", "opciones": ["$30.0", "$32.5", "$35.0", "$17.5"], "correcta_texto": "$32.5", "t_max": 90},
-        {"id": "C9", "mision": 2, "pregunta": "Tanque A 100L (-10/3). Tanque B 20L (+10/3). ¿Cruce?", "opciones": ["10", "12", "15", "18"], "correcta_texto": "12", "t_max": 120},
-        {"id": "C10", "mision": 2, "pregunta": "Marta $600 (-$40/3s). Luis $1000 (-$120/3s). ¿Igualdad?", "opciones": ["Semana 12", "Semana 15", "Semana 18", "Semana 20"], "correcta_texto": "Semana 15", "t_max": 120},
+        # --- TEMA B: DESAFÍOS DE INGENIERÍA Y FINANZAS ---
+        {"id": "B1", "mision": 1, "pregunta": "Una rampa de acceso pasa por A=(-3, 5) y B=(3, 1). Calcula su pendiente (m) y su altura inicial (b):", "opciones": ["m = 2/3, b = 3", "m = -2/3, b = 3", "m = -3/2, b = -3", "m = 3/2, b = 3"], "correcta_texto": "m = -2/3, b = 3", "t_max": 75},
+        {"id": "B3", "mision": 1, "pregunta": "Una antena se ubica en P(5, -2) con una inclinación m = -4/5. ¿Cuál es la ecuación de su señal?", "opciones": ["y = -4/5x + 2", "y = -4/5x - 6", "y = 4/5x + 2", "y = -5/4x + 2"], "correcta_texto": "y = -4/5x + 2", "t_max": 75},
+        {"id": "B5", "mision": 1, "pregunta": "Si una calle tiene la ecuación y = -5/2x - 4, ¿cuál es la ecuación de una calle PERPENDICULAR para un cruce?", "opciones": ["y = 5/2x + 1", "y = 2/5x + 10", "y = -2/5x - 4", "y = -5/2x + 3"], "correcta_texto": "y = 2/5x + 10", "t_max": 60},
+        
+        {"id": "B7", "mision": 2, "pregunta": "Un enfriador industrial está a 20°C y baja 4°C cada 3 minutos. ¿Qué función modela su temperatura?", "opciones": ["y = 3/4x + 20", "y = -4/3x + 20", "y = 4/3x - 20", "y = -3/4x + 20"], "correcta_texto": "y = -4/3x + 20", "t_max": 90},
+        {"id": "B8", "mision": 2, "pregunta": "Una mensajería cobra $10 de base más $3 por cada 4 km. ¿Cuál es el costo total por enviar un paquete a 20 km?", "opciones": ["$15", "$20", "$25", "$30"], "correcta_texto": "$25", "t_max": 90},
+        {"id": "B10", "mision": 2, "pregunta": "Camilo tiene $400 y gasta $25 cada 2 semanas. Sara tiene $100 y ahorra $75 cada 2 semanas. ¿En qué semana se igualan?", "opciones": ["4", "6", "8", "10"], "correcta_texto": "6", "t_max": 120},
 
-        # --- TEMA D ---
-        {"id": "D1", "mision": 1, "pregunta": "Por A=(-6, 1) y B=(6, 6). ¿m y b?", "opciones": ["m = 5/12, b = 3.5", "m = -5/12, b = 3.5", "m = 12/5, b = -3", "m = 5/12, b = -3.5"], "correcta_texto": "m = 5/12, b = 3.5", "t_max": 60},
-        {"id": "D2", "mision": 1, "pregunta": "Ecuación por A(-4, 8) y B(2, -1):", "opciones": ["y = 3/2x + 2", "y = -3/2x + 2", "y = -2/3x + 2", "y = 3/2x - 2"], "correcta_texto": "y = -3/2x + 2", "t_max": 60},
-        {"id": "D3", "mision": 1, "pregunta": "P(3, -4) con m = -1/3:", "opciones": ["y = -1/3x - 3", "y = -1/3x + 3", "y = 1/3x - 3", "y = -3x - 3"], "correcta_texto": "y = -1/3x - 3", "t_max": 60},
-        {"id": "D4", "mision": 1, "pregunta": "¿Paralela a y = -5/6x - 1?", "opciones": ["y = 6/5x + 4", "y = 5/6x - 1", "y = -5/6x + 9", "y = -6/5x + 2"], "correcta_texto": "y = -5/6x + 9", "t_max": 45},
-        {"id": "D5", "mision": 1, "pregunta": "Perpendicular a y = -1/4x + 5:", "opciones": ["y = -4x + 2", "y = 1/4x - 5", "y = 4x - 8", "y = -4/1x + 3"], "correcta_texto": "y = 4x - 8", "t_max": 45},
-        {"id": "D6", "mision": 1, "pregunta": "m = 4/5 por P(5, 7):", "opciones": ["y = 4/5x + 3 (0, 3)", "y = -4/5x + 3 (5, -1)", "y = 4/5x - 3 (10, 5)", "y = 5/4x + 3 (4, 8)"], "correcta_texto": "y = 4/5x + 3 (0, 3)", "t_max": 60},
-        {"id": "D7", "mision": 2, "pregunta": "Depósito 80 gal pierde 3 gal c/2h. ¿Función?", "opciones": ["y = 3/2x + 80", "y = -2/3x + 80", "y = -3/2x + 80", "y = -3/2x - 80"], "correcta_texto": "y = -3/2x + 80", "t_max": 90},
-        {"id": "D8", "mision": 2, "pregunta": "Carpintero: $20 base + $15 c/4h. ¿Costo 12h?", "opciones": ["$45", "$65", "$35", "$70"], "correcta_texto": "$65", "t_max": 90},
-        {"id": "D9", "mision": 2, "pregunta": "Globo A 10m (+5/4). Globo B 40m (-7/4). ¿Segundo?", "opciones": ["8", "10", "12", "15"], "correcta_texto": "10", "t_max": 120},
-        {"id": "D10", "mision": 2, "pregunta": "Daniel $500 (-$30/2s). Sofía $800 (-$80/2s). ¿Semana?", "opciones": ["6", "10", "12", "14"], "correcta_texto": "12", "t_max": 120}
+        # --- TEMA C: LOGÍSTICA Y RECURSOS ---
+        {"id": "C7", "mision": 2, "pregunta": "Un vehículo inicia con 40L de gasolina y consume 5L cada 4 km recorridos. ¿Cuál es la función del combustible?", "opciones": ["y = 4/5x + 40", "y = -5/4x + 40", "y = 5/4x - 40", "y = -4/5x + 40"], "correcta_texto": "y = -5/4x + 40", "t_max": 90},
+        {"id": "C8", "mision": 2, "pregunta": "Un técnico cobra $15 por la visita y $5 por cada 2 horas de trabajo. ¿Cuánto cobrará por una reparación de 7 horas?", "opciones": ["$30.0", "$32.5", "$35.0", "$17.5"], "correcta_texto": "$32.5", "t_max": 90},
+        {"id": "C9", "mision": 2, "pregunta": "Tanque A (100L, pierde 10L c/3 min). Tanque B (20L, gana 10L c/3 min). ¿En qué minuto tendrán el mismo nivel?", "opciones": ["10", "12", "15", "18"], "correcta_texto": "12", "t_max": 120},
+
+        # --- TEMA D: FÍSICA Y CONSTRUCCIÓN ---
+        {"id": "D6", "mision": 1, "pregunta": "Un soporte arquitectónico tiene pendiente m = 4/5 y pasa por P(5, 7). ¿En qué punto cortará al eje Y?", "opciones": ["y = 4/5x + 3 (Corta en 3)", "y = -4/5x + 3", "y = 4/5x - 3", "y = 5/4x + 3"], "correcta_texto": "y = 4/5x + 3 (Corta en 3)", "t_max": 75},
+        {"id": "D7", "mision": 2, "pregunta": "Un depósito de 80 galones pierde 3 galones cada 2 horas por una fuga. ¿Qué función describe la pérdida?", "opciones": ["y = 3/2x + 80", "y = -2/3x + 80", "y = -3/2x + 80", "y = -3/2x - 80"], "correcta_texto": "-3/2x + 80", "t_max": 90},
+        {"id": "D10", "mision": 2, "pregunta": "Daniel tiene $500 y gasta $30 c/2 semanas. Sofía tiene $800 y gasta $80 c/2 semanas. ¿En qué semana tendrán lo mismo?", "opciones": ["6", "10", "12", "14"], "correcta_texto": "12", "t_max": 120}
+    ]
     ]
 
 #--- 4. INICIALIZACIÓN DE ESTADO (EL CEREBRO DEL JUEGO) ---
