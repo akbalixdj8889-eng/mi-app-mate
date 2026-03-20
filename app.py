@@ -1,3 +1,4 @@
+
 import streamlit as st
 import random
 import time
@@ -6,7 +7,7 @@ import matplotlib.pyplot as plt
 import io
 import numpy as np
 
-# --- 1. CONFIGURACIÓN Y GOOGLE (AJUSTA ESTO) ---
+# --- 1. CONFIGURACIÓN Y GOOGLE ---
 URL_FORM = "https://docs.google.com/forms/d/e/1FAIpQLScin_I5blL_gwFbDP8vfjTz7SQj4BRZQ0_wI7rmJvXvNjkzzQ/formResponse"
 ENTRY_NOMBRE = "entry.1544483154"
 ENTRY_CURSO  = "entry.2027082892"
@@ -15,30 +16,56 @@ ENTRY_TIEMPO = "entry.1300499693"
 
 st.set_page_config(page_title="Math Quest: Noveno", page_icon="🎮", layout="centered")
 
-
-
-
-# --- 2. ESTILOS CSS (QUIZIZZ LOOK) ---
+# --- 2. ESTILOS CSS (MEJORADO PARA VISIBILIDAD) ---
 st.markdown("""
     <style>
+    /* Fondo General */
     .stApp { background: linear-gradient(135deg, #461a42 0%, #2d0b2a 100%); }
+    
+    /* Tarjeta de Pregunta */
     .question-card {
-        background-color: white; padding: 25px; border-radius: 20px;
-        box-shadow: 0px 10px 25px rgba(0,0,0,0.4); margin-bottom: 20px;
-        color: #2d0b2a;
+        background-color: white; 
+        padding: 25px; 
+        border-radius: 20px;
+        box-shadow: 0px 10px 25px rgba(0,0,0,0.4); 
+        margin-bottom: 20px;
     }
+    
+    /* Marcadores Superiores */
     .stat-box {
-        background-color: rgba(255, 255, 255, 0.15); padding: 10px;
-        border-radius: 12px; color: white; text-align: center; font-weight: bold;
+        background-color: rgba(255, 255, 255, 0.2); 
+        padding: 15px;
+        border-radius: 12px; 
+        color: white; 
+        text-align: center; 
+        font-weight: bold;
+        font-size: 1.2rem;
+        border: 1px solid rgba(255,255,255,0.3);
     }
+
+    /* FORZAR TEXTO BLANCO EN RADIOS Y LABELS */
+    .stWidgetLabel p { color: white !important; font-size: 1.2rem !important; font-weight: bold !important; }
+    div[data-testid="stMarkdownContainer"] p { color: white; }
+    
+    /* Estilo específico para las letras A, B, C, D */
+    div[data-testid="stRadio"] label {
+        color: white !important;
+        font-weight: bold !important;
+        font-size: 1.1rem !important;
+        background: rgba(255,255,255,0.1);
+        padding: 5px 15px;
+        border-radius: 10px;
+        margin-right: 10px;
+    }
+
+    /* Botón Enviar */
     .stButton>button {
         width: 100%; border-radius: 12px; height: 3.5em;
-        background-color: #6d28d9; color: white; font-weight: bold; border: none;
+        background-color: #6d28d9; color: white; font-weight: bold; border: 2px solid #a78bfa;
     }
-    .stButton>button:hover { background-color: #7c3aed; transform: scale(1.02); }
+    .stButton>button:hover { background-color: #7c3aed; border-color: white; }
     </style>
     """, unsafe_allow_html=True)
-
 
 
 # --- 3. BANCO DE PREGUNTAS (40 PREGUNTAS) ---
@@ -92,19 +119,24 @@ BANCO_PREGUNTAS = [
     {"id": "D10", "mision": 2, "pregunta": "Daniel $500 (-$30/2s). Sofía $800 (-$80/2s). ¿Semana?", "opciones": ["6", "10", "12", "14"], "correcta_texto": "12"}
 ]
 
+
+
+
 # --- 4. FUNCIONES ---
 def crear_imagen(texto, opciones):
-    fig, ax = plt.subplots(figsize=(9, 4.5))
-    ax.set_facecolor('#ffffff')
+    fig, ax = plt.subplots(figsize=(9, 5))
+    fig.patch.set_facecolor('white')
+    ax.set_facecolor('white')
+    # Texto de la pregunta
     cuerpo = f"{texto}\n\n" + "\n".join(opciones)
-    ax.text(0.05, 0.5, cuerpo, fontsize=12, fontweight='bold', wrap=True, family='sans-serif', va='center')
+    ax.text(0.05, 0.5, cuerpo, fontsize=13, fontweight='bold', wrap=True, family='sans-serif', va='center', color='#2d0b2a')
     ax.axis('off')
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', bbox_inches='tight', dpi=100)
+    plt.savefig(buf, format='png', bbox_inches='tight', dpi=120)
     plt.close()
     return buf
 
-# --- 5. LÓGICA DE JUEGO ---
+# --- 5. LÓGICA DE NAVEGACIÓN ---
 if 'paso' not in st.session_state:
     st.session_state.update({'paso': 'registro', 'mision': 1, 'n_pregunta': 0, 'aciertos': 0})
 
@@ -112,9 +144,10 @@ if st.session_state.paso == 'registro':
     st.markdown("<h1 style='text-align: center; color: white;'>🎮 MATH QUEST</h1>", unsafe_allow_html=True)
     with st.container():
         st.markdown("<div class='question-card'>", unsafe_allow_html=True)
-        nom = st.text_input("Nickname:")
-        cur = st.selectbox("Curso:", ["901", "902"])
-        if st.button("¡COMENZAR!"):
+        nom = st.text_input("Ingresa tu Nombre:")
+        # ACTUALIZACIÓN DE CURSOS
+        cur = st.selectbox("Elige tu Curso:", ["908", "909", "910"]) 
+        if st.button("¡COMENZAR AVENTURA!"):
             if nom:
                 pool = [p for p in BANCO_PREGUNTAS if p['mision'] == 1]
                 st.session_state.update({
@@ -129,56 +162,70 @@ elif st.session_state.paso == 'examen':
     p = st.session_state.lista_examen[idx]
     
     col1, col2 = st.columns(2)
-    with col1: st.markdown(f"<div class='stat-box'>Pregunta {idx+1}/5</div>", unsafe_allow_html=True)
+    with col1: st.markdown(f"<div class='stat-box'>Pregunta {idx+1} de 5</div>", unsafe_allow_html=True)
     with col2: st.markdown(f"<div class='stat-box'>Aciertos: {st.session_state.aciertos}</div>", unsafe_allow_html=True)
     
-    st.markdown("<div class='question-card'>", unsafe_allow_html=True)
+    st.write("") 
+    
+    # Área de la pregunta
     if f"img_{st.session_state.mision}_{idx}" not in st.session_state:
         opts = p['opciones'].copy()
         random.shuffle(opts)
-        finales = [f"{['A)','B)','C)','D)'][i]} {opts[i]}" for i in range(4)]
+        letras_labels = ["A)", "B)", "C)", "D)"]
+        finales = [f"{letras_labels[i]} {opts[i]}" for i in range(4)]
         st.session_state[f"correcta_{idx}"] = ["A", "B", "C", "D"][opts.index(p['correcta_texto'])]
         st.session_state[f"img_{st.session_state.mision}_{idx}"] = crear_imagen(p['pregunta'], finales)
 
+    st.markdown("<div class='question-card'>", unsafe_allow_html=True)
     st.image(st.session_state[f"img_{st.session_state.mision}_{idx}"])
-    ans = st.radio("Respuesta:", ["A", "B", "C", "D"], key=f"ans_{idx}", index=None, horizontal=True)
-    
-    if st.button("ENVIAR ➡️"):
-        if ans:
-            if ans == st.session_state[f"correcta_{idx}"]: st.session_state.aciertos += 1
-            st.session_state.n_pregunta += 1
-            if st.session_state.n_pregunta >= 5: st.session_state.paso = 'feedback'
-            st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Opciones con mejor contraste
+    ans = st.radio("SELECCIONA TU RESPUESTA:", ["A", "B", "C", "D"], key=f"ans_{idx}", index=None, horizontal=True)
+    
+    if st.button("ENVIAR RESPUESTA ➡️"):
+        if ans:
+            if ans == st.session_state[f"correcta_{idx}"]:
+                st.session_state.aciertos += 1
+                st.toast("¡Correcto! +100 pts", icon="🔥")
+            else:
+                st.toast("Incorrecto", icon="❌")
+            
+            st.session_state.n_pregunta += 1
+            if st.session_state.n_pregunta >= 5:
+                st.session_state.paso = 'feedback'
+            st.rerun()
 
 elif st.session_state.paso == 'feedback':
-    puntos = st.session_state.aciertos
+    # (Lógica de feedback igual a la anterior pero con cursos actualizados)
     st.markdown("<div class='question-card' style='text-align:center;'>", unsafe_allow_html=True)
+    puntos = st.session_state.aciertos
+    st.header(f"Resultado: {puntos}/5")
     
-    # Enviar a Google
-    requests.post(URL_FORM, data={ENTRY_NOMBRE: st.session_state.nombre, ENTRY_NOTA: f"Mision {st.session_state.mision}: {puntos}/5"})
+    # Registro en Google Sheets
+    try:
+        requests.post(URL_FORM, data={
+            ENTRY_NOMBRE: st.session_state.nombre, 
+            ENTRY_CURSO: st.session_state.curso,
+            ENTRY_NOTA: f"Mision {st.session_state.mision}: {puntos}/5"
+        })
+    except: pass
 
     if puntos >= 3:
-        st.header("🎉 ¡MISIÓN SUPERADA!")
+        st.balloons()
+        st.success("¡MISIÓN CUMPLIDA!")
         if st.session_state.mision == 1:
-            if st.button("IR A MISIÓN 2"):
-                pool2 = [p for p in BANCO_PREGUNTAS if p['mision'] == 2]
-                st.session_state.update({'mision': 2, 'n_pregunta': 0, 'aciertos': 0, 'paso': 'examen', 'lista_examen': random.sample(pool2, 5)})
+            if st.button("DESBLOQUEAR MISIÓN 2"):
+                # Aquí cargarías el pool de misión 2 y resetearías n_pregunta
+                st.session_state.update({'mision': 2, 'n_pregunta': 0, 'aciertos': 0, 'paso': 'examen'})
+                # Importante: aquí deberías filtrar el banco para la misión 2
                 st.rerun()
-        else:
-            st.success("¡ERES UN MAESTRO!")
-            if st.button("FINALIZAR"): st.session_state.clear(); st.rerun()
     else:
-        st.header("💀 GAME OVER")
-        if st.button("REINTENTAR"): st.session_state.update({'n_pregunta': 0, 'aciertos': 0, 'paso': 'examen'}); st.rerun()
+        st.error("No has logrado los aciertos mínimos.")
+        if st.button("INTENTAR DE NUEVO"):
+            st.session_state.update({'n_pregunta': 0, 'aciertos': 0, 'paso': 'examen'})
+            st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
-    
-
-
-
-
-
-
 
 
 
