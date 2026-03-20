@@ -6,190 +6,118 @@ import matplotlib.pyplot as plt
 import io
 import numpy as np
 
-# --- CONFIGURACIÓN DE GOOGLE (Mantén tus IDs iguales) ---
+# --- CONFIGURACIÓN GOOGLE ---
 URL_FORM = "https://docs.google.com/forms/d/e/1FAIpQLScin_I5blL_gwFbDP8vfjTz7SQj4BRZQ0_wI7rmJvXvNjkzzQ/formResponse"
 ENTRY_NOMBRE = "entry.1544483154"
 ENTRY_CURSO  = "entry.2027082892"
 ENTRY_NOTA   = "entry.1011634935"
 ENTRY_TIEMPO = "entry.1300499693"
 
-st.set_page_config(page_title="Reto Blindado v3", page_icon="🛡️")
+st.set_page_config(page_title="Examen Noveno - Matemáticas", page_icon="📐")
 
-# --- BLOQUEO DE COPIADO/PEGADO (CSS) ---
-st.markdown("""
-    <style>
-    /* Deshabilitar selección de texto y menú contextual en toda la app */
-    * {
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
+# --- BANCO DE PREGUNTAS (Tus preguntas de LaTeX) ---
+BANCO_NOVENO = [
+    {
+        "id": 1,
+        "pregunta": "Para la función que pasa por A=(-6, 1) y B=(6, 6),\n¿cuál es la pendiente m y el corte con el eje Y (b)?",
+        "opciones": ["A) m=5/12, b=3.5", "B) m=-5/12, b=3.5", "C) m=12/5, b=-3", "D) m=5/12, b=-3.5"],
+        "correcta": "A",
+        "tiempo": 240
+    },
+    {
+        "id": 2,
+        "pregunta": "Ecuación de la recta que pasa por\nA(-4, 8) y B(2, -1):",
+        "opciones": ["A) y=3/2x + 2", "B) y=-3/2x + 2", "C) y=-2/3x + 2", "D) y=3/2x - 2"],
+        "correcta": "B",
+        "tiempo": 240
+    },
+    {
+        "id": 4,
+        "pregunta": "¿Cuál recta es PARALELA a y = -5/6x - 1?",
+        "opciones": ["A) y=6/5x + 4", "B) y=5/6x - 1", "C) y=-5/6x + 9", "D) y=-6/5x + 2"],
+        "correcta": "C",
+        "tiempo": 120
+    },
+    {
+        "id": 5,
+        "pregunta": "La recta y = -1/4x + 5 es PERPENDICULAR a:",
+        "opciones": ["A) y=-4x + 2", "B) y=1/4x - 5", "C) y=4x - 8", "D) y=-4/1x + 3"],
+        "correcta": "C",
+        "tiempo": 120
     }
-    /* Permitir interacción solo con el campo de entrada */
-    .stNumberInput input {
-        -webkit-user-select: auto !important;
-        -moz-user-select: auto !important;
-        -ms-user-select: auto !important;
-        user-select: auto !important;
-        pointer-events: auto !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
+]
 
-# --- INICIALIZACIÓN DE VARIABLES ---
-if 'evaluando' not in st.session_state:
-    st.session_state.evaluando = False
-if 'ejercicio_imagen' not in st.session_state:
-    st.session_state.ejercicio_imagen = None
-
-# --- FUNCIÓN MAESTRA: GENERAR EJERCICIO COMO IMAGEN BLINDADA ---
-def generar_imagen_ejercicio(a, x_true, res):
-    """Dibuja la ecuación en una imagen con ruido visual anti-OCR"""
-    # Crear el lienzo gráfico (Fig) y los ejes (ax)
-    fig, ax = plt.figure(figsize=(6, 2), dpi=100), plt.gca()
+# --- FUNCIÓN GENERADORA DE IMAGEN ---
+def crear_imagen_pregunta(texto, opciones):
+    fig, ax = plt.subplots(figsize=(8, 4), dpi=100)
+    ax.set_facecolor('#f0f2f6')
     
-    # Texto de la ecuación
-    texto_ecuacion = f"{a} * X = {res}"
+    # Unir pregunta y opciones
+    contenido = f"{texto}\n\n" + "\n".join(opciones)
     
-    # Estilo del texto (Grande, negrita, azul oscuro)
-    ax.text(0.5, 0.5, texto_ecuacion, fontsize=28, fontweight='bold',
-            ha='center', va='center', color='#1f77b4', family='serif')
+    # Dibujar texto con "Ruido" anti-IA
+    ax.text(0.05, 0.5, contenido, fontsize=14, fontweight='bold', color='#0e1117',
+            ha='left', va='center', wrap=True, family='sans-serif')
     
-    # --- AÑADIR RUIDO VISUAL (Anti-IA) ---
-    # Líneas aleatorias suaves que cruzan el texto
-    for _ in range(3):
-        ax.plot([random.random(), random.random()], [random.random(), random.random()], 
-                color='gray', alpha=0.3, linewidth=1)
+    # Ruido visual (Líneas y puntos)
+    for _ in range(5):
+        ax.plot([random.random()*8, random.random()*8], [0, 1], color='blue', alpha=0.1, lw=2)
+    ax.scatter(np.random.rand(100)*8, np.random.rand(100), color='gray', s=1, alpha=0.1)
     
-    # Puntos aleatorios (tipo arena)
-    ax.scatter(np.random.rand(50), np.random.rand(50), color='gray', s=1, alpha=0.2)
-    
-    # Ocultar ejes, bordes y fondo
     ax.axis('off')
-    plt.tight_layout()
-    
-    # Guardar la imagen en un búfer de memoria (no en disco)
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1, transparent=True)
-    buf.seek(0)
-    plt.close() # Cerrar plot para liberar memoria
+    plt.savefig(buf, format='png', bbox_inches='tight')
+    plt.close()
     return buf
 
-# --- FUNCIÓN DE ENVÍO A GOOGLE SHEETS ---
-def enviar_a_google(nombre, curso, nota, segundos):
-    payload = {
-        ENTRY_NOMBRE: nombre,
-        ENTRY_CURSO: curso,
-        ENTRY_NOTA: nota,
-        ENTRY_TIEMPO: f"{segundos}s"
-    }
-    try:
-        requests.post(URL_FORM, data=payload, timeout=5)
-    except:
-        st.error("Error de red al guardar el resultado.")
+# --- LÓGICA DE SESIÓN ---
+if 'paso' not in st.session_state: st.session_state.paso = "registro"
 
-st.title("🛡️ Reto Matemático Blindado v3")
-st.write("---")
-
-# --- FLUJO DE LA APLICACIÓN ---
-if not st.session_state.evaluando:
-    # --- PANTALLA DE REGISTRO ---
-    nombre = st.text_input("Ingresa tu Nombre Completo:")
-    curso = st.selectbox("Selecciona tu Curso:", ["601", "701", "801"])
+if st.session_state.paso == "registro":
+    st.title("📝 Evaluación de Matemáticas - Noveno")
+    nombre = st.text_input("Nombre del Estudiante:")
+    curso = st.selectbox("Curso:", ["901", "902", "903"])
     
-    st.warning("⏱️ Tienes un límite estricto de **20 segundos** para resolver el reto.")
-    st.info("⚠️ La imagen del ejercicio es dinámica y anti-copia. No intentes capturarla.")
-    
-    if st.button("COMENZAR EXAMEN AHORA"):
+    if st.button("Iniciar Evaluación"):
         if nombre:
-            # Inicializar datos del reto
-            st.session_state.estudiante = nombre
+            st.session_state.nombre = nombre
             st.session_state.curso = curso
-            st.session_state.inicio_total = time.time()
-            st.session_state.evaluando = True
-            
-            # Generar el ejercicio internamente
-            st.session_state.a = random.randint(3, 9)
-            st.session_state.x_true = random.randint(2, 10)
-            st.session_state.res = st.session_state.a * st.session_state.x_true
-            
-            # Generar y guardar la imagen blindada en sesión
-            st.session_state.ejercicio_imagen = generar_imagen_ejercicio(
-                st.session_state.a, st.session_state.x_true, st.session_state.res
-            )
-            
+            st.session_state.pregunta_actual = random.choice(BANCO_NOVENO)
+            st.session_state.inicio_time = time.time()
+            st.session_state.paso = "examen"
             st.rerun()
-        else:
-            st.warning("Escribe tu nombre para empezar.")
-else:
-    # --- PANTALLA DE EXAMEN ACTIVO ---
-    
-    # 1. CÁLCULO DE TIEMPO (Cronómetro de Anulación)
-    tiempo_transcurrido = int(time.time() - st.session_state.inicio_total)
-    tiempo_limite = 20 # Segundos estrictos
-    tiempo_restante = tiempo_limite - tiempo_transcurrido
-    
-    if tiempo_restante <= 0:
-        # --- CASO: TIEMPO AGOTADO (Castigo y Anulación) ---
-        st.error(f"❌ ¡EXAMEN ANULADO! Has superado el tiempo límite de {tiempo_limite} segundos.")
-        st.write("Esto sucede por sospecha de consulta externa (capturas, IAs, etc.).")
-        
-        # Enviar reporte de anulación
-        enviar_a_google(st.session_state.estudiante, st.session_state.curso, "ANULADO (Exceso de Tiempo)", tiempo_transcurrido)
-        
-        # Limpiar sesión para reintentar
-        if st.button("Volver al Inicio"):
-            for key in list(st.session_state.keys()): del st.session_state[key]
-            st.rerun()
-    else:
-        # --- CASO: EXAMEN ACTIVO ---
-        col1, col2 = st.columns([3, 1])
-        with col1:
-            st.write(f"Estudiante: **{st.session_state.estudiante}** | Curso: **{st.session_state.curso}**")
-        with col2:
-            st.metric("Tiempo Restante", f"{tiempo_restante}s", delta_color="inverse")
-        
-        st.write("---")
-        
-        # 2. MOSTRAR EL EJERCICIO COMO IMAGEN BLINDADA
-        st.subheader("Calcula el valor de X mentalmente:")
-        st.image(st.session_state.ejercicio_imagen, use_column_width=False, width=450)
-        
-        st.write("---")
-        
-        # 3. CAMPO DE RESPUESTA Y ENTREGA
-        respuesta_estudiante = st.number_input("Escribe el número de la respuesta (X):", step=1, value=0)
-        
-        if st.button("ENVIAR RESPUESTA FINAL"):
-            final_time = int(time.time() - st.session_state.inicio_total)
-            
-            # Validar respuesta
-            es_correcto = (respuesta_estudiante == st.session_state.x_true)
-            resultado_texto = "Correcto" if es_correcto else f"Incorrecto (Puso {respuesta_estudiante})"
-            
-            # Enviar a Google Sheets
-            enviar_a_google(st.session_state.estudiante, st.session_state.curso, resultado_texto, final_time)
-            
-            # Feedback visual y reinicio
-            if es_correcto:
-                st.success(f"✅ ¡Correcto! Datos enviados a tu profesor en {final_time} segundos.")
-                st.balloons()
-            else:
-                st.error(f"❌ Incorrecto. La respuesta era {st.session_state.x_true}. Datos enviados.")
-            
-            # Botón para limpiar sesión y hacer otro
-            if st.button("Finalizar y Cerrar"):
-                for key in list(st.session_state.keys()): del st.session_state[key]
-                st.rerun()
 
-# Bloqueo extra por JavaScript (por si acaso el navegador lo permite)
-st.components.v1.html("""
-    <script>
-    document.addEventListener('contextmenu', event => event.preventDefault()); // Bloquear clic derecho
-    document.addEventListener('keydown', function(e) {
-        if (e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'p' || e.key === 's')) {
-            e.preventDefault(); // Bloquear Ctrl+C, Ctrl+V, etc.
-        }
-    });
-    </script>
-""", height=0)
+elif st.session_state.paso == "examen":
+    p = st.session_state.pregunta_actual
+    transcurrido = int(time.time() - st.session_state.inicio_time)
+    restante = p['tiempo'] - transcurrido
+
+    if restante <= 0:
+        st.error("⏳ TIEMPO AGOTADO. Se ha registrado como intento fallido.")
+        requests.post(URL_FORM, data={ENTRY_NOMBRE: st.session_state.nombre, ENTRY_NOTA: "ANULADO - TIEMPO"})
+        if st.button("Salir"): st.session_state.paso = "registro"; st.rerun()
+    else:
+        st.write(f"Estudiante: **{st.session_state.nombre}** | Tiempo: **{restante}s**")
+        
+        # Generar imagen (solo una vez por pregunta)
+        if 'img_buf' not in st.session_state:
+            st.session_state.img_buf = crear_imagen_pregunta(p['pregunta'], p['opciones'])
+        
+        st.image(st.session_state.img_buf)
+        
+        seleccion = st.radio("Selecciona tu respuesta justificada:", ["A", "B", "C", "D"], index=None)
+        
+        if st.button("Enviar Respuesta"):
+            if seleccion:
+                resultado = "Correcto" if seleccion == p['correcta'] else f"Incorrecto (Marcó {seleccion})"
+                requests.post(URL_FORM, data={
+                    ENTRY_NOMBRE: st.session_state.nombre,
+                    ENTRY_CURSO: st.session_state.curso,
+                    ENTRY_NOTA: f"Pregunta {p['id']}: {resultado}",
+                    ENTRY_TIEMPO: f"{transcurrido}s"
+                })
+                st.success("Respuesta enviada. ¡Revisa tu cuaderno con el profesor!")
+                if st.button("Finalizar"): 
+                    del st.session_state.img_buf
+                    st.session_state.paso = "registro"
+                    st.rerun()
