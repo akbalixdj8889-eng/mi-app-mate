@@ -150,3 +150,81 @@ elif st.session_state.paso == 'examen':
         st.session_state.n_pregunta += 1
         st.session_state.t_inicio_pregunta = time.time()
         st.rerun()
+# --- 6. PANTALLAS (FRAGMENTO CORREGIDO PARA EXAMEN) ---
+
+elif st.session_state.paso == 'examen':
+    idx = st.session_state.n_pregunta
+    p = st.session_state.lista_examen[idx]
+    
+    # 1. INICIALIZAR DATOS DE LA PREGUNTA (Solo la primera vez que se carga la pregunta)
+    if f"q_opts_{idx}" not in st.session_state:
+        opts_mezcladas = p['opciones'].copy()
+        random.shuffle(opts_mezcladas)
+        letras = ["A)", "B)", "C)", "D)"]
+        st.session_state[f"q_opts_{idx}"] = [f"{letras[i]} {opts_mezcladas[i]}" for i in range(4)]
+        st.session_state[f"q_cor_{idx}"] = ["A", "B", "C", "D"][opts_mezcladas.index(p['correcta_texto'])]
+        # Pre-calculamos qué letras son incorrectas por si usa el 50/50
+        cor_letra = st.session_state[f"q_cor_{idx}"]
+        st.session_state[f"incorrectas_{idx}"] = [L for L in ["A", "B", "C", "D"] if L != cor_letra]
+
+    # 2. UI SUPERIOR Y BARRA
+    msg = "⚡ 50/50 DISPONIBLE" if st.session_state.power_5050 else "¡A POR ELLAS!"
+    if st.session_state.usar_5050: msg = "🔥 MODO 50/50 ACTIVADO"
+    st.markdown(f"<div class='status-panel'>{msg}</div>", unsafe_allow_html=True)
+
+    t_limite = p.get('t_max', 60)
+    t_actual = time.time() - st.session_state.t_inicio_pregunta
+    porcentaje = max(0, 100 - (t_actual / t_limite * 100))
+    st.markdown(f"<div class='energy-container'><div class='energy-bar' style='width:{porcentaje}%'></div></div>", unsafe_allow_html=True)
+
+    # 3. LÓGICA 50/50 CONGELADA
+    ocultas = []
+    if st.session_state.usar_5050:
+        # Si no hemos elegido cuáles borrar para ESTA pregunta, las elegimos una sola vez
+        if f"ocultas_elegidas_{idx}" not in st.session_state:
+            st.session_state[f"ocultas_elegidas_{idx}"] = random.sample(st.session_state[f"incorrectas_{idx}"], 2)
+        ocultas = st.session_state[f"ocultas_elegidas_{idx}"]
+    
+    # Generar imagen con las opciones estáticas
+    img_buf = crear_imagen(p['pregunta'], st.session_state[f"q_opts_{idx}"], ocultas)
+
+    st.markdown("<div class='question-card'>", unsafe_allow_html=True)
+    st.image(img_buf)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # 4. BOTONES Y RESPUESTA
+    col_a, col_b = st.columns([3,1])
+    with col_b:
+        if st.session_state.power_5050:
+            if st.button("⚡ 50/50"):
+                st.session_state.usar_5050 = True
+                st.session_state.power_5050 = False # Se gasta el cartucho
+                st.rerun()
+
+    ans = st.radio("SELECCIONA:", ["A", "B", "C", "D"], key=f"r_{idx}", index=None, horizontal=True)
+    
+    if st.button("ENVIAR ➡️"):
+        if ans:
+            if ans == st.session_state[f"q_cor_{idx}"]:
+                st.session_state.aciertos += 1
+                st.toast("¡Punto para ti!", icon="🔥")
+            else:
+                st.toast("Casi...", icon="❌")
+            
+            st.session_state.n_pregunta += 1
+            st.session_state.usar_5050 = False # Resetear efecto visual para la siguiente
+            st.session_state.t_inicio_pregunta = time.time()
+            if st.session_state.n_pregunta >= len(st.session_state.lista_examen):
+                st.session_state.paso = 'feedback'
+            st.rerun()
+
+    # Refresh
+    if porcentaje > 0:
+        time.sleep(1)
+        st.rerun()
+    else:
+        st.error("TIEMPO AGOTADO")
+        time.sleep(1)
+        st.session_state.n_pregunta += 1
+        st.session_state.t_inicio_pregunta = time.time()
+        st.rerun()
