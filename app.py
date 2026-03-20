@@ -3,7 +3,7 @@ import random
 import time
 import requests
 
-# --- CONFIGURACIÓN (Tus IDs de Google) ---
+# --- CONFIGURACIÓN ---
 URL_FORM = "https://docs.google.com/forms/d/e/1FAIpQLScin_I5blL_gwFbDP8vfjTz7SQj4BRZQ0_wI7rmJvXvNjkzzQ/formResponse"
 ENTRY_NOMBRE = "entry.1544483154"
 ENTRY_CURSO  = "entry.2027082892"
@@ -18,8 +18,7 @@ if 'trampas' not in st.session_state:
 if 'evaluando' not in st.session_state:
     st.session_state.evaluando = False
 
-# --- DETECTOR DE TRAMPAS (JS) ---
-# Capturamos el valor y nos aseguramos de que sea un número
+# --- DETECTOR DE TRAMPAS ---
 js_val = st.components.v1.html(
     """
     <script>
@@ -36,7 +35,6 @@ js_val = st.components.v1.html(
     height=0,
 )
 
-# EL PARCHE: Si js_val tiene datos, actualizamos. Si no, mantenemos lo que hay.
 if js_val is not None:
     try:
         st.session_state.trampas = int(js_val)
@@ -49,7 +47,7 @@ def enviar_a_google(nombre, curso, nota, segundos, trampas):
     try:
         requests.post(URL_FORM, data=data)
     except:
-        st.error("Error al conectar con Google Sheets")
+        pass
 
 st.title("🔢 Reto Matemático Blindado")
 
@@ -65,7 +63,6 @@ if not st.session_state.evaluando:
             st.session_state.evaluando = True
             st.rerun()
 else:
-    # Mostramos las trampas de forma segura
     t = st.session_state.trampas
     if t > 0:
         st.warning(f"⚠️ Has salido de la app {t} veces.")
@@ -84,4 +81,8 @@ else:
         res = "Correcto" if resp == st.session_state.x_true else "Incorrecto"
         
         enviar_a_google(st.session_state.estudiante, st.session_state.curso, res, tiempo, st.session_state.trampas)
-        st.success("
+        st.success("¡Resultado enviado con éxito!") # Aquí estaba el error anterior
+        
+        if st.button("Reiniciar"):
+            st.session_state.clear()
+            st.rerun()
