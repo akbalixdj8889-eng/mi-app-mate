@@ -2,7 +2,7 @@ import streamlit as st
 import random
 import time
 import requests
-
+from streamlit_autorefresh import st_autorefresh.
 
 # --- CONFIGURACIÓN (Mantén tus IDs iguales) ---
 URL_FORM = "https://docs.google.com/forms/d/e/1FAIpQLScin_I5blL_gwFbDP8vfjTz7SQj4BRZQ0_wI7rmJvXvNjkzzQ/formResponse"
