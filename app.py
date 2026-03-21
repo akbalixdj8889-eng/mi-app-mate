@@ -324,53 +324,42 @@ elif st.session_state.paso == 'examen':
 
 
 # 1. Selección de respuesta (Mantenemos tu estilo)
-    ans = st.radio("TU ELECCIÓN:", ["A", "B", "C", "D"], key=f"r_{st.session_state.mision}_{idx}", index=None, horizontal=True)
+   # Al incluir la misión en la key, el radio se reinicia por completo al cambiar de nivel
+ans = st.radio("TU ELECCIÓN:", ["A", "B", "C", "D"], key=f"r_m{st.session_state.mision}_{idx}", index=None, horizontal=True)
     
-    # 2. El botón de enviar con la lógica CORREGIDA
-    if st.button("ENVIAR RESPUESTA ➡️"):
+
+
+if st.button("ENVIAR RESPUESTA ➡️"):
         if ans:
-            # CORRECCIÓN CLAVE: Obtenemos el texto de la opción elegida
-            indice_elegido = ["A", "B", "C", "D"].index(ans)
-            texto_elegido = pregunta_actual['opciones'][indice_elegido]
+            # Obtenemos cuál es el texto de la opción que el alumno marcó
+            letras = ["A", "B", "C", "D"]
+            indice = letras.index(ans)
+            texto_marcado = pregunta_actual['opciones'][indice]
             
-            # Comparamos el texto elegido con el texto correcto del banco
-            if texto_elegido == pregunta_actual['correcta_texto']:
+            # Comparamos contra el texto correcto definido en el banco
+            if texto_marcado == pregunta_actual['correcta_texto']:
                 st.session_state.aciertos += 1
                 st.toast("¡Punto para ti!", icon="🔥")
             else:
                 st.toast("Incorrecto...", icon="❌")
             
-            # Avance de pregunta
+            # Avanzamos y reseteamos el tiempo
             st.session_state.n_pregunta += 1
-            st.session_state.usar_5050 = False
             st.session_state.t_inicio_pregunta = time.time()
 
-            # --- LÓGICA DE CAMBIO DE MISIÓN (LIMPIA) ---
-            if st.session_state.n_pregunta >= len(st.session_state.lista_examen):
+            # Verificamos si terminó la tanda de 5
+            if st.session_state.n_pregunta >= 5:
                 if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
-                    # Antes de pasar, enviamos los datos de la Misión 1 a Google
-                    enviar_a_google(st.session_state.nombre, st.session_state.curso, 1, st.session_state.aciertos)
-                    
-                    st.success("¡MISIÓN 1 COMPLETADA! Preparando Misión 2...")
-                    time.sleep(2)
-                    
-                    # Cargamos Misión 2 desde cero para que no se mezclen las respuestas
+                    # SI PASA A MISIÓN 2: Limpiamos y cargamos nuevo pool
+                    st.success("¡Misión 1 Superada!")
+                    time.sleep(1)
                     pool_2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
-                    st.session_state.lista_examen = random.sample(pool_2, min(5, len(pool_2)))
-                    
-                    st.session_state.update({
-                        'mision': 2,
-                        'n_pregunta': 0,
-                        'aciertos': 0, 
-                        't_inicio_pregunta': time.time(),
-                        'power_5050': True # Recargamos el poder para la misión 2
-                    })
+                    st.session_state.lista_examen = random.sample(pool_2, 5)
+                    st.session_state.update({'mision': 2, 'n_pregunta': 0, 'aciertos': 0})
                 else:
-                    # Enviamos datos finales antes de ir al resumen
-                    enviar_a_google(st.session_state.nombre, st.session_state.curso, st.session_state.mision, st.session_state.aciertos)
                     st.session_state.paso = 'feedback'
-
             st.rerun()
+
 
     # --- Control de Tiempo (Auto-refresh) ---
     if porcentaje > 0:
