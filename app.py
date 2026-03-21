@@ -4,7 +4,6 @@ import time
 import requests
 import matplotlib.pyplot as plt
 import io
-import matplotlib.pyplot as plt
 
 
 # import requests # Si lo usas en otras partes 
