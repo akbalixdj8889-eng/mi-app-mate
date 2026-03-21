@@ -686,91 +686,92 @@ elif st.session_state.paso == 'examen':
         st.rerun() 
 
 # --- PANTALLA 3: FEEDBACK (Resultado Final) ---
+# --- PANTALLA 3: FEEDBACK (Resultado Final) ---
 elif st.session_state.paso == 'feedback':
     st.markdown(f"<div class='status-panel'>RESULTADO FINAL</div>", unsafe_allow_html=True)
     st.markdown("<div class='question-card' style='text-align:center;'>", unsafe_allow_html=True)
 
-    puntaje = st.session_state.aciertos 
-    st.markdown(f"## Resultado: {puntaje}/5") 
-
-    # --- Lógica de Aprobación y Mensajes ---
+    puntaje = st.session_state.aciertos
     mision_actual = st.session_state.mision
-    
-    # --- GUARDADO DE RESULTADOS ---
-    
-    # CASO 1: Misión 1 completada y aprobada (y aún no se ha guardado Misión 1)
-    if mision_actual == 1 and puntaje >= 3 and not st.session_state.get('datos_enviados_m1', False):
-        st.success(f"¡Misión 1 Superada ({puntaje}/5)! ¡Preparado para la Misión 2!")
-        st.toast("Guardando resultado Misión 1...", icon="💾")
-        enviar_a_google(
-            st.session_state.nombre, 
-            st.session_state.curso, 
-            "Misión 1", 
-            puntaje, 
-            st.session_state.power_5050
-        )
-        st.session_state.datos_enviados_m1 = True # Marcar resultado Misión 1 como enviado
-        st.toast("Resultado Misión 1 guardado.", icon="✅")
-        # Aquí, si se aprueba la Misión 1, AÑADIMOS la lógica para avanzar a Misión 2
-        if st.button("CONTINUAR A MISIÓN 2"): # Botón para el avance explícito
-             # Reiniciar estado de examen y preparar Misión 2
-            pool_m2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
-            num_preguntas_m2 = min(5, len(pool_m2))
+
+    st.markdown(f"## Resultado: {puntaje}/5")
+
+    # --- Lógica de Aprobación y Mensajes, y Transición ---
+
+    # CASO 1: Misión 1 completada
+    if mision_actual == 1:
+        if puntaje >= 3:
+            st.success(f"¡Misión 1 Superada ({puntaje}/5)! ¿Deseas continuar a la Misión 2?")
             
-            if num_preguntas_m2 > 0:
-                st.session_state.lista_examen = random.sample(pool_m2, num_preguntas_m2)
-                claves_a_eliminar = [key for key in st.session_state.keys() if key.startswith(('q_opts_', 'q_cor_', 'inc_', 'ocultas_fix_', 'rad_valid_'))] # Clave del nuevo radio
-                for key in claves_a_eliminar:
-                    del st.session_state[key]
+            # --- Guardamos el resultado de Misión 1 ---
+            if not st.session_state.get('datos_enviados_m1', False): 
+                st.toast("Guardando resultado Misión 1...", icon="💾")
+                enviar_a_google(
+                    st.session_state.nombre, 
+                    st.session_state.curso, 
+                    "Misión 1", 
+                    puntaje, 
+                    st.session_state.power_5050
+                )
+                st.session_state.datos_enviados_m1 = True
+                st.toast("Resultado Misión 1 guardado.", icon="✅")
+            
+            # --- Botón para Avanzar a Misión 2 ---
+            if st.button("CONTINUAR A MISIÓN 2"):
+                # Reiniciar estado de examen y preparar Misión 2
+                pool_m2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
+                num_preguntas_m2 = min(5, len(pool_m2))
                 
-                st.session_state.update({
-                    'mision': 2,
-                    'n_pregunta': 0,
-                    'aciertos': 0,
-                    't_inicio_pregunta': time.time()
-                })
-            else:
-                st.warning("No hay suficientes preguntas para la Misión 2. Finalizando el juego.")
-                # En este caso, el juego termina, aunque aprobara M1.
-                # Podríamos querer un botón de "Finalizar Juego" aquí.
-                # Por ahora, simplemente volvemos al registro.
-                reset_juego() # O simplemente ir a feedback final si ya no hay M2
-            st.rerun() # Recarga para iniciar Misión 2
-        
-    # --- Mensajes de Error o Recapitulativos para Misión 1 ---
-    elif mision_actual == 1: # Si estaba en Misión 1 y se completó (aprobó o no)
-        if puntaje < 3:
+                if num_preguntas_m2 > 0:
+                    st.session_state.lista_examen = random.sample(pool_m2, num_preguntas_m2)
+                    # Limpiar claves de preguntas de session_state ANTES de actualizar la misión
+                    claves_a_eliminar = [key for key in st.session_state.keys() if key.startswith(('q_opts_', 'q_cor_', 'inc_', 'ocultas_fix_', 'rad_valid_'))]
+                    for key in claves_a_eliminar:
+                        del st.session_state[key]
+                    
+                    st.session_state.update({
+                        'mision': 2,
+                        'n_pregunta': 0,
+                        'aciertos': 0,
+                        't_inicio_pregunta': time.time()
+                    })
+                    st.rerun() # Recarga para iniciar Misión 2
+                else:
+                    st.warning("No hay suficientes preguntas para la Misión 2. Finalizando el juego.")
+                    # Si no hay M2, forzamos el fin del juego y volvemos al registro
+                    reset_juego() 
+                    st.rerun()
+        else: # Misión 1 fallida
             st.error("No has logrado los aciertos mínimos (3/5) para avanzar a la Misión 2.")
-        # Si no se cumplió el if anterior de Misión 1 aprobada, significa que falló M1. Aquí el juego termina
-        # a menos que también quieras implementar un sistema de "volver a intentar M1".
-        # Por ahora, si falla M1, solo muestra el error y el botón de reiniciar.
+            # Aquí el juego termina para este intento.
 
-    # CASO 2: Misión 2 completada y aprobada (FIN DEL JUEGO)
-    elif mision_actual == 2 and puntaje >= 3 and not st.session_state.get('datos_enviados', False):
-        st.balloons() 
-        st.success("¡Misión 2 Cumplida! ¡Felicidades, Guerrero!")
-        
-        st.toast("Guardando tu victoria final en la base de datos...", icon="💾")
-        enviar_a_google(
-            st.session_state.nombre, 
-            st.session_state.curso, 
-            "Misión 2 (Final)", 
-            puntaje, 
-            st.session_state.power_5050
-        )
-        st.session_state.datos_enviados = True 
-        st.toast("¡Datos finales guardados con éxito!", icon="✅")
-
-    # --- Mensajes de Error o Recapitulativos para Misión 2 ---
-    elif mision_actual == 2: # Si estaba en Misión 2 y falló
-        st.error("No has alcanzado la puntuación mínima (3/5) para aprobar la Misión 2.")
+    # CASO 2: Misión 2 completada (Final del juego)
+    elif mision_actual == 2:
+        if puntaje >= 3: # Misión 2 aprobada
+            st.balloons() 
+            st.success("¡Misión 2 Cumplida! ¡Felicidades, Guerrero!")
+            
+            # --- ACCIÓN DE GUARDADO FINAL (Misión 2) ---
+            if not st.session_state.get('datos_enviados', False): 
+                st.toast("Guardando tu victoria final en la base de datos...", icon="💾")
+                enviar_a_google(
+                    st.session_state.nombre, 
+                    st.session_state.curso, 
+                    "Misión 2 (Final)", 
+                    puntaje, 
+                    st.session_state.power_5050
+                )
+                st.session_state.datos_enviados = True 
+                st.toast("¡Datos finales guardados con éxito!", icon="✅")
+        else: # Misión 2 fallida
+            st.error("No has alcanzado la puntuación mínima (3/5) para aprobar la Misión 2.")
+            # También se podría guardar el resultado de fallo de Misión 2 si se desea.
 
     # --- Botón para Reiniciar el Juego ---
-    # Este botón siempre debe ser visible para reiniciar.
+    # Este botón es visible independientemente del resultado de la misión actual.
     if st.button("INTENTAR DE NUEVO"):
         reset_juego() 
         st.rerun()
 
     st.markdown("</div>", unsafe_allow_html=True)
-
-# ----- FIN DE LA PARTE 4 -----
+    # ----- FIN DE LA PARTE 4 -----
