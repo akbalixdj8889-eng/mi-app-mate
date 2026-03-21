@@ -412,7 +412,7 @@ def crear_imagen(texto, opciones, ocultas=[], idx_pregunta=None, id_pregunta=Non
     return buf
 
 
-	def reset_juego():
+def reset_juego():
     """
     Limpia el estado del juego en session_state para permitir un nuevo intento
     desde la pantalla de registro.
