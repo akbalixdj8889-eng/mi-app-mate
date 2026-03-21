@@ -104,7 +104,7 @@ if 'banco_completo' not in st.session_state:
         {"id": "B3", "mision": 1, "pregunta": "Una antena transmite desde P(5, -2) con m = -4/5. ¿Cuál es su modelo matemático?", "opciones": ["y = -4/5x + 2", "y = -4/5x - 6", "y = 4/5x + 2", "y = -5/4x + 2"], "correcta_texto": "y = -4/5x + 2", "t_max": 75},
         {"id": "B4", "mision": 1, "pregunta": "Si una cerca sigue la línea y = 3/7x + 5, ¿cuál de estas opciones es una línea PARALELA?", "opciones": ["y = -3/7x + 5", "y = 7/3x - 1", "y = 3/7x - 8", "y = -7/3x + 2"], "correcta_texto": "y = 3/7x - 8", "t_max": 60},
         {"id": "B5", "mision": 1, "pregunta": "Una tubería (y = -5/2x - 4) debe cruzarse con otra de forma PERPENDICULAR. ¿Cuál es la ecuación de la segunda?", "opciones": ["y = 5/2x + 1", "y = 2/5x + 10", "y = -2/5x - 4", "y = -5/2x + 3"], "correcta_texto": "y = 2/5x + 4", "t_max": 60},
-        {"id": "B6", "mision": 1, "pregunta": "Halla la recta con m = 1/3 que pasa por P(6, 4) e identifica otro punto por donde pase:", "opciones": ["y = 1/3x + 2 (Punto 0, 2)", "y = 3x - 2 (Punto 1, 1)", "y = 1/3x + 4 (Punto 3, 5)", "y = -1/3x + 2 (Punto 6, 0)"], "correcta_texto": "y = 1/3x + 2 (Punto 0, 2)", "t_max": 80},
+        {"id": "B6", "mision": 1, "pregunta": "Halla la recta con m = 1/3 que pasa por P(6, 4) e identifica otro punto por donde pase:", "opciones": ["y = 1/3x + 2  Punto (0, 2)", "y = 3x - 2 Punto (1, 1)", "y = 1/3x + 4 Punto (3, 5)", "y = -1/3x + 2 Punto (6, 0)"], "correcta_texto": ""y = 1/3x + 2  Punto (0, 2)", "t_max": 80},
         {"id": "B7", "mision": 2, "pregunta": "Un enfriador está a 20°C y baja 4°C cada 3 min. ¿Qué función describe su temperatura?", "opciones": ["y = 3/4x + 20", "y = -4/3x + 20", "y = 4/3x - 20", "y = -3/4x + 20"], "correcta_texto": "y = -4/3x + 20", "t_max": 90},
         {"id": "B8", "mision": 2, "pregunta": "Mensajería: (pesos)10 de cargo básico más (pesos)3 por cada 4 km recorridos. ¿Cuánto cuesta un envío a 20 km?", "opciones": ["(pesos)15", "(pesos)20", "(pesos)25", "(pesos)30"], "correcta_texto": "(pesos)25", "t_max": 90},
         {"id": "B9", "mision": 2, "pregunta": "Tanque A (15L inicial, sube 3L c/2 min). Tanque B (45L inicial, baja 5L c/2 min). ¿En qué minuto tienen igual nivel?", "opciones": ["6", "7.5", "10", "15"], "correcta_texto": "7.5", "t_max": 120},
@@ -116,7 +116,7 @@ if 'banco_completo' not in st.session_state:
         {"id": "C3", "mision": 1, "pregunta": "Desde P(-4, 2) sale un cable con pendiente m = 3/4. ¿Cuál es su ecuación?", "opciones": ["y = 3/4x - 5", "y = 3/4x + 5", "y = -3/4x + 5", "y = 4/3x + 5"], "correcta_texto": "y = 3/4x + 5", "t_max": 75},
         {"id": "C4", "mision": 1, "pregunta": "Una pista es y = -2/9x + 10. ¿Cuál de estas opciones representa una pista PARALELA?", "opciones": ["y = 9/2x + 10", "y = -2/9x - 4", "y = 2/9x + 4", "y = -9/2x + 1"], "correcta_texto": "y = -2/9x - 4", "t_max": 60},
         {"id": "C5", "mision": 1, "pregunta": "Una viga (y = 7/3x - 2) debe sostenerse con otra PERPENDICULAR. ¿Qué ecuación tiene la segunda viga?", "opciones": ["y = -3/7x + 6", "y = 3/7x + 6", "y = -7/3x - 2", "y = 7/3x + 4"], "correcta_texto": "y = -3/7x + 6", "t_max": 60},
-        {"id": "C6", "mision": 1, "pregunta": "Halla la recta con m = -3/2 que pasa por P(4, -1) y señala otro punto de su trayectoria:", "opciones": ["y = -3/2x + 5 (Punto 0, 5)", "y = 3/2x - 7 (Punto 2, -4)", "y = -3/2x + 5 (Punto 2, 1)", "y = 2/3x + 1 (Punto 3, 3)"], "correcta_texto": "y = -3/2x + 5 (Punto 0, 5)", "t_max": 80},
+        {"id": "C6", "mision": 1, "pregunta": "Halla la recta con m = -3/2 que pasa por P(4, -1) y señala otro punto de su trayectoria:", "opciones": ["y = -3/2x + 5 Punto (0, 5)", "y = 3/2x - 7 Punto (2, -4)", "y = -3/2x + 5 Punto (2, 1)", "y = 2/3x + 1 Punto (3, 3)"], "correcta_texto": "y = -3/2x + 5 Punto (0, 5)", "t_max": 80},
         {"id": "C7", "mision": 2, "pregunta": "Un vehículo con 40L consume 5L cada 4 km. ¿Qué función modela el combustible restante según los km recorridos?", "opciones": ["y = 4/5x + 40", "y = -5/4x + 40", "y = 5/4x - 40", "y = -4/5x + 40"], "correcta_texto": "y = -5/4x + 40", "t_max": 90},
         {"id": "C8", "mision": 2, "pregunta": "Un servicio técnico cobra \(pesos)15 base y (pesos)5 por cada 2 horas de labor. ¿Cuánto cuesta una reparación de 7 horas?", "opciones": ["(pesos)30.0", "(pesos)32.5", "(pesos)35.0", "(pesos)17.5"], "correcta_texto": "(pesos)32.5", "t_max": 90},
         {"id": "C9", "mision": 2, "pregunta": "Tanque A (100L inicial, pierde 10L c/3 min). Tanque B (20L inicial, gana 10L c/3 min). ¿En qué minuto se cruzan?", "opciones": ["10", "12", "15", "18"], "correcta_texto": "12", "t_max": 120},
@@ -277,6 +277,8 @@ def enviar_a_google(nombre, curso, mision, aciertos, powerup):
 
 # --- 6. PANTALLAS (FLUJO DE JUEGO) ---
 
+# --- 6. PANTALLAS (FLUJO DE JUEGO) ---
+
 # --- PANTALLA 1: REGISTRO ---
 if st.session_state.paso == 'registro':
     st.markdown("<div class='status-panel'>MATH QUEST: REGISTRO DE GUERRERO / CURSO</div>", unsafe_allow_html=True)
@@ -287,11 +289,11 @@ if st.session_state.paso == 'registro':
 
         if st.button("¡INICIAR AVENTURA!"):
             if nom: # Solo si se ingresó un nombre
-                # Seleccionamos 5 preguntas aleatorias de la Misión 1
-                # Filtramos todas las preguntas de la misión actual (inicialmente Misión 1)
+                # Seleccionamos 5 preguntas aleatorias de la Misión 1 Y RESETEAMOS LA MISIÓN A 1
+                st.session_state.mision = 1 # Aseguramos que la misión sea 1 al iniciar
+                
                 pool = [p for p in st.session_state.banco_completo if p['mision'] == st.session_state.mision]
                 
-                # Nos aseguramos de no seleccionar más preguntas de las disponibles
                 num_preguntas_a_seleccionar = min(5, len(pool))
                 
                 if num_preguntas_a_seleccionar > 0: # Solo si hay preguntas disponibles
@@ -306,9 +308,14 @@ if st.session_state.paso == 'registro':
                         'aciertos': 0,             # Reiniciamos aciertos
                         't_inicio_pregunta': time.time(), # Guardamos el tiempo de inicio para el cronómetro
                         'power_5050': True,        # Aseguramos que el power-up esté disponible al inicio
-                        'usar_5050': False,        # Aseguramos que no esté activo al inicio
+                        'usar_5050': False,        # Aseguramos que no esté activo al inicio (limpieza)
                         'datos_enviados': False    # Aseguramos que no se hayan enviado datos
                     })
+                    # Limpiamos las claves específicas de preguntas de session_state por si acaso
+                    claves_a_eliminar = [key for key in st.session_state.keys() if key.startswith(('q_opts_', 'q_cor_', 'inc_', 'ocultas_fix_', 'rad_'))]
+                    for key in claves_a_eliminar:
+                        del st.session_state[key]
+
                     st.rerun() # Recargamos para mostrar la nueva pantalla
                 else:
                     st.error("No hay suficientes preguntas disponibles para la misión actual. Por favor, contacta al administrador.")
@@ -339,161 +346,122 @@ elif st.session_state.paso == 'examen':
         letras = ["A)", "B)", "C)", "D)"] # Prefijos para identificar las opciones
 
         # Guardamos las opciones mezcladas (con sus prefijos de letra) en session_state.
-        # Ejemplo: 'q_opts_0': ['A) respuesta 3', 'B) respuesta 1', ...]
         st.session_state[f"q_opts_{idx}"] = [f"{letras[i]} {opts_mezcladas[i]}" for i in range(4)]
 
         # Determinamos cuál 'letra' (A, B, C, D) corresponde a la respuesta correcta real.
-        # Buscamos la posición del texto de la respuesta correcta original (p['correcta_texto'])
-        # dentro de la lista de opciones mezcladas. Esa posición nos da el índice
-        # para obtener la letra correcta de la lista ["A", "B", "C", "D"].
         st.session_state[f"q_cor_{idx}"] = ["A", "B", "C", "D"][opts_mezcladas.index(p['correcta_texto'])]
 
-        # Guardamos las letras INCORRECTAS (las que NO son la respuesta correcta)
-        # para poder seleccionar dos de ellas para el power-up 50/50.
+        # Guardamos las letras INCORRECTAS para poder seleccionar dos de ellas para el power-up 50/50.
         cor_letra = st.session_state[f"q_cor_{idx}"]
         st.session_state[f"inc_{idx}"] = [L for L in ["A", "B", "C", "D"] if L != cor_letra]
 
-# 1. ANCLAJE DE OPCIONES (Para que no cambien al refrescar)
-    if f"q_opts_{idx}" not in st.session_state:
-        opts_mezcladas = p['opciones'].copy()
-        random.shuffle(opts_mezcladas)
-        letras = ["A)", "B)", "C)", "D)"]
-        st.session_state[f"q_opts_{idx}"] = [f"{letras[i]} {opts_mezcladas[i]}" for i in range(4)]
-        st.session_state[f"q_cor_{idx}"] = ["A", "B", "C", "D"][opts_mezcladas.index(p['correcta_texto'])]
-    
-    # Guardar cuáles son las letras incorrectas para el 50/50
-    cor_letra = st.session_state[f"q_cor_{idx}"]
-    st.session_state[f"inc_{idx}"] = [L for L in ["A", "B", "C", "D"] if L != cor_letra]
-
-
-
-
     # --- UI: Panel de Estado Superior y Barra de Energía (Tiempo) ---
-    # Mensaje para indicar el estado del power-up
     msg = "⚡ 50/50 DISPONIBLE" if st.session_state.power_5050 else "¡SIN POWER-UPS activados!"
-    if st.session_state.usar_5050: msg = "🔥 MODO 50/50 ACTIVADO" # Mensaje si el 50/50 está actualmente activo para esta pregunta
+    if st.session_state.usar_5050: msg = "🔥 MODO 50/50 ACTIVADO"
     st.markdown(f"<div class='status-panel'>{msg}</div>", unsafe_allow_html=True)
 
     # Calculamos el progreso del tiempo para la pregunta actual
-    t_limite = p.get('t_max', 60) # Usamos el tiempo máximo definido para la pregunta, o 60 segundos por defecto
-    t_actual = time.time() - st.session_state.t_inicio_pregunta # Tiempo transcurrido desde el inicio de la pregunta
-    # Calculamos el porcentaje de tiempo restante, asegurando que no sea negativo ni mayor a 100%
+    t_limite = p.get('t_max', 60)
+    t_actual = time.time() - st.session_state.t_inicio_pregunta
     porcentaje = max(0.0, (t_limite - t_actual) / t_limite) * 100
-    # Actualizamos la barra de progreso visual (con estilo CSS)
     st.markdown(f"<div class='energy-container'><div class='energy-bar' style='width:{porcentaje:.2f}%'></div></div>", unsafe_allow_html=True)
 
     # --- Lógica para Ocultar Opciones con Power-up 50/50 ---
-    ocultas = [] # Lista para almacenar las letras de las opciones que se ocultarán
-    if st.session_state.usar_5050: # Si el power-up 50/50 está activo para esta pregunta
-        # Generamos las 2 opciones incorrectas a ocultar. Esto solo se hace una vez por pregunta.
+    ocultas = []
+    if st.session_state.usar_5050:
         if f"ocultas_fix_{idx}" not in st.session_state:
             st.session_state[f"ocultas_fix_{idx}"] = random.sample(st.session_state[f"inc_{idx}"], 2)
-        ocultas = st.session_state[f"ocultas_fix_{idx}"] # Asignamos las letras a ocultar
+        ocultas = st.session_state[f"ocultas_fix_{idx}"]
 
     # --- Renderizado de la Pregunta (Imagen) ---
-    img_buf = crear_imagen(p['pregunta'], st.session_state[f"q_opts_{idx}"], ocultas) # Creamos la imagen con texto y opciones (algunas ocultas si aplica)
+    img_buf = crear_imagen(p['pregunta'], st.session_state[f"q_opts_{idx}"], ocultas)
     st.markdown("<div class='question-card'>", unsafe_allow_html=True)
-    st.image(img_buf) # Mostramos la imagen generada
+    st.image(img_buf)
     st.markdown("</div>", unsafe_allow_html=True)
 
     # --- Botón del Power-up 50/50 ---
-    # Usamos columnas para colocar el botón a la derecha de la pregunta/respuestas
-    col_a, col_b = st.columns([3, 1]) # Columna principal (ancho 3) y columna para el botón (ancho 1)
-    with col_b: # En la columna de la derecha
-        if st.session_state.power_5050: # Si el power-up está disponible (no se ha usado aún)
-            if st.button("⚡ 50/50"): # Botón para activarlo
-                st.session_state.usar_5050 = True # Marcamos que el 50/50 está activo para esta pregunta
-                st.session_state.power_5050 = False # Desactivamos la disponibilidad general del power-up
-                st.rerun() # Recargamos para que se muestren las opciones ocultas y el mensaje de estado
+    col_a, col_b = st.columns([3, 1])
+    with col_b:
+        if st.session_state.power_5050:
+            if st.button("⚡ 50/50"):
+                st.session_state.usar_5050 = True
+                st.session_state.power_5050 = False
+                st.rerun()
 
     # --- Selección de Respuesta por el Usuario ---
-    # Usamos st.radio para que el usuario elija A, B, C o D.
-    # `key=f"rad_{idx}"` es FUNDAMENTAL para que cada radio button sea único por pregunta.
-    # `index=None` significa que al iniciar la pregunta, ninguna opción está seleccionada.
-    # `horizontal=True` muestra las opciones en una fila.
     ans_letter = st.radio("TU ELECCIÓN:", ["A", "B", "C", "D"], key=f"rad_{idx}", index=None, horizontal=True)
 
     # --- Botón de ENVIAR RESPUESTA o Comportamiento al Agotar Tiempo ---
-    # La respuesta se procesa si el usuario presiona el botón "ENVIAR RESPUESTA"
-    # O AUTOMÁTICAMENTE si el tiempo se agota (porcentaje <= 0).
     if st.button("ENVIAR RESPUESTA ➡️") or porcentaje <= 0.0:
-        # Procesamos la respuesta solo si el usuario ha seleccionado una letra
-        if ans_letter:
-            # Obtenemos el TEXTO COMPLETO de la opción seleccionada por el usuario.
-            # Por ejemplo: "A) y = 7x - 4"
-            opcion_elegida_idx = ["A", "B", "C", "D"].index(ans_letter) # Índice de la letra elegida (0 para A, 1 para B, etc.)
-            texto_respuesta_usuario_completo = st.session_state[f"q_opts_{idx}"][opcion_elegida_idx] # La opción completa seleccionada
-
-            # --- LÓGICA DE COMPARACIÓN DE RESPUESTA ---
-            # Extraemos el VALOR REAL de la respuesta del usuario (todo lo que viene después de "X) ")
-            # Esto es para comparar uniformemente con el `correcta_texto` del banco de preguntas.
+        if ans_letter: # Procesar solo si se eligió una letra
+            opcion_elegida_idx = ["A", "B", "C", "D"].index(ans_letter)
+            texto_respuesta_usuario_completo = st.session_state[f"q_opts_{idx}"][opcion_elegida_idx]
             valor_respuesta_usuario = texto_respuesta_usuario_completo.split(") ", 1)[1]
 
-            # Comprobamos si el valor extraído coincide EXACTAMENTE con la respuesta correcta almacenada en la pregunta original (p['correcta_texto']).
+            # --- LÓGICA DE COMPARACIÓN DE RESPUESTA ---
             if valor_respuesta_usuario == p['correcta_texto']:
-                st.session_state.aciertos += 1 # Incrementamos los aciertos
-                st.toast("¡Punto para ti!", icon="🔥") # Mensaje de éxito
+                st.session_state.aciertos += 1
+                st.toast("¡Punto para ti!", icon="🔥")
             else:
-                st.toast("Incorrecto...", icon="❌") # Mensaje de error
+                st.toast("Incorrecto...", icon="❌")
 
         # --- Preparación para la Siguiente Pregunta o Fin de Misión ---
-        st.session_state.n_pregunta += 1 # Avanzamos al índice de la siguiente pregunta
-        st.session_state.t_inicio_pregunta = time.time() # Reiniciamos el temporizador para la nueva pregunta
-        st.session_state.usar_5050 = False # Desactivamos el 50/50 para la siguiente pregunta
+        st.session_state.n_pregunta += 1
+        st.session_state.t_inicio_pregunta = time.time()
+        st.session_state.usar_5050 = False
 
-        # Limpiamos el estado específico del 50/50 para evitar que se siga usando indebidamente en la siguiente pregunta
-        if f"ocultas_fix_{idx}" in st.session_state:
-            del st.session_state[f"ocultas_fix_{idx}"]
-        # También eliminamos la clave antigua 'ocultar' por si acaso, para mayor robustez.
-        st.session_state.pop('ocultar', None)
+        # Limpiamos las claves de preguntas de la sesión anterior al avanzar de pregunta (esto puede ser redundante si ya está en 'INTENTAR DE NUEVO' y cambio de misión)
+        # Opcionalmente, para ser más drástico, esta limpieza se podría hacer SÓLO al cambiar de misión o reiniciar.
+        # Ahora, lo hacemos SOLO si vamos a cambiar de MISIÓN o REINICIAR. La limpieza al avanzar de pregunta es menos crucial.
+        # claves_a_eliminar_pregunta = [key for key in st.session_state.keys() if key.startswith(('q_opts_', 'q_cor_', 'inc_', 'ocultas_fix_', 'rad_')) and f'_{idx}' in key] # Para limpiar solo la pregunta actual
+        # for key in claves_a_eliminar_pregunta:
+        #     del st.session_state[key]
 
         # --- Verificación de Fin de Ronda/Misión ---
-        # Si ya se respondieron todas las preguntas de la misión actual (índice >= número total de preguntas)
         if st.session_state.n_pregunta >= len(st.session_state.lista_examen):
-            # Lógica para avanzar o terminar basándonos en la misión
+            # --- Lógica de Transición de Misión ---
             if st.session_state.mision == 1: # Si acabamos de completar la Misión 1
                 if st.session_state.aciertos >= 3: # Criterio de aprobación para pasar a Misión 2
-                    st.success("¡Misión 1 Superada!") # Mensaje de éxito
-                    time.sleep(1.5) # Pequeña pausa para que el usuario vea el mensaje
+                    st.success("¡Misión 1 Superada!")
+                    time.sleep(1.5)
 
-                    # Preparar para la Misión 2: Seleccionar 5 preguntas aleatorias de la Misión 2
+                    # Preparar para la Misión 2
                     pool_2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
                     num_preguntas_m2 = min(5, len(pool_2))
+                    
                     if num_preguntas_m2 > 0:
-                     # ... (código anterior para preparar Misión 2)
-                     st.session_state.lista_examen = random.sample(pool_2, num_preguntas_m2)
-                        # Resetear el estado para iniciar la Misión 2
-                        st.session_state.update({
-                            'mision': 2,           # Cambiamos a Misión 2
-                            'n_pregunta': 0,       # Reiniciamos al índice de la primera pregunta de la nueva misión
-                            'aciertos': 0,         # Reiniciamos el contador de aciertos
-                            't_inicio_pregunta': time.time() # Reiniciamos el temporizador
-                        })
-            # **NUEVO: Limpiar claves de preguntas de la misión anterior**
-            claves_a_eliminar = [key for key in st.session_state.keys() if key.startswith(('q_opts_', 'q_cor_', 'inc_', 'ocultas_fix_'))]
-            for key in claves_a_eliminar:
-                 del st.session_state[key]
-
-                    st.rerun()
-
-
+                        st.session_state.lista_examen = random.sample(pool_2, num_preguntas_m2)
+                        # **IMPORTANTE:** Limpiar claves de preguntas ANTES de actualizar misión
+                        # Esto asegura que las claves viejas (de Misión 1) no interfieran con las nuevas (de Misión 2)
+                        claves_a_eliminar = [key for key in st.session_state.keys() if key.startswith(('q_opts_', 'q_cor_', 'inc_', 'ocultas_fix_', 'rad_'))]
+                        for key in claves_a_eliminar:
+                            del st.session_state[key]
                         
+                        st.session_state.update({
+                            'mision': 2,
+                            'n_pregunta': 0,
+                            'aciertos': 0,
+                            't_inicio_pregunta': time.time()
+                        })
                     else:
-                        # Si no hay suficientes preguntas para la Misión 2, pasamos a feedback
+                        # Si no hay suficientes preguntas para Misión 2, pasamos a feedback
                         st.session_state.paso = 'feedback'
-                    st.rerun() # Recargamos para mostrar las preguntas de Misión 2 o la pantalla de feedback
+                        
+                    st.rerun() # Recargamos para mostrar Misión 2 o feedback
                 else:
-                    # Si no se aprobaron 3 aciertos en Misión 1, se pasa directamente a feedback (sin avanzar a Misión 2)
+                    # Si no se aprobaron 3 aciertos en Misión 1, se pasa directamente a feedback
                     st.session_state.paso = 'feedback'
+                    st.rerun() # Recargamos para mostrar feedback
             else: # Si estábamos completando la Misión 2 (la misión final)
                 st.session_state.paso = 'feedback' # Pasamos a la pantalla de feedback final
+                st.rerun() # Recargamos para mostrar feedback
 
-        # En cualquier caso, recargamos la página para actualizar la interfaz (mostrar siguiente pregunta o feedback)
-        st.rerun()
+        # Si aún quedan preguntas en la misión actual (no se cumplió idx >= len(lista_examen)),
+        # recargamos para mostrar la siguiente pregunta.
+        if st.session_state.n_pregunta < len(st.session_state.lista_examen):
+            st.rerun()
 
     # --- Auto-refresh del Cronómetro ---
-    # Si todavía queda tiempo en la pregunta actual (porcentaje > 0),
-    # esperamos 1 segundo y recargamos la página para actualizar la barra de tiempo.
     if porcentaje > 0:
         time.sleep(1)
         st.rerun()
@@ -504,25 +472,28 @@ elif st.session_state.paso == 'feedback':
     st.markdown("<div class='question-card' style='text-align:center;'>", unsafe_allow_html=True)
 
     puntaje = st.session_state.aciertos
-    st.markdown(f"## Resultado: {puntaje}/5") # Mostramos la puntuación obtenida (sobre 5)
+    st.markdown(f"## Resultado: {puntaje}/5")
 
     # Lógica de Aprobación y Mensajes
-    aprobado = False
-    if st.session_state.mision == 1 and puntaje >= 3:
-        aprobado = True
-        st.success(f"¡Misión 1 Superada ({puntaje}/5)! ¡Preparado para la Misión 2!")
-        # No mostramos globos ni confirmación final porque Misión 2 aún no se ha completado.
-    elif st.session_state.mision == 2 and puntaje >= 3:
-        aprobado = True
-        st.balloons() # Globos para cuando se aprueba la misión final
-        st.success("¡Misión 2 Cumplida! ¡Felicidades, Guerrero!")
-        # Aquí podrías enviar los datos consolidados a Google si fuera necesario
-        # enviar_a_google(st.session_state.nombre, st.session_state.curso, st.session_state.mision, puntaje, st.session_state.power_5050)
+    mision_actual = st.session_state.mision
     
+    # Condición de Éxito Global: Aprobó Misión 1 Y Misión 2 (o solo Misión 1 si se detiene ahí)
+    aprobado_examen = False
+    if mision_actual == 1 and puntaje >= 3:
+        aprobado_examen = True
+        st.success(f"¡Misión 1 Superada ({puntaje}/5)! ¡Preparado para la Misión 2!")
+    elif mision_actual == 2 and puntaje >= 3:
+        aprobado_examen = True
+        st.balloons()
+        st.success("¡Misión 2 Cumplida! ¡Felicidades, Guerrero!")
+        # Podrías llamar a enviar_a_google aquí si es el final definitivo.
+        # Puedes decidir si envías datos por misión o solo al final.
+        # enviar_a_google(st.session_state.nombre, st.session_state.curso, st.session_state.mision, puntaje, st.session_state.power_5050)
+
     # Mensajes de Error o Recapitulativos
-    if st.session_state.mision == 1 and puntaje < 3:
+    if mision_actual == 1 and puntaje < 3:
         st.error("No has logrado los aciertos mínimos (3/5) para avanzar a la Misión 2.")
-    elif st.session_state.mision == 2 and puntaje < 3:
+    elif mision_actual == 2 and puntaje < 3:
         st.error("No has alcanzado la puntuación mínima (3/5) para aprobar la Misión 2.")
 
     # Botón para reiniciar el juego
@@ -533,14 +504,21 @@ elif st.session_state.paso == 'feedback':
             'mision': 1,                # Reiniciar a la Misión 1
             'n_pregunta': 0,            # Reiniciar a la primera pregunta
             'aciertos': 0,              # Reiniciar contador de aciertos
-            'power_5050': True,         # Power-up disponible nuevamente
+            'power_5050': True,         # Power-up disponible
             'usar_5050': False,         # Power-up no activo
             'lista_examen': [],         # Vaciar la lista de preguntas del examen
             'datos_enviados': False     # Reiniciar estado de envío de datos
         })
+        # **IMPORTANTE:** Limpiar también aquí las claves de preguntas de session_state
+        claves_a_eliminar = [key for key in st.session_state.keys() if key.startswith(('q_opts_', 'q_cor_', 'inc_', 'ocultas_fix_', 'rad_'))]
+        for key in claves_a_eliminar:
+            del st.session_state[key]
+            
         st.rerun() # Recargamos para mostrar la pantalla de registro
 
     st.markdown("</div>", unsafe_allow_html=True)
+
+    
 
 
 
