@@ -164,119 +164,6 @@ if 'paso' not in st.session_state:
  
 # --- 5. FUNCIONES (MOTOR GRÁFICO Y LÓGICA) ---
 
-¡Excelente! Entiendo perfectamente lo que buscas. Abordemos primero el problema de la imagen blureada, y luego cómo puedes usar texto plano para evitar que otras IAs lo interpreten fácilmente.
-
----
-
-### <details>
-<summary>1. Problema de la Imagen Blureada/Distorsionada y Solución</summary>
-
-La razón por la que ves esa imagen borrosa o extraña, incluso después de corregir "20basey15", es la misma que antes: **el signo de dólar (`$`)** y su proximidad a los números.
-
-Las bibliotecas de renderizado de texto como `matplotlib` (que usas en `crear_imagen`) interpretan ciertos caracteres como parte de la sintaxis o del formato. El signo de dólar, especialmente al ir pegado a un número, puede causar que el renderizador de texto intente procesarlo de forma especial o que las fuentes no lo manejen correctamente, resultando en la distorsión que muestras:
-
-**Imagen dada:**
-```
-$45
-$65
-$35
-$70
-```
-
-**Esto se ve mal porque el carácter `$` está "uniendo" visualmente el símbolo a los números de una manera que el motor de texto de `matplotlib` no maneja limpiamente al renderizar.**
-
-**Tu objetivo:** Evitar el reconocimiento fácil por otras IAs mediante el uso de texto plano, lo cual es genial. La solución para la imagen es hacer que los números sean más "planos" para el renderizador, pero sin perder su significado.
-
-**Soluciones para el Renderizado de Texto con `$`:**
-
-Hay varias maneras de manejar esto:
-
-1.  **Reemplazar el `$` por un espacio o un guion bajo en el texto que se pasa a `matplotlib` _solo para la visualización_.**
-    *   **Mecanismo:** Modificar el `cuerpo` dentro de la función `crear_imagen` para que, antes de dibujar, reemplace los `$` por un espacio o un guion bajo. Sin embargo, esto solo afectaría a cómo se *dibuja* la imagen, pero el `correcta_texto` y las opciones del banco de preguntas seguirían teniendo el `$`.
-    *   **Ejemplo en `crear_imagen`:**
-
-    ```python
-    # Dentro de la función crear_imagen, antes de ax.text:
-    # ...
-    cuerpo = f"{texto}\n\n" + "\n".join(finales)
-
-    # --- MODIFICACIÓN PARA RENDERIZAR SIN EL '$' ---
-    # Reemplazar '$' por un espacio, pero solo para la visualización.
-    # Asegurarnos de que el texto FINAL se mantenga para comparar si es necesario.
-    cuerpo_renderizado = cuerpo.replace('$', ' ') # Reemplaza '$' por un espacio para 'limpiar' la visualización
-
-    size_fuente = 16 if len(cuerpo) < 200 else 14
-
-    # Dibujamos el texto renderizado (limpio)
-    ax.text(0.05, 0.9, cuerpo_renderizado, # Usamos cuerpo_renderizado aquí
-            fontsize=size_fuente,
-            fontweight='bold',
-            wrap=True,
-            va='top',
-            ha='left',
-            color='#2d0b2a',
-            family='sans-zA-Z', # Asegurar solo letras y espacios para renderizado
-            linespacing=1.6)
-    # ...
-    ```
-    **Importante:** Esto solo mejora cómo se *ve* la imagen. La comparación de respuestas (`valor_respuesta_usuario == p['correcta_texto']`) debe seguir funcionando con los `$` originales en tu banco de preguntas. La línea `valor_respuesta_usuario = texto_respuesta_usuario_completo.split(") ", 1)[1]` ya extrae `"$65"` y si `p['correcta_texto']` es `"$65"`, la comparación debería funcionar.
-
-2.  **Usar una Fuente Especializada (Menos común para este caso):** A veces, el problema es la fuente. Pero dado que parece un problema de interpretación del carácter `$`, la solución anterior es más directa.
-
-**Recomendación principal:**
-
-La solución más directa y que cumple tu objetivo de evitar IAs es **usar un formato textual que no sea estándar pero que sea entendible para ti y tu lógica de comparación**.
-
-En lugar de:
-`"$65"` o `"$20 base"`
-
-Considera algo como:
-
-*   `"65 USD"`
-*   `"20 USD base"`
-*   `"15 USD por 4 horas"`
-
-O, para mantener la idea de "texto plano" y evitar que otras IAs lo interpreten como moneda:
-
-*   `"65 (moneda)"`
-*   `"20 (moneda) base"`
-*   `"15 (moneda) por cada 4 horas"`
-
-**Aplicación Práctica (con mi recomendación):**
-
-Modifica tu banco de preguntas y la función `crear_imagen` de la siguiente manera:
-
-**A. Modifica el Banco de Preguntas:**
-
-En tu `st.session_state.banco_completo`, para las preguntas relevantes:
-
-*   **Pregunta D8:**
-    *   `pregunta`: `"Un carpintero cobra 20 (moneda) base y 15 (moneda) por cada 4 horas de trabajo. ¿Cuánto cobrará por un proyecto de 12 horas?"`
-    *   `opciones`: `["45 (moneda)", "65 (moneda)", "35 (moneda)", "70 (moneda)"]`
-    *   `correcta_texto`: `"65 (moneda)"`
-
-*   **Observa todas las preguntas con signos de dólar.** Aplica un patrón similar. Por ejemplo, para la pregunta C8:
-    *   **Original:** `{"id": "C8", "mision": 2, "pregunta": "Un servicio técnico cobra $15 base y $5 por cada 2 horas de labor. ¿Cuánto cuesta una reparación de 7 horas?", "opciones": ["$30.0", "$32.5", "$35.0", "$17.5"], "correcta_texto": "$32.5", "t_max": 90}`
-    *   **Modificado:**
-        *   `pregunta`: `"Un servicio técnico cobra 15 (moneda) base y 5 (moneda) por cada 2 horas de labor. ¿Cuánto cuesta una reparación de 7 horas?"`
-        *   `opciones`: `["30.0 (moneda)", "32.5 (moneda)", "35.0 (moneda)", "17.5 (moneda)"]`
-        *   `correcta_texto`: `"32.5 (moneda)"`
-
-**B. Modifica la función `crear_imagen`:**
-
-No necesitas hacer grandes cambios aquí si ya usaste la lógica de los `finales` y `cuerpo_renderizado`. Si no la implementaste, aplica lo siguiente:
-
-```python
-import matplotlib.pyplot as plt
-import io
-import random # Asegúrate de tenerlo importado
-import time # Asegúrate de tenerlo importado
-import streamlit as st # Asegúrate de tenerlo importado
-# import requests # Si lo usas en otras partes
-
-# Asegúrate de que estas variables sean accesibles o pasadas como argumentos si es necesario
-# En tu code, el banco_completo está en session_state, y 'idx' se pasa implicítamente por el flujo.
-
 def crear_imagen(texto, opciones, ocultas=[]):
     """
     Genera una imagen con texto, manejando opciones ocultas y sin renderizar
@@ -335,6 +222,28 @@ def crear_imagen(texto, opciones, ocultas=[]):
     plt.close(fig) # Cerramos la figura para liberar memoria
     buf.seek(0) # Movemos el puntero del buffer al inicio para que Streamlit pueda leerlo
     return buf
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def reset_juego():
