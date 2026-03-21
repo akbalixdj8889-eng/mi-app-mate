@@ -5,7 +5,7 @@ import requests
 import matplotlib.pyplot as plt
 import io
 
-# Configuración de la pestaña del navegador y disposición de la página
+# 1. Configuración de la pestaña del navegador y disposición de la página
 st.set_page_config(
     page_title="Math Quest Pro", 
     page_icon="⚡", 
@@ -77,10 +77,12 @@ st.markdown("""
     }
     </style>
     """, unsafe_allow_html=True)
-   
+
+
 # --- 3. BANCO DE PREGUNTAS ACTUALIZADO Y HUMANIZADO ---
 if 'banco_completo' not in st.session_state:
     st.session_state.banco_completo = [
+        # ... (lista de diccionarios de preguntas) ...
         # ================= TEMA A =================
         {"id": "A1", "mision": 1, "pregunta": "Un dron de vigilancia vuela en línea recta pasando por A=(-4,8) y B=(4,2). ¿Cuál es su pendiente (m) y su altura inicial (b)?", "opciones": ["m = 5, b = -3/4", "m = 3/4, b = -5", "m = -3/4, b = -5", "m = -3/4, b = 5"], "correcta_texto": "m = -3/4, b = 5", "t_max": 75},
         {"id": "A2", "mision": 1, "pregunta": "En un mapa de coordenadas, una carretera une A(1, 3) con B(2, 10). ¿Cuál es la ecuación que describe esta ruta?", "opciones": ["y = 3/7x + 4", "y = 2/7x - 4", "y = -2/7x - 4", "y = 7x - 4"], "correcta_texto": "y = 7x - 4", "t_max": 75},
@@ -134,10 +136,9 @@ if 'banco_completo' not in st.session_state:
 
 
 
+# --- 4. INICIALIZACIÓN DE ESTADO (EL CEREBRO DEL JUEGO) ---
 
-    # 4. INICIALIZACIÓN DE ESTADO (EL CEREBRO DEL JUEGO) ---
-
-    # Inicializamos todas las variables de control si no existen
+# Inicializamos todas las variables de control si no existen
 if 'paso' not in st.session_state:
     st.session_state.update({
         'paso': 'registro',         # Pantalla actual
@@ -153,6 +154,9 @@ if 'paso' not in st.session_state:
     })
 
 
+   
+
+
 
  
 # --- 5. FUNCIONES (MOTOR GRÁFICO Y LÓGICA) ---
@@ -165,7 +169,7 @@ def crear_imagen(texto, opciones, ocultas=[]):
     # Creamos la figura con un tamaño de 10x6 para dar más espacio horizontal
     fig, ax = plt.subplots(figsize=(10, 6))
     fig.patch.set_facecolor('white')
-    
+
     finales = []
     for opt in opciones:
         # Si la letra (A, B, C o D) está en la lista de ocultas (50/50)
@@ -173,33 +177,34 @@ def crear_imagen(texto, opciones, ocultas=[]):
             finales.append(f"{opt[0]} [ ELIMINADA ]")
         else:
             finales.append(opt)
-            
+
     # Estructuramos el cuerpo del mensaje
     # Añadimos saltos de línea extra para separar la pregunta de las opciones
     cuerpo = f"{texto}\n\n" + "\n".join(finales)
-    
+
     # Ajuste de tamaño de fuente: si el texto es muy largo, lo achicamos un poco
     size_fuente = 16 if len(cuerpo) < 200 else 14
-    
+
     # Dibujamos el texto
     # Usamos ha='left' (alineación izquierda) para mejor lectura
-    ax.text(0.05, 0.9, cuerpo, 
-            fontsize=size_fuente, 
-            fontweight='bold', 
-            wrap=True, 
+    ax.text(0.05, 0.9, cuerpo,
+            fontsize=size_fuente,
+            fontweight='bold',
+            wrap=True,
             va='top',      # Alineación vertical al tope
             ha='left',     # Alineación horizontal a la izquierda
-            color='#2d0b2a', 
+            color='#2d0b2a',
             family='sans-serif',
             linespacing=1.6) # Espaciado entre líneas para que no se vea amontonado
-    
+
     ax.axis('off')
-    
+
     # Guardamos en buffer
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight', dpi=120)
     plt.close(fig)
     return buf
+
 
 def reset_juego():
     """Limpia el estado para permitir un nuevo intento desde cero"""
@@ -211,11 +216,8 @@ def reset_juego():
         'power_5050': True,
         'usar_5050': False,
         'lista_examen': [],
-        'datos_enviados': False
+        'datos_enviados': False # Agregado, necesario para el envío a Google
     })
-
-
-
 
 
 def enviar_a_google(nombre, curso, mision, aciertos, powerup):
@@ -323,77 +325,179 @@ elif st.session_state.paso == 'examen':
                 st.session_state.paso = 'feedback'
         st.rerun()
 
+    if ans_letter: # Si el usuario seleccionó una letra
+    if f"q_opts_{idx}" in st.session_state and f"q_cor_{idx}" in st.session_state:
+        opcion_elegida_idx = ["A", "B", "C", "D"].index(ans_letter)
+        texto_respuesta_usuario_completo = st.session_state[f"q_opts_{idx}"][opcion_elegida_idx]
+
+        # Extraer solo el valor de la respuesta (todo después de la letra y paréntesis)
+        valor_respuesta_usuario = texto_respuesta_usuario_completo.split(") ", 1)[1]
+
+        # Comparar el valor extraído con el correcta_texto del banco
+        if valor_respuesta_usuario == p['correcta_texto']:
+            st.session_state.aciertos += 1
+            st.toast("¡Punto para ti!", icon="🔥")
+        else:
+            st.toast("Incorrecto...", icon="❌")
+
+
     # 7. Auto-refresh del cronómetro (Solo si hay tiempo)
     if porcentaje > 0:
         time.sleep(1)
         st.rerun()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# --- PANTALLA 2: EXAMEN ---
 elif st.session_state.paso == 'examen':
     idx = st.session_state.n_pregunta
-    
-    # Verificar si ya terminamos todas las preguntas
+
+    # Verificar si ya terminamos todas las preguntas de la misión
+    # Si el índice de la pregunta actual es igual o mayor al número total de preguntas en la lista_examen
     if idx >= len(st.session_state.lista_examen):
-        st.session_state.paso = 'feedback'
-        st.rerun()
-        
+        st.session_state.paso = 'feedback'  # Cambiamos el estado a 'feedback' para mostrar resultados
+        st.rerun()  # Recargamos para que Streamlit muestre la pantalla de feedback
+
+    # Obtenemos la pregunta actual usando el índice
     p = st.session_state.lista_examen[idx]
-    
-    # 1. ANCLAJE DE OPCIONES (Para que no cambien al refrescar)
+
+    # 1. ANCLAJE DE OPCIONES (Para que el orden no cambie al refrescar y para preparar el 50/50)
+    # Esta lógica se ejecuta solo una vez por pregunta (la primera vez que se muestra)
     if f"q_opts_{idx}" not in st.session_state:
-        opts_mezcladas = p['opciones'].copy()
-        random.shuffle(opts_mezcladas)
-        letras = ["A)", "B)", "C)", "D)"]
+        opts_mezcladas = p['opciones'].copy() # Copia las opciones originales
+        random.shuffle(opts_mezcladas) # Mezcla aleatoriamente las opciones
+        letras = ["A)", "B)", "C)", "D)"] # Las letras que usaremos para identificar las opciones
+
+        # Guardamos las opciones mezcladas con su letra prefijo en session_state
+        # Ejemplo: 'q_opts_0': ['A) respuesta 3', 'B) respuesta 1', ...]
         st.session_state[f"q_opts_{idx}"] = [f"{letras[i]} {opts_mezcladas[i]}" for i in range(4)]
+
+        # Determinamos cuál letra (A,B,C,D) corresponde a la respuesta correcta
+        # Buscamos la posición de la respuesta correcta original en la lista de opciones mezcladas
+        # y usamos esa posición para obtener la letra A,B,C,D correspondiente.
+        # Ejemplo: si p['correcta_texto'] era la 2da opción mezclada, su índice es 1, entonces la letra correcta es "B"
         st.session_state[f"q_cor_{idx}"] = ["A", "B", "C", "D"][opts_mezcladas.index(p['correcta_texto'])]
-        # Guardar cuáles son las letras incorrectas para el 50/50
+
+        # Guardamos las letras INCORRECTAS para usarlas en el power-up 50/50
         cor_letra = st.session_state[f"q_cor_{idx}"]
         st.session_state[f"inc_{idx}"] = [L for L in ["A", "B", "C", "D"] if L != cor_letra]
 
-    # UI: Panel de Estado y Barra de Energía
+    # UI: Panel de Estado Superior y Barra de Energía (Tiempo)
     msg = "⚡ 50/50 DISPONIBLE" if st.session_state.power_5050 else "¡SIN POWER-UPS!"
-    if st.session_state.usar_5050: msg = "🔥 MODO 50/50 ACTIVADO"
+    if st.session_state.usar_5050: msg = "🔥 MODO 50/50 ACTIVADO" # Mensaje si el 50/50 está activo
     st.markdown(f"<div class='status-panel'>{msg}</div>", unsafe_allow_html=True)
 
-    t_limite = p.get('t_max', 60)
-    t_actual = time.time() - st.session_state.t_inicio_pregunta
-    porcentaje = max(0, 100 - (t_actual / t_limite * 100))
-    st.markdown(f"<div class='energy-container'><div class='energy-bar' style='width:{porcentaje}%'></div></div>", unsafe_allow_html=True)
+    # Calculamos el progreso del tiempo
+    t_limite = p.get('t_max', 60) # Tiempo máximo para esta pregunta, o 60s por defecto
+    t_actual = time.time() - st.session_state.t_inicio_pregunta # Tiempo transcurrido desde el inicio de la pregunta
+    porcentaje = max(0.0, (t_limite - t_actual) / t_limite) * 100 # Calculamos el porcentaje de tiempo restante (0 a 100)
+    # Actualizamos la barra de progreso visual
+    st.markdown(f"<div class='energy-container'><div class='energy-bar' style='width:{porcentaje:.2f}%'></div></div>", unsafe_allow_html=True)
 
-    # 2. LÓGICA 50/50 FIJA
-    ocultas = []
-    if st.session_state.usar_5050:
+    # 2. LÓGICA PARA OCULTAR OPCIONES CON 50/50
+    ocultas = [] # Lista para las letras de las opciones a ocultar
+    if st.session_state.usar_5050: # Si el usuario activó el 50/50
+        # Generamos las 2 opciones incorrectas a ocultar (solo la primera vez que se usa el power-up para esta pregunta)
         if f"ocultas_fix_{idx}" not in st.session_state:
             st.session_state[f"ocultas_fix_{idx}"] = random.sample(st.session_state[f"inc_{idx}"], 2)
-        ocultas = st.session_state[f"ocultas_fix_{idx}"]
-    
-    # Render de la pregunta
+        ocultas = st.session_state[f"ocultas_fix_{idx}"] # Asignamos las letras a ocultar
+
+    # Renderizamos la imagen de la pregunta con las opciones (ocultas o no)
+    # Usamos las opciones mezcladas y formateadas de session_state (f"q_opts_{idx}")
     img_buf = crear_imagen(p['pregunta'], st.session_state[f"q_opts_{idx}"], ocultas)
     st.markdown("<div class='question-card'>", unsafe_allow_html=True)
-    st.image(img_buf)
+    st.image(img_buf) # Mostramos la imagen de la pregunta
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Botón de Power-up
+    # Columna para el botón 50/50 (a la derecha)
     col_a, col_b = st.columns([3,1])
     with col_b:
-        if st.session_state.power_5050:
-            if st.button("⚡ 50/50"):
-                st.session_state.usar_5050 = True
-                st.session_state.power_5050 = False
-                st.rerun()
+        if st.session_state.power_5050: # Si el power-up está disponible
+            if st.button("⚡ 50/50"): # Botón para activarlo
+                st.session_state.usar_5050 = True # Activamos el uso del 50/50
+                st.session_state.power_5050 = False # Desactivamos la disponibilidad general del power-up
+                st.rerun() # Recargamos para mostrar las opciones ocultas
+
+    # Selección de respuesta usando st.radio (A, B, C, D)
+    # La clave `key=f"rad_{idx}"` es crucial para que cada radio button sea único.
+    # `index=None` significa que nada está seleccionado por defecto.
+    # `horizontal=True` muestra las opciones en línea.
+    ans_letter = st.radio("TU ELECCIÓN:", ["A", "B", "C", "D"], key=f"rad_{idx}", index=None, horizontal=True)
+
+    # Botón ENVIAR RESPUESTA o comportamiento al agotar tiempo
+    # La respuesta se valida si el usuario presiona el botón O si el tiempo se agota (porcentaje <= 0)
+    if st.button("ENVIAR RESPUESTA ➡️") or porcentaje <= 0.0:
+        # Procesamos la respuesta solo si el usuario eligió una letra
+        if ans_letter:
+            # Obtenemos el texto completo de la opción seleccionada por el usuario
+            # Por ejemplo: "A) y = 7x - 4"
+            opcion_elegida_idx = ["A", "B", "C", "D"].index(ans_letter)
+            texto_respuesta_usuario_completo = st.session_state[f"q_opts_{idx}"][opcion_elegida_idx]
+
+            # --- Lógica para comparar la respuesta ---
+            # Necesitamos extraer el valor real de la respuesta elegida por el usuario
+            # y compararlo con el valor correcto almacenado en p['correcta_texto'].
+            # Asumiendo que p['correcta_texto'] (del banco de preguntas) NO incluye la letra A, B, C, D.
+            # Ejemplo: p['correcta_texto'] = "y = 7x - 4"
+            #          texto_respuesta_usuario_completo = "A) y = 7x - 4"
+
+            # Extraemos el valor de la respuesta (todo lo que viene después de "X) ")
+            valor_respuesta_usuario = texto_respuesta_usuario_completo.split(") ", 1)[1]
+
+            # Comprobamos si el valor de la respuesta del usuario coincide exactamente con la respuesta correcta del banco
+            if valor_respuesta_usuario == p['correcta_texto']:
+                st.session_state.aciertos += 1 # Incrementamos los aciertos
+                st.toast("¡Punto para ti!", icon="🔥") # Mensaje de éxito
+            else:
+                st.toast("Incorrecto...", icon="❌") # Mensaje de error
+
+        # --- Preparación para la Siguiente Pregunta o Fin de Misión ---
+        st.session_state.n_pregunta += 1 # Avanzamos al índice de la siguiente pregunta
+        st.session_state.t_inicio_pregunta = time.time() # Reiniciamos el temporizador para la nueva pregunta
+        st.session_state.usar_5050 = False # Desactivamos el 50/50 para la siguiente pregunta
+
+        # Limpiamos el estado específico del 50/50 para esta pregunta
+        if f"ocultas_fix_{idx}" in st.session_state:
+            del st.session_state[f"ocultas_fix_{idx}"]
+        # Si existiese la clave antigua 'ocultar', la eliminamos (más robustez)
+        st.session_state.pop('ocultar', None)
+
+        # Verificamos si hemos completado todas las preguntas de la misión actual
+        if st.session_state.n_pregunta >= len(st.session_state.lista_examen): # Si ya no hay más preguntas en la lista...
+            # Lógica para pasar de Misión 1 a Misión 2
+            if st.session_state.mision == 1:
+                if st.session_state.aciertos >= 3: # Requisito de aciertos para avanzar
+                    st.success("¡Misión 1 Superada!") # Mensaje de éxito para Misión 1
+                    time.sleep(1.5) # Pausa para que el usuario vea el mensaje
+
+                    # Preparar para Misión 2: seleccionar 5 preguntas de la Misión 2
+                    pool_2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
+                    st.session_state.lista_examen = random.sample(pool_2, min(5, len(pool_2)))
+
+                    # Resetear el estado para la Misión 2
+                    st.session_state.update({
+                        'mision': 2,       # Cambiamos a Misión 2
+                        'n_pregunta': 0,   # Reiniciamos al índice de la primera pregunta de la misión 2
+                        'aciertos': 0,     # Reiniciamos el contador de aciertos
+                        't_inicio_pregunta': time.time() # Reiniciamos el temporizador para la primera pregunta de Misión 2
+                    })
+                    st.rerun() # Recargamos para que se muestren las preguntas de la Misión 2
+                else:
+                    # Si no se cumplen los requisitos para Misión 2, ir directamente a feedback
+                    st.session_state.paso = 'feedback'
+            else: # Si ya estábamos en la Misión 2 (la última)
+                st.session_state.paso = 'feedback' # Cambiamos a feedback para mostrar el resultado final
+
+        # Si aún quedan preguntas en la misión actual, volvemos a ejecutar para mostrar la siguiente
+        # Si se pasó a 'feedback', el `rerun` anterior para esa transición ya se encargó.
+        st.rerun()
+
+    # 7. Auto-refresh del cronómetro (solo si todavía hay tiempo en la pregunta actual)
+    # Esto fuerza a Streamlit a recalcular el tiempo y actualizar la barra de progreso
+    if porcentaje > 0:
+        time.sleep(1) # Espera 1 segundo
+        st.rerun() # Recarga la página para actualizar la barra de tiempo y la interfaz
+
+
+
 
 # --- PANTALLA 3: FEEDBACK (Este bloque va pegado al borde izquierdo, fuera de 'examen') ---
 elif st.session_state.paso == 'feedback':
