@@ -98,7 +98,7 @@ if 'banco_completo' not in st.session_state:
         {"id": "B2", "mision": 1, "pregunta": "Halla la ecuación de la recta que une los puntos A(-2, -5) y B(5, -7):", "opciones": ["y = -2/7x - 39/7", "y = 2/7x + 39/7", "y = -7/2x - 4", "y = 7/2x + 4"], "correcta_texto": "y = -2/7x - 39/7", "t_max": 75},
         {"id": "B3", "mision": 1, "pregunta": "Una antena transmite desde P(5, -2) con m = -4/5. ¿Cuál es su modelo matemático?", "opciones": ["y = -4/5x + 2", "y = -4/5x - 6", "y = 4/5x + 2", "y = -5/4x + 2"], "correcta_texto": "y = -4/5x + 2", "t_max": 75},
         {"id": "B4", "mision": 1, "pregunta": "Si una cerca sigue la línea y = 3/7x + 5, ¿cuál de estas opciones es una línea PARALELA?", "opciones": ["y = -3/7x + 5", "y = 7/3x - 1", "y = 3/7x - 8", "y = -7/3x + 2"], "correcta_texto": "y = 3/7x - 8", "t_max": 60},
-        {"id": "B5", "mision": 1, "pregunta": "Una tubería (y = -5/2x - 4) debe cruzarse con otra de forma PERPENDICULAR. ¿Cuál es la ecuación de la segunda?", "opciones": ["y = 5/2x + 1", "y = 2/5x + 10", "y = -2/5x - 4", "y = -5/2x + 3"], "correcta_texto": "y = 2/5x + 10", "t_max": 60},
+        {"id": "B5", "mision": 1, "pregunta": "Una tubería (y = -5/2x - 4) debe cruzarse con otra de forma PERPENDICULAR. ¿Cuál es la ecuación de la segunda?", "opciones": ["y = 5/2x + 1", "y = 2/5x + 10", "y = -2/5x - 4", "y = -5/2x + 3"], "correcta_texto": "y = 2/5x + 4", "t_max": 60},
         {"id": "B6", "mision": 1, "pregunta": "Halla la recta con m = 1/3 que pasa por P(6, 4) e identifica otro punto por donde pase:", "opciones": ["y = 1/3x + 2 (Punto 0, 2)", "y = 3x - 2 (Punto 1, 1)", "y = 1/3x + 4 (Punto 3, 5)", "y = -1/3x + 2 (Punto 6, 0)"], "correcta_texto": "y = 1/3x + 2 (Punto 0, 2)", "t_max": 80},
         {"id": "B7", "mision": 2, "pregunta": "Un enfriador está a 20°C y baja 4°C cada 3 min. ¿Qué función describe su temperatura?", "opciones": ["y = 3/4x + 20", "y = -4/3x + 20", "y = 4/3x - 20", "y = -3/4x + 20"], "correcta_texto": "y = -4/3x + 20", "t_max": 90},
         {"id": "B8", "mision": 2, "pregunta": "Mensajería: $10 de cargo básico más $3 por cada 4 km recorridos. ¿Cuánto cuesta un envío a 20 km?", "opciones": ["$15", "$20", "$25", "$30"], "correcta_texto": "$25", "t_max": 90},
@@ -113,7 +113,7 @@ if 'banco_completo' not in st.session_state:
         {"id": "C5", "mision": 1, "pregunta": "Una viga (y = 7/3x - 2) debe sostenerse con otra PERPENDICULAR. ¿Qué ecuación tiene la segunda viga?", "opciones": ["y = -3/7x + 6", "y = 3/7x + 6", "y = -7/3x - 2", "y = 7/3x + 4"], "correcta_texto": "y = -3/7x + 6", "t_max": 60},
         {"id": "C6", "mision": 1, "pregunta": "Halla la recta con m = -3/2 que pasa por P(4, -1) y señala otro punto de su trayectoria:", "opciones": ["y = -3/2x + 5 (Punto 0, 5)", "y = 3/2x - 7 (Punto 2, -4)", "y = -3/2x + 5 (Punto 2, 1)", "y = 2/3x + 1 (Punto 3, 3)"], "correcta_texto": "y = -3/2x + 5 (Punto 0, 5)", "t_max": 80},
         {"id": "C7", "mision": 2, "pregunta": "Un vehículo con 40L consume 5L cada 4 km. ¿Qué función modela el combustible restante según los km recorridos?", "opciones": ["y = 4/5x + 40", "y = -5/4x + 40", "y = 5/4x - 40", "y = -4/5x + 40"], "correcta_texto": "y = -5/4x + 40", "t_max": 90},
-        {"id": "C8", "mision": 2, "pregunta": "Un servicio técnico cobra $15 base y $5 por cada 2 horas de labor. ¿Cuánto cuesta una reparación de 7 horas?", "opciones": ["$30.0", "$32.5", "$35.0", "$17.5"], "correcta_texto": "$32.5", "t_max": 90},
+        {"id": "C8", "mision": 2, "pregunta": "Un servicio técnico cobra \$15 base y $5 por cada 2 horas de labor. ¿Cuánto cuesta una reparación de 7 horas?", "opciones": ["$30.0", "$32.5", "$35.0", "$17.5"], "correcta_texto": "$32.5", "t_max": 90},
         {"id": "C9", "mision": 2, "pregunta": "Tanque A (100L inicial, pierde 10L c/3 min). Tanque B (20L inicial, gana 10L c/3 min). ¿En qué minuto se cruzan?", "opciones": ["10", "12", "15", "18"], "correcta_texto": "12", "t_max": 120},
         {"id": "C10", "mision": 2, "pregunta": "Marta tiene $600 y gasta $40 cada 3 semanas. Luis tiene $1000 y gasta $120 cada 3 semanas. ¿En qué semana se igualan?", "opciones": ["Semana 12", "Semana 15", "Semana 18", "Semana 20"], "correcta_texto": "Semana 15", "t_max": 120},
 
@@ -154,13 +154,7 @@ if 'paso' not in st.session_state:
 
 
 
-   # 5. FUNCIONES DE APOYO (MOTOR GRÁFICO Y LÓGICA) ---
-
-
-
-
-
-
+ 
 # --- 5. FUNCIONES (MOTOR GRÁFICO Y LÓGICA) ---
 
 def crear_imagen(texto, opciones, ocultas=[]):
@@ -329,14 +323,18 @@ elif st.session_state.paso == 'examen':
 
 
 
-# Selección de respuesta
-    ans = st.radio("TU ELECCIÓN:", ["A", "B", "C", "D"], key=f"r_{idx}", index=None, horizontal=True)
+# 1. Selección de respuesta (Mantenemos tu estilo)
+    ans = st.radio("TU ELECCIÓN:", ["A", "B", "C", "D"], key=f"r_{st.session_state.mision}_{idx}", index=None, horizontal=True)
     
-    # El botón DEBE estar alineado con el radio de arriba
+    # 2. El botón de enviar con la lógica CORREGIDA
     if st.button("ENVIAR RESPUESTA ➡️"):
         if ans:
-            # Verificación de acierto
-            if ans == st.session_state[f"q_cor_{idx}"]:
+            # CORRECCIÓN CLAVE: Obtenemos el texto de la opción elegida
+            indice_elegido = ["A", "B", "C", "D"].index(ans)
+            texto_elegido = pregunta_actual['opciones'][indice_elegido]
+            
+            # Comparamos el texto elegido con el texto correcto del banco
+            if texto_elegido == pregunta_actual['correcta_texto']:
                 st.session_state.aciertos += 1
                 st.toast("¡Punto para ti!", icon="🔥")
             else:
@@ -347,12 +345,16 @@ elif st.session_state.paso == 'examen':
             st.session_state.usar_5050 = False
             st.session_state.t_inicio_pregunta = time.time()
 
-            # --- LÓGICA DE CAMBIO DE MISIÓN ---
+            # --- LÓGICA DE CAMBIO DE MISIÓN (LIMPIA) ---
             if st.session_state.n_pregunta >= len(st.session_state.lista_examen):
                 if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
+                    # Antes de pasar, enviamos los datos de la Misión 1 a Google
+                    enviar_a_google(st.session_state.nombre, st.session_state.curso, 1, st.session_state.aciertos)
+                    
                     st.success("¡MISIÓN 1 COMPLETADA! Preparando Misión 2...")
                     time.sleep(2)
                     
+                    # Cargamos Misión 2 desde cero para que no se mezclen las respuestas
                     pool_2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
                     st.session_state.lista_examen = random.sample(pool_2, min(5, len(pool_2)))
                     
@@ -360,47 +362,29 @@ elif st.session_state.paso == 'examen':
                         'mision': 2,
                         'n_pregunta': 0,
                         'aciertos': 0, 
-                        't_inicio_pregunta': time.time()
+                        't_inicio_pregunta': time.time(),
+                        'power_5050': True # Recargamos el poder para la misión 2
                     })
                 else:
+                    # Enviamos datos finales antes de ir al resumen
+                    enviar_a_google(st.session_state.nombre, st.session_state.curso, st.session_state.mision, st.session_state.aciertos)
                     st.session_state.paso = 'feedback'
 
             st.rerun()
 
     # --- Control de Tiempo (Auto-refresh) ---
-    # Este bloque también debe estar dentro del "elif st.session_state.paso == 'examen':"
     if porcentaje > 0:
         time.sleep(1)
         st.rerun()
     else:
         st.error("¡TIEMPO AGOTADO!")
         time.sleep(1)
-        
         st.session_state.n_pregunta += 1
-        st.session_state.usar_5050 = False 
         st.session_state.t_inicio_pregunta = time.time()
         
         if st.session_state.n_pregunta >= len(st.session_state.lista_examen):
-            if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
-                pool_2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
-                st.session_state.lista_examen = random.sample(pool_2, min(5, len(pool_2)))
-                st.session_state.update({'mision': 2, 'n_pregunta': 0, 'aciertos': 0})
-            else:
-                st.session_state.paso = 'feedback'
-        
+            st.session_state.paso = 'feedback'
         st.rerun()
-
-
-
-    # Selección de respuesta
-    ans = st.radio("TU ELECCIÓN:", ["A", "B", "C", "D"], key=f"r_{idx}", index=None, horizontal=True)
-    
-    
-
-
-    
-
-
 
 # --- PANTALLA 3: FEEDBACK ---
 
