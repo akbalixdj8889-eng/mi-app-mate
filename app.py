@@ -266,6 +266,82 @@ if st.session_state.paso == 'registro':
         st.markdown("</div>", unsafe_allow_html=True)
 
 # --- PANTALLA 2: EXAMEN ---
+
+
+
+
+elif st.session_state.paso == 'examen':
+    # 1. Definimos la pregunta ANTES de usarla (Esto evita el NameError)
+    idx = st.session_state.n_pregunta
+    pregunta_actual = st.session_state.lista_examen[idx]
+    
+    # 2. Panel de Estado
+    st.markdown(f"<div class='status-panel'>Misión: {st.session_state.mision} | Pregunta: {idx+1}/5 | Aciertos: {st.session_state.aciertos}</div>", unsafe_allow_html=True)
+    
+    # 3. Cálculo de Tiempo
+    t_max = pregunta_actual.get('t_max', 60)
+    t_transcurrido = time.time() - st.session_state.t_inicio_pregunta
+    porcentaje = max(0.0, (t_max - t_transcurrido) / t_max)
+    st.progress(porcentaje)
+
+    # 4. Imagen de la Pregunta
+    ocultas = st.session_state.get('ocultar', [])
+    st.image(crear_imagen(pregunta_actual['pregunta'], pregunta_actual['opciones'], ocultas))
+    
+    # 5. Selección de respuesta (Key única para evitar que se mezclen)
+    ans = st.radio("TU ELECCIÓN:", ["A", "B", "C", "D"], key=f"rad_{st.session_state.mision}_{idx}", index=None, horizontal=True)
+
+    # 6. Lógica del Botón Enviar
+    if st.button("ENVIAR RESPUESTA ➡️") or porcentaje <= 0:
+        if ans:
+            letras = ["A", "B", "C", "D"]
+            indice = letras.index(ans)
+            # Aquí ya no fallará porque pregunta_actual se definió arriba
+            texto_marcado = pregunta_actual['opciones'][indice]
+            
+            if texto_marcado == pregunta_actual['correcta_texto']:
+                st.session_state.aciertos += 1
+                st.toast("¡Punto para ti!", icon="🔥")
+            else:
+                st.toast("Incorrecto...", icon="❌")
+        
+        # Avance de pregunta
+        st.session_state.n_pregunta += 1
+        st.session_state.t_inicio_pregunta = time.time()
+        st.session_state.ocultar = []
+
+        # Verificamos fin de tanda
+        if st.session_state.n_pregunta >= 5:
+            if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
+                st.success("¡Misión 1 Superada!")
+                time.sleep(1)
+                # Recarga limpia para Misión 2
+                pool_2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
+                st.session_state.lista_examen = random.sample(pool_2, 5)
+                st.session_state.update({'mision': 2, 'n_pregunta': 0, 'aciertos': 0})
+            else:
+                st.session_state.paso = 'feedback'
+        st.rerun()
+
+    # 7. Auto-refresh del cronómetro (Solo si hay tiempo)
+    if porcentaje > 0:
+        time.sleep(1)
+        st.rerun()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 elif st.session_state.paso == 'examen':
     idx = st.session_state.n_pregunta
     
@@ -318,62 +394,6 @@ elif st.session_state.paso == 'examen':
                 st.session_state.usar_5050 = True
                 st.session_state.power_5050 = False
                 st.rerun()
-
-    
-
-
-
-# 1. Selección de respuesta
-    ans = st.radio("TU ELECCIÓN:", ["A", "B", "C", "D"], key=f"r_m{st.session_state.mision}_{idx}", index=None, horizontal=True)
-
-    # 2. Botón de enviar (Debe tener 1 nivel de sangría dentro del bloque 'examen')
-    if st.button("ENVIAR RESPUESTA ➡️"):
-        if ans:
-            letras = ["A", "B", "C", "D"]
-            indice = letras.index(ans)
-            texto_marcado = pregunta_actual['opciones'][indice]
-            
-            if texto_marcado == pregunta_actual['correcta_texto']:
-                st.session_state.aciertos += 1
-                st.toast("¡Punto para ti!", icon="🔥")
-            else:
-                st.toast("Incorrecto...", icon="❌")
-            
-            st.session_state.n_pregunta += 1
-            st.session_state.t_inicio_pregunta = time.time()
-
-            if st.session_state.n_pregunta >= 5:
-                if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
-                    enviar_a_google(st.session_state.nombre, st.session_state.curso, 1, st.session_state.aciertos)
-                    st.success("¡Misión 1 Superada!")
-                    time.sleep(1)
-                    pool_2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
-                    st.session_state.lista_examen = random.sample(pool_2, 5)
-                    st.session_state.update({'mision': 2, 'n_pregunta': 0, 'aciertos': 0})
-                else:
-                    enviar_a_google(st.session_state.nombre, st.session_state.curso, st.session_state.mision, st.session_state.aciertos)
-                    st.session_state.paso = 'feedback'
-            st.rerun()
-
-    # 3. Control de Tiempo (Alineado con el botón de arriba)
-    if porcentaje > 0:
-        time.sleep(1)
-        st.rerun()
-    else:
-        st.error("¡TIEMPO AGOTADO!")
-        time.sleep(1)
-        st.session_state.n_pregunta += 1
-        st.session_state.t_inicio_pregunta = time.time()
-        
-        if st.session_state.n_pregunta >= 5:
-            if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
-                st.session_state.mision = 2
-                pool_2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
-                st.session_state.lista_examen = random.sample(pool_2, 5)
-                st.session_state.update({'n_pregunta': 0, 'aciertos': 0})
-            else:
-                st.session_state.paso = 'feedback'
-        st.rerun()
 
 # --- PANTALLA 3: FEEDBACK (Este bloque va pegado al borde izquierdo, fuera de 'examen') ---
 elif st.session_state.paso == 'feedback':
