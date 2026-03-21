@@ -440,7 +440,7 @@ def enviar_a_google(nombre, curso, mision, aciertos, powerup):
     usando un Google Apps Script desplegado.
     """
     # **IMPORTANTE**: Actualiza esta URL con la de tu ÚLTIMA implantación del script.
-    url_script = "https://script.google.com/macros/s/AKfycbylRYAzBIVcvamNHqq21aTjZ9NRo-sMbAzj3HQOmtKITfMK9xRqwyJ3a-CMD7gRHg52eg/exec"
+    url_script = "https://script.google.com/macros/s/AKfycbzhJCZfjy2QSZu2-rTyv5jgLJLv-1vjwMgTCfpG2e-IGK0OInXE2pzoEy1WnB_59PXY7g/exec"
     
     # Formato de los datos a enviar. 'powerup' se traduce a 'Sí' o 'No'.
     datos = {
@@ -454,7 +454,13 @@ def enviar_a_google(nombre, curso, mision, aciertos, powerup):
     try:
         # Se envía la petición POST con los datos en formato JSON.
         response = requests.post(url_script, json=datos)
-        
+        # Imprimir en la consola (o logs) qué pasó
+        print(f"--- Envío a Google Sheets ---")
+        print(f"URL: {url_script}")
+        print(f"Datos enviados: {datos}")
+        print(f"Código de estado de respuesta: {response.status_code}")
+        print(f"Texto de la respuesta: {response.text}")
+        print(f"-------------------------------")
         # Se imprime en la consola para confirmar el envío o registrar errores.
         if response.status_code == 200:
             print(f"Datos enviados correctamente a Google Sheets para {nombre} - Misión {mision}.")
