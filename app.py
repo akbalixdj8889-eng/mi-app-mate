@@ -325,8 +325,8 @@ elif st.session_state.paso == 'examen':
                 st.session_state.paso = 'feedback'
         st.rerun()
 
-    if ans_letter: # Si el usuario seleccionó una letra
-    if f"q_opts_{idx}" in st.session_state and f"q_cor_{idx}" in st.session_state:
+        if ans_letter: # Si el usuario seleccionó una letra
+        if f"q_opts_{idx}" in st.session_state and f"q_cor_{idx}" in st.session_state:
         opcion_elegida_idx = ["A", "B", "C", "D"].index(ans_letter)
         texto_respuesta_usuario_completo = st.session_state[f"q_opts_{idx}"][opcion_elegida_idx]
 
