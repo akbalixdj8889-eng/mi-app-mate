@@ -333,8 +333,8 @@ if 'paso' not in st.session_state:
         'lista_examen': [],         # Contiene las 5 preguntas seleccionadas aleatoriamente para el intento actual
         't_inicio_pregunta': 0,     # Timestamp de inicio de la pregunta actual (para el cronómetro)
         'examen_finalizado': False, # Bandera para indicar si se completó el examen o se llegó al feedack
-        'datos_enviados': False     # Flag para evitar enviar datos duplicados al finalizar
-		'datos_enviados_m1': False     # Flag para evitar enviar datos de Misión 1 duplicados
+        'datos_enviados': False,     # Flag para evitar enviar datos duplicados al finalizar
+		'datos_enviados_m1': False  # Flag para evitar enviar datos de Misión 1 duplicados
 
     })
 
