@@ -224,28 +224,6 @@ def crear_imagen(texto, opciones, ocultas=[]):
     return buf
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def reset_juego():
     """Limpia el estado para permitir un nuevo intento desde cero"""
     st.session_state.update({
@@ -261,7 +239,7 @@ def reset_juego():
 
 
 def enviar_a_google(nombre, curso, mision, aciertos, powerup):
-    url_script = "https://script.google.com/macros/s/AKfycbylRYAzBIVcvamNHqq21aTjZ9NRo-sMbAzj3HQOmtKITfMK9xRqwyJ3a-CMD7gRHg52eg/exec"
+    url_script = "https://script.google.com/macros/s/AKfycbxBtDqTC_YdUYG1ECL_IgIjwKscviBWHvDi52qXCvge-OTAxiG6ZhUF6jsMcnjgjb-hRA/exec"
     datos = {
         "nombre": nombre,
         "curso": curso,
@@ -466,7 +444,7 @@ elif st.session_state.paso == 'examen':
         time.sleep(1)
         st.rerun()
 
-# --- PANTALLA 3: FEEDBACK (Resultado Final) ---
+# # --- PANTALLA 3: FEEDBACK (Resultado Final) ---
 elif st.session_state.paso == 'feedback':
     st.markdown(f"<div class='status-panel'>RESULTADO FINAL</div>", unsafe_allow_html=True)
     st.markdown("<div class='question-card' style='text-align:center;'>", unsafe_allow_html=True)
@@ -474,21 +452,53 @@ elif st.session_state.paso == 'feedback':
     puntaje = st.session_state.aciertos
     st.markdown(f"## Resultado: {puntaje}/5")
 
+
+
+
+
+
+
+
+
+
+ 
     # Lógica de Aprobación y Mensajes
     mision_actual = st.session_state.mision
     
-    # Condición de Éxito Global: Aprobó Misión 1 Y Misión 2 (o solo Misión 1 si se detiene ahí)
+    # Condición de Éxito Global
     aprobado_examen = False
+    
+    # CASO 1: Misión 1 aprobada (pero el juego sigue, quizás quieras guardar aquí también o esperar al final)
     if mision_actual == 1 and puntaje >= 3:
         aprobado_examen = True
         st.success(f"¡Misión 1 Superada ({puntaje}/5)! ¡Preparado para la Misión 2!")
+        
+        # OPCIONAL: Si quieres guardar el progreso de la Misión 1
+        enviar_a_google(st.session_state.nombre, st.session_state.curso, "Misión 1", puntaje, st.session_state.power_5050)
+
+    # CASO 2: Misión 2 aprobada (FINAL DEL JUEGO)
     elif mision_actual == 2 and puntaje >= 3:
         aprobado_examen = True
         st.balloons()
         st.success("¡Misión 2 Cumplida! ¡Felicidades, Guerrero!")
-        # Podrías llamar a enviar_a_google aquí si es el final definitivo.
-        # Puedes decidir si envías datos por misión o solo al final.
-        # enviar_a_google(st.session_state.nombre, st.session_state.curso, st.session_state.mision, puntaje, st.session_state.power_5050)
+        
+        # --- AQUÍ ES DONDE SE DEBE GUARDAR ---
+        # Verificamos si ya se enviaron para no duplicar si la app se recarga
+        if not st.session_state.get('datos_enviados', False): 
+            st.toast("Guardando tu victoria en la base de datos...", icon="💾")
+            
+            # Llamamos a tu función
+            enviar_a_google(
+                st.session_state.nombre, 
+                st.session_state.curso, 
+                "Misión 2 (Final)", # O st.session_state.mision
+                puntaje, 
+                st.session_state.power_5050
+            )
+            
+            # Marcamos como enviados para no repetir
+            st.session_state.datos_enviados = True
+            st.toast("¡Datos guardados con éxito!", icon="✅")
 
     # Mensajes de Error o Recapitulativos
     if mision_actual == 1 and puntaje < 3:
@@ -517,9 +527,3 @@ elif st.session_state.paso == 'feedback':
         st.rerun() # Recargamos para mostrar la pantalla de registro
 
     st.markdown("</div>", unsafe_allow_html=True)
-
-    
-
-
-
-
