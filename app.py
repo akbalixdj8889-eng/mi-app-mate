@@ -1,25 +1,84 @@
 import streamlit as st
 import random
 import time
+import requests
 import matplotlib.pyplot as plt
 import io
-import requests
 
-# --- 1. CONFIGURACIÓN ---
-st.set_page_config(page_title="Misión Funciones", layout="centered")
+# Configuración de la pestaña del navegador y disposición de la página
+st.set_page_config(
+    page_title="Math Quest Pro", 
+    page_icon="⚡", 
+    layout="centered", 
+    initial_sidebar_state="collapsed"
+)
+# 2. CSS REFORZADO (ESTILO Y VISIBILIDAD)
 
-# --- 2. CSS PERSONALIZADO ---
 st.markdown("""
     <style>
-    .main { background-color: #2d0b2a; color: white; }
-    .stButton>button { width: 100%; border-radius: 20px; height: 3em; font-weight: bold; }
-    .question-card { background-color: white; padding: 20px; border-radius: 15px; color: #2d0b2a; margin-bottom: 20px; }
-    .status-panel { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 10px; text-align: center; margin-bottom: 15px; }
+    /* Fondo degradado para toda la app */
+    .stApp { 
+        background: linear-gradient(135deg, #461a42 0%, #2d0b2a 100%); 
+    }
+    
+    /* Panel de Estado Superior (Nombre, Aciertos, etc.) */
+    .status-panel {
+        background-color: white; 
+        border-radius: 50px; 
+        padding: 10px;
+        text-align: center; 
+        color: #461a42; 
+        font-weight: bold;
+        font-size: 1.2rem; 
+        margin-bottom: 10px;
+    }
+
+    /* Contenedor y Barra de Energía (Tiempo) */
+    .energy-container { 
+        width: 100%; 
+        background-color: rgba(255,255,255,0.2); 
+        border-radius: 10px; 
+        margin-bottom: 20px; 
+    }
+    .energy-bar { 
+        height: 12px; 
+        background: #ff4b4b; 
+        border-radius: 10px; 
+        transition: width 0.1s; 
+    }
+
+    /* FORZAR VISIBILIDAD DE OPCIONES A, B, C, D */
+    /* Usamos selectores específicos de Streamlit para asegurar el color blanco */
+    div[data-testid="stRadio"] label p {
+        color: white !important;
+        font-size: 1.3rem !important;
+        font-weight: bold !important;
+        text-shadow: 1px 1px 2px black;
+    }
+    
+    /* Etiquetas generales de texto en Markdown */
+    .stMarkdown p { 
+        color: white !important; 
+        font-weight: bold; 
+    }
+
+    /* Tarjeta blanca donde vive la imagen de la pregunta */
+    .question-card { 
+        background-color: white; 
+        padding: 15px; 
+        border-radius: 20px; 
+        margin-bottom: 10px; 
+    }
+    
+    /* Estilo para los botones generales */
+    .stButton>button {
+        border-radius: 10px;
+        font-weight: bold;
+    }
     </style>
     """, unsafe_allow_html=True)
-
-       # --- 3. BANCO DE PREGUNTAS ACTUALIZADO Y HUMANIZADO ---
-
+   
+# --- 3. BANCO DE PREGUNTAS ACTUALIZADO Y HUMANIZADO ---
 if 'banco_completo' not in st.session_state:
     st.session_state.banco_completo = [
         # ================= TEMA A =================
@@ -72,106 +131,293 @@ if 'banco_completo' not in st.session_state:
     ]
 
 
-# --- 4. FUNCIONES DE APOYO ---
-def enviar_a_google(nombre, curso, mision, aciertos):
-    url_script = "TU_URL_DE_APPS_SCRIPT" # REEMPLAZA ESTO
-    datos = {"nombre": nombre, "curso": curso, "mision": mision, "aciertos": aciertos}
-    try: requests.post(url_script, json=datos)
-    except: pass
+
+
+
+
+    # 4. INICIALIZACIÓN DE ESTADO (EL CEREBRO DEL JUEGO) ---
+
+    # Inicializamos todas las variables de control si no existen
+if 'paso' not in st.session_state:
+    st.session_state.update({
+        'paso': 'registro',         # Pantalla actual
+        'nombre': '',               # Nombre del estudiante
+        'mision': 1,                # Misión actual (1 o 2)
+        'n_pregunta': 0,            # Índice de la pregunta actual (0 a 4)
+        'aciertos': 0,              # Contador de puntos
+        'power_5050': True,         # Disponibilidad del Power-up
+        'usar_5050': False,         # Estado de activación del Power-up en la pregunta actual
+        'lista_examen': [],         # Las 5 preguntas seleccionadas para el intento
+        't_inicio_pregunta': 0,     # Momento exacto en que inicia la pregunta
+        'examen_finalizado': False  # Control de fin de juego
+    })
+
+
+
+   # 5. FUNCIONES DE APOYO (MOTOR GRÁFICO Y LÓGICA) ---
+
+
+
+
+
+
+# --- 5. FUNCIONES (MOTOR GRÁFICO Y LÓGICA) ---
 
 def crear_imagen(texto, opciones, ocultas=[]):
-    fig, ax = plt.subplots(figsize=(10, 5))
+    """
+    Genera una imagen blanca con el texto de la pregunta y sus opciones.
+    Optimizado para enunciados largos y legibilidad clara.
+    """
+    # Creamos la figura con un tamaño de 10x6 para dar más espacio horizontal
+    fig, ax = plt.subplots(figsize=(10, 6))
     fig.patch.set_facecolor('white')
-    letras = ["A)", "B)", "C)", "D)"]
-    finales = []
-    for i, opt in enumerate(opciones):
-        if letras[i][0] in ocultas: finales.append(f"{letras[i]} [ ELIMINADA ]")
-        else: finales.append(f"{letras[i]} {opt}")
     
+    finales = []
+    for opt in opciones:
+        # Si la letra (A, B, C o D) está en la lista de ocultas (50/50)
+        if opt[0] in ocultas:
+            finales.append(f"{opt[0]} [ ELIMINADA ]")
+        else:
+            finales.append(opt)
+            
+    # Estructuramos el cuerpo del mensaje
+    # Añadimos saltos de línea extra para separar la pregunta de las opciones
     cuerpo = f"{texto}\n\n" + "\n".join(finales)
-    ax.text(0.05, 0.9, cuerpo, fontsize=15, fontweight='bold', wrap=True, va='top', ha='left', linespacing=1.6)
+    
+    # Ajuste de tamaño de fuente: si el texto es muy largo, lo achicamos un poco
+    size_fuente = 16 if len(cuerpo) < 200 else 14
+    
+    # Dibujamos el texto
+    # Usamos ha='left' (alineación izquierda) para mejor lectura
+    ax.text(0.05, 0.9, cuerpo, 
+            fontsize=size_fuente, 
+            fontweight='bold', 
+            wrap=True, 
+            va='top',      # Alineación vertical al tope
+            ha='left',     # Alineación horizontal a la izquierda
+            color='#2d0b2a', 
+            family='sans-serif',
+            linespacing=1.6) # Espaciado entre líneas para que no se vea amontonado
+    
     ax.axis('off')
+    
+    # Guardamos en buffer
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight', dpi=120)
     plt.close(fig)
     return buf
 
-def preparar_mision(n_mision):
-    pool = [p for p in st.session_state.banco_completo if p['mision'] == n_mision]
-    st.session_state.lista_examen = random.sample(pool, min(5, len(pool)))
-    st.session_state.n_pregunta = 0
-    st.session_state.aciertos = 0
-    st.session_state.t_inicio_pregunta = time.time()
-    st.session_state.ocultar = []
+def reset_juego():
+    """Limpia el estado para permitir un nuevo intento desde cero"""
+    st.session_state.update({
+        'paso': 'registro',
+        'mision': 1,
+        'n_pregunta': 0,
+        'aciertos': 0,
+        'power_5050': True,
+        'usar_5050': False,
+        'lista_examen': [],
+        'datos_enviados': False
+    })
 
-# --- 5. LÓGICA DE NAVEGACIÓN ---
-if 'paso' not in st.session_state:
-    st.session_state.update({'paso': 'registro', 'mision': 1, 'n_pregunta': 0, 'aciertos': 0, 'power_5050': True})
 
+
+
+
+def enviar_a_google(nombre, curso, mision, aciertos, powerup):
+    url_script = "https://script.google.com/macros/s/AKfycbylRYAzBIVcvamNHqq21aTjZ9NRo-sMbAzj3HQOmtKITfMK9xRqwyJ3a-CMD7gRHg52eg/exec"
+    datos = {
+        "nombre": nombre,
+        "curso": curso,
+        "mision": mision,
+        "aciertos": aciertos,
+        "powerup": "Sí" if not powerup else "No" # Si power_5050 es False, es porque lo usó
+    }
+    try:
+        requests.post(url_script, json=datos)
+    except:
+        pass # Para que el juego no se trabe si falla el internet
+
+
+
+
+
+
+    # 6. PANTALLAS (FLUJO DE JUEGO) ---
+
+    # --- PANTALLA 1: REGISTRO ---
 if st.session_state.paso == 'registro':
-    st.title("🚀 MISIÓN: FUNCIONES")
-    st.session_state.nombre = st.text_input("Nombre del Cadete:")
-    st.session_state.curso = st.selectbox("Grado:", ["901", "902", "903", "904"])
-    if st.button("INICIAR MISIÓN") and st.session_state.nombre:
-        preparar_mision(1)
-        st.session_state.paso = 'examen'
-        st.rerun()
+    st.markdown("<div class='status-panel'>MATH QUEST: REGISTRO DE GUERRERO</div>", unsafe_allow_html=True)
+    with st.container():
+        st.markdown("<div class='question-card'>", unsafe_allow_html=True)
+        nom = st.text_input("Nombre del Guerrero:")
+        cur = st.selectbox("Misión del Curso:", ["908", "909", "910"])
+        
+        if st.button("¡INICIAR AVENTURA!"):
+            if nom:
+                # Seleccionamos 5 preguntas aleatorias de la Misión 1
+                pool = [p for p in st.session_state.banco_completo if p['mision'] == 1]
+                st.session_state.lista_examen = random.sample(pool, min(5, len(pool)))
+                
+                # Seteamos el estado para empezar
+                st.session_state.update({
+                    'nombre': nom, 
+                    'curso': cur, 
+                    'paso': 'examen', 
+                    'n_pregunta': 0,
+                    'aciertos': 0,
+                    't_inicio_pregunta': time.time()
+                })
+                st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
+# --- PANTALLA 2: EXAMEN ---
 elif st.session_state.paso == 'examen':
     idx = st.session_state.n_pregunta
-    pregunta_actual = st.session_state.lista_examen[idx]
     
-    st.markdown(f"<div class='status-panel'>Misión: {st.session_state.mision} | Pregunta: {idx+1}/5 | Aciertos: {st.session_state.aciertos}</div>", unsafe_allow_html=True)
+    # Verificar si ya terminamos todas las preguntas
+    if idx >= len(st.session_state.lista_examen):
+        st.session_state.paso = 'feedback'
+        st.rerun()
+        
+    p = st.session_state.lista_examen[idx]
     
-    t_transcurrido = time.time() - st.session_state.t_inicio_pregunta
-    porcentaje = max(0.0, (pregunta_actual['t_max'] - t_transcurrido) / pregunta_actual['t_max'])
-    st.progress(porcentaje)
+    # 1. ANCLAJE DE OPCIONES (Para que no cambien al refrescar)
+    if f"q_opts_{idx}" not in st.session_state:
+        opts_mezcladas = p['opciones'].copy()
+        random.shuffle(opts_mezcladas)
+        letras = ["A)", "B)", "C)", "D)"]
+        st.session_state[f"q_opts_{idx}"] = [f"{letras[i]} {opts_mezcladas[i]}" for i in range(4)]
+        st.session_state[f"q_cor_{idx}"] = ["A", "B", "C", "D"][opts_mezcladas.index(p['correcta_texto'])]
+        # Guardar cuáles son las letras incorrectas para el 50/50
+        cor_letra = st.session_state[f"q_cor_{idx}"]
+        st.session_state[f"inc_{idx}"] = [L for L in ["A", "B", "C", "D"] if L != cor_letra]
 
-    col1, col2 = st.columns([3, 1])
-    with col2:
+    # UI: Panel de Estado y Barra de Energía
+    msg = "⚡ 50/50 DISPONIBLE" if st.session_state.power_5050 else "¡SIN POWER-UPS!"
+    if st.session_state.usar_5050: msg = "🔥 MODO 50/50 ACTIVADO"
+    st.markdown(f"<div class='status-panel'>{msg}</div>", unsafe_allow_html=True)
+
+    t_limite = p.get('t_max', 60)
+    t_actual = time.time() - st.session_state.t_inicio_pregunta
+    porcentaje = max(0, 100 - (t_actual / t_limite * 100))
+    st.markdown(f"<div class='energy-container'><div class='energy-bar' style='width:{porcentaje}%'></div></div>", unsafe_allow_html=True)
+
+    # 2. LÓGICA 50/50 FIJA
+    ocultas = []
+    if st.session_state.usar_5050:
+        if f"ocultas_fix_{idx}" not in st.session_state:
+            st.session_state[f"ocultas_fix_{idx}"] = random.sample(st.session_state[f"inc_{idx}"], 2)
+        ocultas = st.session_state[f"ocultas_fix_{idx}"]
+    
+    # Render de la pregunta
+    img_buf = crear_imagen(p['pregunta'], st.session_state[f"q_opts_{idx}"], ocultas)
+    st.markdown("<div class='question-card'>", unsafe_allow_html=True)
+    st.image(img_buf)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # Botón de Power-up
+    col_a, col_b = st.columns([3,1])
+    with col_b:
         if st.session_state.power_5050:
             if st.button("⚡ 50/50"):
-                correcta = pregunta_actual['correcta_texto']
-                incorrectas = [l for i, l in enumerate(["A","B","C","D"]) if pregunta_actual['opciones'][i] != correcta]
-                st.session_state.ocultar = random.sample(incorrectas, 2)
+                st.session_state.usar_5050 = True
                 st.session_state.power_5050 = False
                 st.rerun()
 
-    ocultas = st.session_state.get('ocultar', [])
-    st.image(crear_imagen(pregunta_actual['pregunta'], pregunta_actual['opciones'], ocultas))
     
-    ans = st.radio("TU ELECCIÓN:", ["A", "B", "C", "D"], index=None, horizontal=True, key=f"q_{st.session_state.mision}_{idx}")
 
-    if st.button("ENVIAR RESPUESTA ➡️") or porcentaje <= 0:
+
+
+# Selección de respuesta
+    ans = st.radio("TU ELECCIÓN:", ["A", "B", "C", "D"], key=f"r_{idx}", index=None, horizontal=True)
+    
+    # El botón DEBE estar alineado con el radio de arriba
+    if st.button("ENVIAR RESPUESTA ➡️"):
         if ans:
-            elegida = pregunta_actual['opciones'][["A","B","C","D"].index(ans)]
-            if elegida == pregunta_actual['correcta_texto']:
+            # Verificación de acierto
+            if ans == st.session_state[f"q_cor_{idx}"]:
                 st.session_state.aciertos += 1
-                st.toast("¡Correcto!", icon="🔥")
-        
-        st.session_state.n_pregunta += 1
-        st.session_state.ocultar = []
-        st.session_state.t_inicio_pregunta = time.time()
-
-        if st.session_state.n_pregunta >= 5:
-            if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
-                enviar_a_google(st.session_state.nombre, st.session_state.curso, 1, st.session_state.aciertos)
-                st.success("¡MISIÓN 1 COMPLETADA! Preparando Misión 2...")
-                time.sleep(2)
-                st.session_state.mision = 2
-                preparar_mision(2)
+                st.toast("¡Punto para ti!", icon="🔥")
             else:
-                enviar_a_google(st.session_state.nombre, st.session_state.curso, st.session_state.mision, st.session_state.aciertos)
-                st.session_state.paso = 'feedback'
-        st.rerun()
+                st.toast("Incorrecto...", icon="❌")
+            
+            # Avance de pregunta
+            st.session_state.n_pregunta += 1
+            st.session_state.usar_5050 = False
+            st.session_state.t_inicio_pregunta = time.time()
 
+            # --- LÓGICA DE CAMBIO DE MISIÓN ---
+            if st.session_state.n_pregunta >= len(st.session_state.lista_examen):
+                if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
+                    st.success("¡MISIÓN 1 COMPLETADA! Preparando Misión 2...")
+                    time.sleep(2)
+                    
+                    pool_2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
+                    st.session_state.lista_examen = random.sample(pool_2, min(5, len(pool_2)))
+                    
+                    st.session_state.update({
+                        'mision': 2,
+                        'n_pregunta': 0,
+                        'aciertos': 0, 
+                        't_inicio_pregunta': time.time()
+                    })
+                else:
+                    st.session_state.paso = 'feedback'
+
+            st.rerun()
+
+    # --- Control de Tiempo (Auto-refresh) ---
+    # Este bloque también debe estar dentro del "elif st.session_state.paso == 'examen':"
     if porcentaje > 0:
         time.sleep(1)
         st.rerun()
+    else:
+        st.error("¡TIEMPO AGOTADO!")
+        time.sleep(1)
+        
+        st.session_state.n_pregunta += 1
+        st.session_state.usar_5050 = False 
+        st.session_state.t_inicio_pregunta = time.time()
+        
+        if st.session_state.n_pregunta >= len(st.session_state.lista_examen):
+            if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
+                pool_2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
+                st.session_state.lista_examen = random.sample(pool_2, min(5, len(pool_2)))
+                st.session_state.update({'mision': 2, 'n_pregunta': 0, 'aciertos': 0})
+            else:
+                st.session_state.paso = 'feedback'
+        
+        st.rerun()
+
+
+
+    # Selección de respuesta
+    ans = st.radio("TU ELECCIÓN:", ["A", "B", "C", "D"], key=f"r_{idx}", index=None, horizontal=True)
+    
+    
+
+
+    
+
+
+
+# --- PANTALLA 3: FEEDBACK ---
 
 elif st.session_state.paso == 'feedback':
-    st.title("RESULTADOS")
-    st.metric("Aciertos Finales", f"{st.session_state.aciertos}/5")
-    if st.button("VOLVER AL INICIO"):
-        st.session_state.update({'paso': 'registro', 'mision': 1, 'power_5050': True})
+    st.markdown(f"<div class='status-panel'>RESULTADO FINAL</div>", unsafe_allow_html=True)
+    st.markdown("<div class='question-card' style='text-align:center;'>", unsafe_allow_html=True)
+    
+    puntaje = st.session_state.aciertos
+    st.markdown(f"## Resultado: {puntaje}/5")
+
+    if st.session_state.mision == 1 and puntaje < 3:
+        st.error("No has logrado los aciertos mínimos para la Misión 2.")
+    elif st.session_state.mision == 2:
+        st.balloons()
+        st.success("¡Has terminado todas las misiones!")
+
+    if st.button("INTENTAR DE NUEVO"):
+        reset_juego()
         st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
