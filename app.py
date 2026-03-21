@@ -323,50 +323,40 @@ elif st.session_state.paso == 'examen':
 
 
 
-# 1. Selección de respuesta (Mantenemos tu estilo)
-   # Al incluir la misión en la key, el radio se reinicia por completo al cambiar de nivel
-ans = st.radio("TU ELECCIÓN:", ["A", "B", "C", "D"], key=f"r_m{st.session_state.mision}_{idx}", index=None, horizontal=True)
-    
+# 1. Selección de respuesta
+    ans = st.radio("TU ELECCIÓN:", ["A", "B", "C", "D"], key=f"r_m{st.session_state.mision}_{idx}", index=None, horizontal=True)
 
-
-if st.button("ENVIAR RESPUESTA ➡️"):
+    # 2. Botón de enviar (Debe tener 1 nivel de sangría dentro del bloque 'examen')
+    if st.button("ENVIAR RESPUESTA ➡️"):
         if ans:
-            # Obtenemos cuál es el texto de la opción que el alumno marcó
             letras = ["A", "B", "C", "D"]
             indice = letras.index(ans)
             texto_marcado = pregunta_actual['opciones'][indice]
             
-            # Comparamos contra el texto correcto definido en el banco
             if texto_marcado == pregunta_actual['correcta_texto']:
                 st.session_state.aciertos += 1
                 st.toast("¡Punto para ti!", icon="🔥")
             else:
                 st.toast("Incorrecto...", icon="❌")
             
-            # Avanzamos y reseteamos el tiempo
             st.session_state.n_pregunta += 1
             st.session_state.t_inicio_pregunta = time.time()
 
-            # Verificamos si terminó la tanda de 5
             if st.session_state.n_pregunta >= 5:
                 if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
-                    # SI PASA A MISIÓN 2: Limpiamos y cargamos nuevo pool
+                    enviar_a_google(st.session_state.nombre, st.session_state.curso, 1, st.session_state.aciertos)
                     st.success("¡Misión 1 Superada!")
                     time.sleep(1)
                     pool_2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
                     st.session_state.lista_examen = random.sample(pool_2, 5)
                     st.session_state.update({'mision': 2, 'n_pregunta': 0, 'aciertos': 0})
                 else:
+                    enviar_a_google(st.session_state.nombre, st.session_state.curso, st.session_state.mision, st.session_state.aciertos)
                     st.session_state.paso = 'feedback'
             st.rerun()
 
-
-    # --- Control de Tiempo (Auto-refresh) ---
-
-
-# Control de Tiempo (Auto-refresh)
-    # IMPORTANTE: Alinea este 'if' con el 'if st.button' de arriba
-if porcentaje > 0:
+    # 3. Control de Tiempo (Alineado con el botón de arriba)
+    if porcentaje > 0:
         time.sleep(1)
         st.rerun()
     else:
@@ -375,16 +365,17 @@ if porcentaje > 0:
         st.session_state.n_pregunta += 1
         st.session_state.t_inicio_pregunta = time.time()
         
-if st.session_state.n_pregunta >= 5:
-if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
+        if st.session_state.n_pregunta >= 5:
+            if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
                 st.session_state.mision = 2
-                # Aquí deberías llamar a tu función de preparar_mision(2)
-    else:
+                pool_2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
+                st.session_state.lista_examen = random.sample(pool_2, 5)
+                st.session_state.update({'n_pregunta': 0, 'aciertos': 0})
+            else:
                 st.session_state.paso = 'feedback'
         st.rerun()
 
-# --- PANTALLA 3: FEEDBACK ---
-
+# --- PANTALLA 3: FEEDBACK (Este bloque va pegado al borde izquierdo, fuera de 'examen') ---
 elif st.session_state.paso == 'feedback':
     st.markdown(f"<div class='status-panel'>RESULTADO FINAL</div>", unsafe_allow_html=True)
     st.markdown("<div class='question-card' style='text-align:center;'>", unsafe_allow_html=True)
@@ -394,11 +385,11 @@ elif st.session_state.paso == 'feedback':
 
     if st.session_state.mision == 1 and puntaje < 3:
         st.error("No has logrado los aciertos mínimos para la Misión 2.")
-    elif st.session_state.mision == 2:
+    else:
         st.balloons()
-        st.success("¡Has terminado todas las misiones!")
+        st.success("¡Misión cumplida, Cadete!")
 
     if st.button("INTENTAR DE NUEVO"):
-        reset_juego()
+        st.session_state.update({'paso': 'registro', 'mision': 1, 'n_pregunta': 0, 'aciertos': 0})
         st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
