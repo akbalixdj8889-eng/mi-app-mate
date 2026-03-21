@@ -717,8 +717,10 @@ elif st.session_state.paso == 'feedback':
                 st.toast("Resultado Misión 1 guardado.", icon="✅")
             
             # --- Botón para Avanzar a Misión 2 ---
+            # Este botón ahora se muestra SOLO si Misión 1 fue aprobada y
+            # todavía no hemos avanzado a Misión 2.
             if st.button("CONTINUAR A MISIÓN 2"):
-                # Reiniciar estado de examen y preparar Misión 2
+                # --- Preparar y Transicionar a Misión 2 ---
                 pool_m2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
                 num_preguntas_m2 = min(5, len(pool_m2))
                 
@@ -729,11 +731,14 @@ elif st.session_state.paso == 'feedback':
                     for key in claves_a_eliminar:
                         del st.session_state[key]
                     
+                    # Actualizar estado para iniciar Misión 2
                     st.session_state.update({
                         'mision': 2,
                         'n_pregunta': 0,
                         'aciertos': 0,
-                        't_inicio_pregunta': time.time()
+                        't_inicio_pregunta': time.time(),
+                        'paso': 'examen', # Cambiar el paso a 'examen' para cargar las preguntas de Mision 2
+                        'usar_5050': False # Asegura que el power-up esté desactivado al inicio de Mision 2
                     })
                     st.rerun() # Recarga para iniciar Misión 2
                 else:
@@ -741,9 +746,10 @@ elif st.session_state.paso == 'feedback':
                     # Si no hay M2, forzamos el fin del juego y volvemos al registro
                     reset_juego() 
                     st.rerun()
+        
         else: # Misión 1 fallida
             st.error("No has logrado los aciertos mínimos (3/5) para avanzar a la Misión 2.")
-            # Aquí el juego termina para este intento.
+            # Si falla M1, el juego termina para este intento. Solo queda el botón de reiniciar.
 
     # CASO 2: Misión 2 completada (Final del juego)
     elif mision_actual == 2:
@@ -765,10 +771,12 @@ elif st.session_state.paso == 'feedback':
                 st.toast("¡Datos finales guardados con éxito!", icon="✅")
         else: # Misión 2 fallida
             st.error("No has alcanzado la puntuación mínima (3/5) para aprobar la Misión 2.")
-            # También se podría guardar el resultado de fallo de Misión 2 si se desea.
+            # Aquí el juego también termina.
 
     # --- Botón para Reiniciar el Juego ---
-    # Este botón es visible independientemente del resultado de la misión actual.
+    # Este botón siempre es visible para reiniciar. Si se está en feedback de M1
+    # y se decide "Intentar de Nuevo" en lugar de "Continuar a Misión 2",
+    # esto reseteará todo sin avanzar.
     if st.button("INTENTAR DE NUEVO"):
         reset_juego() 
         st.rerun()
