@@ -498,8 +498,26 @@ elif st.session_state.paso == 'examen':
 
 
 
+# --- PANTALLA 3: FEEDBACK (Este bloque va pegado al borde izquierdo, fuera de 'examen') ---
+elif st.session_state.paso == 'feedback':
+    st.markdown(f"<div class='status-panel'>RESULTADO FINAL</div>", unsafe_allow_html=True)
+    st.markdown("<div class='question-card' style='text-align:center;'>", unsafe_allow_html=True)
+    
+    puntaje = st.session_state.aciertos
+    st.markdown(f"## Resultado: {puntaje}/5")
 
-## --- PANTALLA 3: FEEDBACK ---
+    if st.session_state.mision == 1 and puntaje < 3:
+        st.error("No has logrado los aciertos mínimos para la Misión 2.")
+    else:
+        st.balloons()
+        st.success("¡Misión cumplida, Cadete!")
+
+    if st.button("INTENTAR DE NUEVO"):
+        st.session_state.update({'paso': 'registro', 'mision': 1, 'n_pregunta': 0, 'aciertos': 0})
+        st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
 elif st.session_state.paso == 'feedback':
     st.markdown(f"<div class='status-panel'>RESULTADO FINAL</div>", unsafe_allow_html=True)
     st.markdown("<div class='question-card' style='text-align:center;'>", unsafe_allow_html=True)
