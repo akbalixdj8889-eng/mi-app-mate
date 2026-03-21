@@ -146,6 +146,9 @@ if 'paso' not in st.session_state:
         't_inicio_pregunta': 0,     # Momento exacto en que inicia la pregunta
         'examen_finalizado': False  # Control de fin de juego
     })
+
+
+
     #5. FUNCIONES DE APOYO (MOTOR GRÁFICO Y LÓGICA) ---
 
 
@@ -163,54 +166,70 @@ def enviar_a_google(nombre, curso, mision, aciertos, powerup):
     except:
         pass # Para que el juego no se trabe si falla el internet
 
+# --- 5. FUNCIONES (MOTOR GRÁFICO Y LÓGICA) ---
 
 def crear_imagen(texto, opciones, ocultas=[]):
     """
     Genera una imagen blanca con el texto de la pregunta y sus opciones.
-    'ocultas' contiene las letras (A, B, C o D) que el 50/50 debe tachar.
+    Optimizado para enunciados largos y legibilidad clara.
     """
-    fig, ax = plt.subplots(figsize=(9, 5))
+    # Creamos la figura con un tamaño de 10x6 para dar más espacio horizontal
+    fig, ax = plt.subplots(figsize=(10, 6))
     fig.patch.set_facecolor('white')
     
-    texto_final = []
+    finales = []
     for opt in opciones:
-        # Verificamos si la primera letra de la opción (ej. 'A') está en la lista de ocultas
+        # Si la letra (A, B, C o D) está en la lista de ocultas (50/50)
         if opt[0] in ocultas:
-            texto_final.append(f"{opt[0]} [ ELIMINADA ]")
+            finales.append(f"{opt[0]} [ ELIMINADA ]")
         else:
-            texto_final.append(opt)
+            finales.append(opt)
             
-    # Unimos la pregunta con las opciones procesadas
-    cuerpo = f"{texto}\n\n" + "\n".join(texto_final)
+    # Estructuramos el cuerpo del mensaje
+    # Añadimos saltos de línea extra para separar la pregunta de las opciones
+    cuerpo = f"{texto}\n\n" + "\n".join(finales)
     
-    # Dibujamos el texto en el canvas
-    ax.text(0.05, 0.5, cuerpo, 
-            fontsize=15, 
+    # Ajuste de tamaño de fuente: si el texto es muy largo, lo achicamos un poco
+    size_fuente = 16 if len(cuerpo) < 200 else 14
+    
+    # Dibujamos el texto
+    # Usamos ha='left' (alineación izquierda) para mejor lectura
+    ax.text(0.05, 0.9, cuerpo, 
+            fontsize=size_fuente, 
             fontweight='bold', 
             wrap=True, 
-            va='center', 
+            va='top',      # Alineación vertical al tope
+            ha='left',     # Alineación horizontal a la izquierda
             color='#2d0b2a', 
-            family='sans-serif')
+            family='sans-serif',
+            linespacing=1.6) # Espaciado entre líneas para que no se vea amontonado
     
-    ax.axis('off') # Ocultamos los ejes del gráfico
+    ax.axis('off')
     
-    # Guardamos el resultado en un buffer de memoria para Streamlit
+    # Guardamos en buffer
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', bbox_inches='tight', dpi=100)
+    plt.savefig(buf, format='png', bbox_inches='tight', dpi=120)
     plt.close(fig)
     return buf
 
 def reset_juego():
-    """Limpia el estado para permitir un nuevo intento"""
+    """Limpia el estado para permitir un nuevo intento desde cero"""
     st.session_state.update({
         'paso': 'registro',
+        'mision': 1,
         'n_pregunta': 0,
         'aciertos': 0,
         'power_5050': True,
         'usar_5050': False,
         'lista_examen': [],
-        'examen_finalizado': False
+        'datos_enviados': False
     })
+
+
+
+
+
+
     #6. PANTALLAS (FLUJO DE JUEGO) ---
 # --- PANTALLA 1: REGISTRO ---
 if st.session_state.paso == 'registro':
