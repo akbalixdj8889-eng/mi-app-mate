@@ -334,7 +334,12 @@ if 'paso' not in st.session_state:
         't_inicio_pregunta': 0,     # Timestamp de inicio de la pregunta actual (para el cronómetro)
         'examen_finalizado': False, # Bandera para indicar si se completó el examen o se llegó al feedack
         'datos_enviados': False     # Flag para evitar enviar datos duplicados al finalizar
+		'datos_enviados_m1': False     # Flag para evitar enviar datos de Misión 1 duplicados
+
     })
+
+
+
 
 
 # --- 5. FUNCIONES (MOTOR GRÁFICO Y LÓGICA DEL JUEGO) ---
@@ -413,21 +418,21 @@ def reset_juego():
     desde la pantalla de registro.
     """
     st.session_state.update({
-        'paso': 'registro',         # Vuelve a la pantalla de registro
-        'mision': 1,                # Reinicia a la Misión 1
-        'n_pregunta': 0,            # Reinicia al índice de la primera pregunta
-        'aciertos': 0,              # Reinicia el contador de aciertos
-        'power_5050': True,         # Power-up disponible nuevamente
-        'usar_5050': False,         # Power-up no activo al reiniciar
-        'lista_examen': [],         # Vacía la lista de preguntas del examen
-        'examen_finalizado': False, # Asegura que no se marque como finalizado
-        'datos_enviados': False     # Reinicia el estado de envío de datos
+        'paso': 'registro',
+        'mision': 1,
+        'n_pregunta': 0,
+        'aciertos': 0,
+        'power_5050': True,
+        'usar_5050': False,
+        'lista_examen': [],
+        'examen_finalizado': False,
+        'datos_enviados': False,       # <-- Reiniciar flag de envío final
+        'datos_enviados_m1': False     # <-- NUEVO: Reiniciar flag de envío Misión 1
     })
     # Limpiar claves específicas de preguntas de session_state
     claves_a_eliminar = [key for key in st.session_state.keys() if key.startswith(('q_opts_', 'q_cor_', 'inc_', 'ocultas_fix_', 'rad_'))]
     for key in claves_a_eliminar:
         del st.session_state[key]
-
 
 def enviar_a_google(nombre, curso, mision, aciertos, powerup):
     """
@@ -679,6 +684,8 @@ elif st.session_state.paso == 'examen':
         time.sleep(1) # Espera 1 segundo
         st.rerun() # Recarga la página para actualizar el cronómetro y otros componentes
 
+# **Modificaciones en la Parte 4 (Pantalla de Feedback) y en la función enviar_a_google**
+
 # --- PANTALLA 3: FEEDBACK (Resultado Final) ---
 elif st.session_state.paso == 'feedback':
     st.markdown(f"<div class='status-panel'>RESULTADO FINAL</div>", unsafe_allow_html=True)
@@ -690,38 +697,52 @@ elif st.session_state.paso == 'feedback':
     # --- Lógica de Aprobación y Mensajes ---
     mision_actual = st.session_state.mision
     
-    # Bandera para indicar si se aprobó el examen (necesario para algunas lógicas de guardado/transición)
-    aprobado_examen = False
+    # Bandera para indicar si se aprobó el examen actual
+    aprobado_examen_actual = False
+    
+    # ----- GUARDADO DE RESULTADOS -----
     
     # CASO 1: Misión 1 completada y aprobada
     if mision_actual == 1 and puntaje >= 3:
-        aprobado_examen = True
+        aprobado_examen_actual = True
         st.success(f"¡Misión 1 Superada ({puntaje}/5)! ¡Preparado para la Misión 2!")
         
-        # **Acción de Guardado Opcional para Misión 1:**
-        # Descomentar si quieres registrar el resultado de Misión 1 por separado.
-        # Si solo quieres registrar el resultado final, deja esto comentado.
-        # if not st.session_state.get('datos_enviados_m1', False): # Usar otro flag si se quiere guardar M1 independiente
-        #     st.toast("Guardando progreso Misión 1...", icon="💾")
-        #     enviar_a_google(st.session_state.nombre, st.session_state.curso, "Misión 1", puntaje, st.session_state.power_5050)
-        #     st.session_state.datos_enviados_m1 = True # Marcar como enviado M1
-        #     st.toast("Progreso Misión 1 guardado.", icon="✅")
+        # Registrar resultado de Misión 1 si el flag 'datos_enviados_m1' es False
+        # Usamos un flag diferente para Misión 1 para no interferir con el guardado final.
+        if not st.session_state.get('datos_enviados_m1', False): 
+            st.toast("Guardando resultado Misión 1...", icon="💾")
+            enviar_a_google(
+                st.session_state.nombre, 
+                st.session_state.curso, 
+                "Misión 1", # Indica claramente que es el resultado de Misión 1
+                puntaje, 
+                st.session_state.power_5050
+            )
+            st.session_state.datos_enviados_m1 = True # Marcar resultado Misión 1 como enviado
+            st.toast("Resultado Misión 1 guardado.", icon="✅")
+
+    # --- Mensajes de Error o Recapitulativos para Misión 1 ---
+    if mision_actual == 1 and puntaje < 3:
+        st.error("No has logrado los aciertos mínimos (3/5) para avanzar a la Misión 2.")
+        # Aquí podrías querer guardar este resultado de "fallo" también, 
+        # pero por ahora, solo guardamos los aprobados.
 
     # CASO 2: Misión 2 completada y aprobada (FIN DEL JUEGO)
+    # Si la misión actual fue la 2 (final) y se aprobó
     elif mision_actual == 2 and puntaje >= 3:
-        aprobado_examen = True
+        aprobado_examen_actual = True
         st.balloons() # Efecto de globos para celebrar
         st.success("¡Misión 2 Cumplida! ¡Felicidades, Guerrero!")
         
         # --- ACCIÓN DE GUARDADO FINAL (Misión 2) ---
-        # Se llama a la función de guardado solo si el flag 'datos_enviados' es False.
+        # Se llama a la función de guardado solo si el flag 'datos_enviados' (para el final) es False.
         if not st.session_state.get('datos_enviados', False): 
             st.toast("Guardando tu victoria final en la base de datos...", icon="💾")
             
             enviar_a_google(
                 st.session_state.nombre, 
                 st.session_state.curso, 
-                "Misión 2 (Final)", # Se indica que es el resultado final
+                "Misión 2 (Final)", # Indica claramente que es el resultado final
                 puntaje, 
                 st.session_state.power_5050 # Pasa el estado actual del power-up
             )
@@ -729,11 +750,11 @@ elif st.session_state.paso == 'feedback':
             st.session_state.datos_enviados = True # Marca que los datos finales ya fueron enviados
             st.toast("¡Datos finales guardados con éxito!", icon="✅")
 
-    # --- Mensajes de Error o Recapitulativos para Cada Misión ---
-    if mision_actual == 1 and puntaje < 3:
-        st.error("No has logrado los aciertos mínimos (3/5) para avanzar a la Misión 2.")
+    # --- Mensajes de Error o Recapitulativos para Misión 2 ---
     elif mision_actual == 2 and puntaje < 3:
         st.error("No has alcanzado la puntuación mínima (3/5) para aprobar la Misión 2.")
+        # Si se quisiera registrar también los fallos de Misión 2, se haría aquí.
+        # Por ahora, solo registramos aprobados.
 
     # --- Botón para Reiniciar el Juego ---
     if st.button("INTENTAR DE NUEVO"):
