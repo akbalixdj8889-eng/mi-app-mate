@@ -362,7 +362,11 @@ if st.button("ENVIAR RESPUESTA ➡️"):
 
 
     # --- Control de Tiempo (Auto-refresh) ---
-    if porcentaje > 0:
+
+
+# Control de Tiempo (Auto-refresh)
+    # IMPORTANTE: Alinea este 'if' con el 'if st.button' de arriba
+if porcentaje > 0:
         time.sleep(1)
         st.rerun()
     else:
@@ -371,8 +375,12 @@ if st.button("ENVIAR RESPUESTA ➡️"):
         st.session_state.n_pregunta += 1
         st.session_state.t_inicio_pregunta = time.time()
         
-        if st.session_state.n_pregunta >= len(st.session_state.lista_examen):
-            st.session_state.paso = 'feedback'
+        if st.session_state.n_pregunta >= 5:
+            if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
+                st.session_state.mision = 2
+                # Aquí deberías llamar a tu función de preparar_mision(2)
+            else:
+                st.session_state.paso = 'feedback'
         st.rerun()
 
 # --- PANTALLA 3: FEEDBACK ---
