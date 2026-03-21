@@ -375,11 +375,11 @@ if porcentaje > 0:
         st.session_state.n_pregunta += 1
         st.session_state.t_inicio_pregunta = time.time()
         
-        if st.session_state.n_pregunta >= 5:
-            if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
+if st.session_state.n_pregunta >= 5:
+if st.session_state.mision == 1 and st.session_state.aciertos >= 3:
                 st.session_state.mision = 2
                 # Aquí deberías llamar a tu función de preparar_mision(2)
-            else:
+    else:
                 st.session_state.paso = 'feedback'
         st.rerun()
 
