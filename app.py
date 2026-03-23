@@ -142,7 +142,22 @@ st.markdown("""
 
     </style>
     """, unsafe_allow_html=True)
+/* En tu archivo style.css */
 
+.input-container {
+    /* Estilos para el contenedor general (opcional, si necesitas ajustar espaciado) */
+    padding-bottom: 0px; /* Elimina padding si es necesario */
+}
+
+.registration-footer {
+    height: 2px; /* Grosor de la línea */
+    background-color: #3a0ca3; /* Un color púrpura oscuro, o uno de tu paleta */
+    margin-top: 20px; /* Espacio por encima de la línea */
+    margin-bottom: 0px; /* Espacio por debajo de la línea */
+    border-radius: 5px; /* Bordes redondeados suaves */
+    width: 100%; /* Asegura que cubra todo el ancho */
+    display: block; /* Asegura que sea un elemento de bloque */
+}
 # --- 3. Función para crear imágenes desde texto (para preguntas y opciones) ---
 # La mantendremos aquí en la Parte 1 para que sea accesible globalmente,
 # o la puedes mover a una sección de "utilidades" si prefieres
@@ -513,14 +528,34 @@ if 'paso' not in st.session_state:
 
 # --- 6. PANTALLAS (FLUJO DE JUEGO) ---
 
+# --- 6. PANTALLAS (FLUJO DE JUEGO) ---
+
 # --- PANTALLA 1: REGISTRO ---
 if st.session_state.paso == 'registro':
+    # --- Modificación en los estilos para la sección superior ---
+    # Los dos contenedores blancos de arriba ya son estilizados por 'question-card' o similar.
+    # La barra inferior es la que vamos a intervenir.
+
+    # Usamos un div con un estilo personalizado para la sección de título y campos.
+    # El estilo 'status-panel' ya se usa arriba. Ahora añadimos una sección inferior.
+    
     st.markdown("<div class='status-panel'>MATH QUEST: REGISTRO DE GUERRERO / CURSO</div>", unsafe_allow_html=True)
+    
+    # Aquí podrías tener los dos contenedores blancos superiores si los usas de forma separada.
+    # Si no, simplemente vamos al formulario.
+
     with st.container():
-        st.markdown("<div class='question-card'>", unsafe_allow_html=True)
+        # Usamos un div para envolver los campos y aplicar un estilo particular,
+        # similar a la estructura de 'question-card'.
+        # Vamos a añadir un borde inferior a este div para que sirva como "barra".
+        st.markdown("<div class='input-container'>", unsafe_allow_html=True)
+        
+        # Campo de entrada para el nombre del estudiante
         nom = st.text_input("Nombre del Guerrero:", key="txt_nombre")
+        # Selector para la misión del curso
         cur = st.selectbox("Misión del Curso:", ["908", "909", "910"], key="sel_curso")
 
+        # Botón para iniciar la aventura
         if st.button("¡INICIAR AVENTURA!"):
             if nom: 
                 st.session_state.mision = 1 
@@ -540,9 +575,9 @@ if st.session_state.paso == 'registro':
                         'power_5050': True,        
                         'usar_5050': False,        
                         'datos_enviados': False,    
-                        'datos_enviados_m1': False  # Asegurar que este flag también se reinicie al iniciar juego
+                        'datos_enviados_m1': False
                     })
-                    claves_a_eliminar = [key for key in st.session_state.keys() if key.startswith(('q_opts_', 'q_cor_', 'inc_', 'ocultas_fix_', 'rad_'))]
+                    claves_a_eliminar = [key for key in st.session_state.keys() if key.startswith(('q_opts_', 'q_cor_', 'inc_', 'ocultas_fix_', 'rad_valid_'))]
                     for key in claves_a_eliminar:
                         del st.session_state[key]
 
@@ -551,7 +586,13 @@ if st.session_state.paso == 'registro':
                     st.error("No hay suficientes preguntas disponibles para la Misión 1. Contacta al administrador.")
             else:
                 st.warning("Por favor, ingresa tu nombre para iniciar la aventura.") 
-        st.markdown("</div>", unsafe_allow_html=True)
+        
+        # --- MODIFICACIÓN CLAVE: Estilo de la barra inferior ---
+        # Añadimos un div con un borde inferior y un color sutil para que
+        # no parezca un campo de entrada, sino un separador o detalle visual.
+        st.markdown("<div class='registration-footer'></div>", unsafe_allow_html=True)
+
+        st.markdown("</div>", unsafe_allow_html=True) # Cierra el div 'input-container'
 
 # --- PANTALLA 2: EXAMEN ---
 elif st.session_state.paso == 'examen':
