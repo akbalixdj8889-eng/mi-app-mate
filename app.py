@@ -1,4 +1,3 @@
-#codigo corregido
 # --- 1. Configuración de la pestaña del navegador y disposición de la página ---
 st.set_page_config(
     page_title="Math Quest Pro",
@@ -45,14 +44,12 @@ st.markdown("""
     }
 
     /* FORZAR VISIBILIDAD DE OPCIONES A, B, C, D */
-    /* Usamos selectores específicos de Streamlit para asegurar el color blanco */
     div[data-testid="stRadio"] label p {
         color: white !important;
         font-size: 1.3rem !important;
         font-weight: bold !important;
         text-shadow: 1px 1px 2px black; /* Sombra de texto para mejor legibilidad */
     }
-    /* Estilo para los círculos del radio button (si es necesario, puede ser más complejo) */
     div[data-testid="stRadio"] label {
         margin-right: 20px; /* Espacio entre opciones */
     }
@@ -70,7 +67,6 @@ st.markdown("""
         margin-top: 20px;
         margin-bottom: 20px;
     }
-
 
     /* Tarjeta blanca donde vive la imagen de la pregunta */
     .question-card {
@@ -109,7 +105,6 @@ st.markdown("""
         background-color: #e53e3e !important; /* Un rojo más oscuro al pasar el ratón */
     }
 
-
     /* Estilo para mensajes de Toast */
     .stToast div>span {
         font-size: 1.1rem !important;
@@ -133,59 +128,42 @@ st.markdown("""
 
     /* --- ESTILOS PARA LA PANTALLA DE REGISTRO --- */
     .input-container {
-        /* Estilos para el contenedor general (opcional, si necesitas ajustar espaciado) */
-        /* CORREGIDO: padding-bottom a 0 para evitar el error de sintaxis. */
+        /* Estilos para el contenedor general del registro */
         padding-bottom: 0; 
     }
 
     .registration-footer {
         height: 2px; /* Grosor de la línea */
-        background-color: #3a0ca3; /* Un color púrpura oscuro, o uno de tu paleta */
-        margin-top: 20px; /* Espacio por encima de la línea */
-        margin-bottom: 0px; /* Espacio por debajo de la línea */
-        border-radius: 5px; /* Bordes redondeados suaves */
-        width: 100%; /* Asegura que cubra todo el ancho */
-        display: block; /* Asegura que sea un elemento de bloque */
+        background-color: #3a0ca3; /* Color de la barra decorativa */
+        margin-top: 20px; 
+        margin-bottom: 0px; 
+        border-radius: 5px; 
+        width: 100%; 
+        display: block; 
     }
+
     /* Añadimos un estilo base para todos los selectbox (dropdown) */
-    .st-bf-dropdown { /* Clase general de Streamlit para selectbox */
-        background-color: white; /* Fondo blanco para el dropdown */
-        border-radius: 15px; /* Bordes redondeados */
-        border: 1px solid #ccc; /* Borde sutil */
+    .st-bf-dropdown { 
+        background-color: white; 
+        border-radius: 15px; 
+        border: 1px solid #ccc; 
         padding: 10px;
     }
      /* Estilo para los elementos del selectbox */
     div[data-testid="stSelectbox"] .stSelectbox div[data-baseweb="select-element"] div[role="button"] {
-         border-radius: 15px !important; /* Bordes externos redondeados */
+         border-radius: 15px !important; 
          background-color: white;
          border: 1px solid #ccc;
     }
      div[data-testid="stSelectbox"] .stSelectbox div[data-baseweb="select-element"] div[role="button"] button {
-         border-radius: 15px !important; /* Bordes redondeados internos */
+         border-radius: 15px !important; 
      }
 
     </style>
     """, unsafe_allow_html=True)
-/* En tu archivo style.css */
 
-/* Si *también* tienes un archivo style.css separado */
-/* Asegúrate de que esta definición esté allí también o la consolidación aquí es suficiente */
-.input-container {
-    /* padding-bottom: 0px; */ /* Comentado o eliminado si está en el st.markdown */
-}
-
-.registration-footer {
-    height: 2px;
-    background-color: #3a0ca3;
-    margin-top: 20px;
-    margin-bottom: 0px;
-    border-radius: 5px;
-    width: 100%;
-    display: block;
-}
 # --- 3. Función para crear imágenes desde texto (para preguntas y opciones) ---
-# La mantendremos aquí en la Parte 1 para que sea accesible globalmente,
-# o la puedes mover a una sección de "utilidades" si prefieres
+# La mantendremos aquí en la Parte 1 para que sea accesible globalmente.
 def crear_imagen(texto, opciones, ocultas=[], idx_pregunta=None, id_pregunta=None):
     """
     Genera una imagen con texto, manejando opciones ocultas y evitando caracteres especiales
@@ -201,6 +179,7 @@ def crear_imagen(texto, opciones, ocultas=[], idx_pregunta=None, id_pregunta=Non
         if letra_opcion in ocultas and idx_pregunta is not None:
             finales_render.append(f"{letra_opcion} [ ELIMINADA ]")
         else:
+            # Limpieza del texto para la visualización en Matplotlib.
             texto_limpio_opcion = opt_completo.replace('$', ' ').replace('(moneda)', ' ').replace('(', '[').replace(')', ']') 
             finales_render.append(texto_limpio_opcion)
 
@@ -208,6 +187,7 @@ def crear_imagen(texto, opciones, ocultas=[], idx_pregunta=None, id_pregunta=Non
 
     size_fuente = 16 if len(cuerpo_final) < 200 else 14
 
+    # Limpieza final del texto
     cuerpo_renderizado = cuerpo_final.replace('$', ' ').replace('(moneda)', ' ') 
 
     ax.text(0.05, 0.9, cuerpo_renderizado,
@@ -220,7 +200,7 @@ def crear_imagen(texto, opciones, ocultas=[], idx_pregunta=None, id_pregunta=Non
             family='sans-serif', 
             linespacing=1.6)
 
-    ax.axis('off') 
+    ax.axis('off') # Ocultamos los ejes de la gráfica
 
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight', dpi=120)
@@ -228,8 +208,7 @@ def crear_imagen(texto, opciones, ocultas=[], idx_pregunta=None, id_pregunta=Non
     buf.seek(0)
     return buf
 
-# ----- FIN DE LA PARTE 1 -----
-# ----- FIN DE LA PARTE 1 -----
+# ----- FIN DE LA PARTE 1 -----# ----- FIN DE LA PARTE 1 -----
 
 # Parte 2: Banco de Preguntas y Inicialización del Estado
 
