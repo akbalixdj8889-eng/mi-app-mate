@@ -1,3 +1,13 @@
+#codigo corregido
+# Parte 1: Importaciones, Configuración de Página y Estilos CSS
+
+import streamlit as st
+import random
+import time
+import requests
+import matplotlib.pyplot as plt
+import io
+
 # --- 1. Configuración de la pestaña del navegador y disposición de la página ---
 st.set_page_config(
     page_title="Math Quest Pro",
