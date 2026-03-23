@@ -1,13 +1,4 @@
 #codigo corregido
-# Parte 1: Importaciones, Configuración de Página y Estilos CSS
-
-import streamlit as st
-import random
-import time
-import requests
-import matplotlib.pyplot as plt
-import io
-
 # --- 1. Configuración de la pestaña del navegador y disposición de la página ---
 st.set_page_config(
     page_title="Math Quest Pro",
@@ -140,23 +131,57 @@ st.markdown("""
         background-color: #e6a23f !important; /* Naranja más oscuro al pasar el ratón */
     }
 
+    /* --- ESTILOS PARA LA PANTALLA DE REGISTRO --- */
+    .input-container {
+        /* Estilos para el contenedor general (opcional, si necesitas ajustar espaciado) */
+        /* CORREGIDO: padding-bottom a 0 para evitar el error de sintaxis. */
+        padding-bottom: 0; 
+    }
+
+    .registration-footer {
+        height: 2px; /* Grosor de la línea */
+        background-color: #3a0ca3; /* Un color púrpura oscuro, o uno de tu paleta */
+        margin-top: 20px; /* Espacio por encima de la línea */
+        margin-bottom: 0px; /* Espacio por debajo de la línea */
+        border-radius: 5px; /* Bordes redondeados suaves */
+        width: 100%; /* Asegura que cubra todo el ancho */
+        display: block; /* Asegura que sea un elemento de bloque */
+    }
+    /* Añadimos un estilo base para todos los selectbox (dropdown) */
+    .st-bf-dropdown { /* Clase general de Streamlit para selectbox */
+        background-color: white; /* Fondo blanco para el dropdown */
+        border-radius: 15px; /* Bordes redondeados */
+        border: 1px solid #ccc; /* Borde sutil */
+        padding: 10px;
+    }
+     /* Estilo para los elementos del selectbox */
+    div[data-testid="stSelectbox"] .stSelectbox div[data-baseweb="select-element"] div[role="button"] {
+         border-radius: 15px !important; /* Bordes externos redondeados */
+         background-color: white;
+         border: 1px solid #ccc;
+    }
+     div[data-testid="stSelectbox"] .stSelectbox div[data-baseweb="select-element"] div[role="button"] button {
+         border-radius: 15px !important; /* Bordes redondeados internos */
+     }
+
     </style>
     """, unsafe_allow_html=True)
 /* En tu archivo style.css */
 
+/* Si *también* tienes un archivo style.css separado */
+/* Asegúrate de que esta definición esté allí también o la consolidación aquí es suficiente */
 .input-container {
-    /* Estilos para el contenedor general (opcional, si necesitas ajustar espaciado) */
-    padding-bottom: 0px; /* Elimina padding si es necesario */
+    /* padding-bottom: 0px; */ /* Comentado o eliminado si está en el st.markdown */
 }
 
 .registration-footer {
-    height: 2px; /* Grosor de la línea */
-    background-color: #3a0ca3; /* Un color púrpura oscuro, o uno de tu paleta */
-    margin-top: 20px; /* Espacio por encima de la línea */
-    margin-bottom: 0px; /* Espacio por debajo de la línea */
-    border-radius: 5px; /* Bordes redondeados suaves */
-    width: 100%; /* Asegura que cubra todo el ancho */
-    display: block; /* Asegura que sea un elemento de bloque */
+    height: 2px;
+    background-color: #3a0ca3;
+    margin-top: 20px;
+    margin-bottom: 0px;
+    border-radius: 5px;
+    width: 100%;
+    display: block;
 }
 # --- 3. Función para crear imágenes desde texto (para preguntas y opciones) ---
 # La mantendremos aquí en la Parte 1 para que sea accesible globalmente,
@@ -169,54 +194,41 @@ def crear_imagen(texto, opciones, ocultas=[], idx_pregunta=None, id_pregunta=Non
     fig, ax = plt.subplots(figsize=(10, 6))
     fig.patch.set_facecolor('white') # Fondo blanco para la imagen
 
-    # Preparamos las opciones para mostrar, ocultando las que correspondan según el power-up
     finales_render = []
     for opt_completo in opciones: # opt_completo es algo como "A) 65 (moneda)"
         letra_opcion = opt_completo[0] # Extrae la letra (ej. "A")
         
-        # Si la letra de esta opción está en la lista de ocultas y hay un índice de pregunta válido
         if letra_opcion in ocultas and idx_pregunta is not None:
             finales_render.append(f"{letra_opcion} [ ELIMINADA ]")
         else:
-            # Limpieza del texto para la visualización en Matplotlib.
-            # Reemplazar caracteres potencialmente problemáticos.
-            texto_limpio_opcion = opt_completo.replace('$', ' ').replace('(moneda)', ' ').replace('(', '[').replace(')', ']') # Ejemplo de limpieza
+            texto_limpio_opcion = opt_completo.replace('$', ' ').replace('(moneda)', ' ').replace('(', '[').replace(')', ']') 
             finales_render.append(texto_limpio_opcion)
 
-    # Cuerpo del texto a renderizar: pregunta + opciones
     cuerpo_final = f"{texto}\n\n" + "\n".join(finales_render)
 
-    # Ajuste de tamaño de fuente dinámico
     size_fuente = 16 if len(cuerpo_final) < 200 else 14
 
-    # Limpieza final del texto para el renderizado, asegurando que no haya caracteres extraños
-    # A los caracteres matemáticos del problema se les puede dar formato si se desea un renderizado LaTeX
-    # Pero para evitar la distorsión, un reemplazo simple funciona bien.
-    # Si necesitas caracteres matemáticos y no quieres `$` causa problemas, considera usar LaTeX directamente con matplotlib
-    # o asegurarte de que el texto "plano" no tenga problemas.
-    # Por ahora, mantenemos la limpieza del '$' y '(moneda)' para evitar distorsiones visuales.
-    cuerpo_renderizado = cuerpo_final.replace('$', ' ').replace('(moneda)', ' ') # Limpieza para visualización
+    cuerpo_renderizado = cuerpo_final.replace('$', ' ').replace('(moneda)', ' ') 
 
-    # Dibujamos el texto limpio en la imagen.
     ax.text(0.05, 0.9, cuerpo_renderizado,
             fontsize=size_fuente,
             fontweight='bold',
             wrap=True,
             va='top',
             ha='left',
-            color='#2d0b2a', # Color del texto
-            family='sans-serif', # Fuente sin serifa
+            color='#2d0b2a', 
+            family='sans-serif', 
             linespacing=1.6)
 
-    ax.axis('off') # Ocultamos los ejes de la gráfica
+    ax.axis('off') 
 
-    # Guardamos la imagen generada en un buffer en memoria (PNG format)
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight', dpi=120)
-    plt.close(fig) # Cerramos la figura para liberar memoria
+    plt.close(fig) 
     buf.seek(0)
     return buf
 
+# ----- FIN DE LA PARTE 1 -----
 # ----- FIN DE LA PARTE 1 -----
 
 # Parte 2: Banco de Preguntas y Inicialización del Estado
