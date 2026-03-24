@@ -294,9 +294,15 @@ if 'mision' not in st.session_state:
     # 'mision' rastrea en qué misión está el jugador (1 o 2)
     st.session_state.mision = 1 # Empieza siempre en la Misión 1
 
+# --- REFUERZO DE SEGURIDAD PARA MULTIUSUARIOS ---
 if 'lista_examen' not in st.session_state:
-    # 'lista_examen' contendrá la selección de preguntas para el examen actual
-    st.session_state.lista_examen = []
+    # Esto solo se ejecuta UNA VEZ al inicio. 
+    # Si el app se refresca, no vuelve a sortear preguntas.
+    pool = [p for p in st.session_state.banco_completo if p['mision'] == 1]
+    st.session_state.lista_examen = random.sample(pool, 5)
+    st.session_state.n_pregunta = 0
+    st.session_state.aciertos = 0
+    st.session_state.t_inicio_pregunta = time.time()
 
 if 'n_pregunta' not in st.session_state:
     # 'n_pregunta' es el índice de la pregunta actual en 'lista_examen'
