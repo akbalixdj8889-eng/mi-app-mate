@@ -456,50 +456,56 @@ def reset_juego():
     for key in claves_a_eliminar:
         del st.session_state[key]
 	
-def enviar_a_google(nombre, curso, mision, aciertos, powerup):
-    """
-    Envía los resultados del juego a una hoja de cálculo de Google Sheets
-    usando un Google Apps Script desplegado.
-    """
-    # **IMPORTANTE**: Actualiza esta URL con la de tu ÚLTIMA implantación del script.
-    url_script = "https://script.google.com/macros/s/AKfycbzhJCZfjy2QSZu2-rTyv5jgLJLv-1vjwMgTCfpG2e-IGK0OInXE2pzoEy1WnB_59PXY7g/exec"
+def enviar_a_google(nombre, curso, mision, aciertos):
+    url_script = "TU_URL_DE_GOOGLE_AQUI"
     
-    # Formato de los datos a enviar. 'powerup' se traduce a 'Sí' o 'No'.
+    # Creamos el paquete de datos EXACTAMENTE como lo espera tu script
     datos = {
         "nombre": nombre,
         "curso": curso,
-        "mision": mision,
+        "mision": f"Misión {mision}",
         "aciertos": aciertos,
-        "powerup": "Sí" if not powerup else "No" # Si power_5050 es False, significa que se usó.
+        "powerup": "Usado" if not st.session_state.power_5050 else "No usado"
     }
     
     try:
-        # Se envía la petición POST con los datos en formato JSON.
-        response = requests.post(url_script, json=datos)
-        # Imprimir en la consola (o logs) qué pasó
-        print(f"--- Envío a Google Sheets ---")
-        print(f"URL: {url_script}")
-        print(f"Datos enviados: {datos}")
-        print(f"Código de estado de respuesta: {response.status_code}")
-        print(f"Texto de la respuesta: {response.text}")
-        print(f"-------------------------------")
-        # Se imprime en la consola para confirmar el envío o registrar errores.
-        if response.status_code == 200:
-            print(f"Datos enviados correctamente a Google Sheets para {nombre} - Misión {mision}.")
-        else:
-            print(f"Error al enviar datos a Google Sheets. Código: {response.status_code}")
-            print(f"Respuesta del servidor: {response.text}")
-            
-    except requests.exceptions.RequestException as e:
-        # Captura errores generales de red o conexión.
-        print(f"Error de red o conexión al intentar enviar a Google Sheets: {e}")
-    except Exception as e:
-        # Captura cualquier otro error inesperado.
-        print(f"Error inesperado al enviar a Google Sheets: {e}")
-        
-    # Nota: Si la función debe ser completamente silenciosa ante fallos,
-    # puedes volver al 'pass' en el except. Sin embargo, es mejor registrar los errores.
+        # Enviamos como JSON (Plan A de tu Script)
+        requests.post(url_script, json=datos, timeout=10)
+    except:
+        pass
 
+
+def enviar_a_google(nombre, curso, mision, aciertos, power_disponible):
+    """
+    Envía los resultados a Google Sheets.
+    power_disponible: es el valor de st.session_state.power_5050 (True o False)
+    """
+    url_script = "https://script.google.com/macros/s/AKfycbzhJCZfjy2QSZu2-rTyv5jgLJLv-1vjwMgTCfpG2e-IGK0OInXE2pzoEy1WnB_59PXY7g/exec"
+    
+    # LÓGICA CLAVE: 
+    # Si power_disponible es True -> El botón sigue ahí, NO se usó.
+    # Si power_disponible es False -> El botón desapareció, SÍ se usó.
+    uso_powerup = "No" if power_disponible else "Sí"
+
+    datos = {
+        "nombre": nombre,
+        "curso": curso,
+        "mision": f"Misión {mision}", # Asegura que llegue como texto "Misión 1" o "Misión 2"
+        "aciertos": int(aciertos),    # Asegura que sea un número entero
+        "powerup": uso_powerup        # Envía "Sí" o "No" tal como espera tu Apps Script
+    }
+    
+    try:
+        # Enviamos la petición con un timeout para que la app no se quede "colgada" si falla el internet
+        response = requests.post(url_script, json=datos, timeout=10)
+        
+        if response.status_code == 200:
+            print(f"✅ Éxito: Datos de {nombre} guardados.")
+        else:
+            print(f"❌ Error de servidor: {response.status_code}")
+            
+    except Exception as e:
+        print(f"⚠️ Error de conexión: {e}")
 # ----- FIN DE LA PARTE 3 -----
 
 # Parte 4: Flujo del Juego - Pantallas y Lógica de Transición
@@ -705,7 +711,7 @@ elif st.session_state.paso == 'examen':
         time.sleep(1)
         st.rerun()
 
-# --- PANTALLA 3: FEEDBACK ---
+# --- PANTALLA 3: FEEDBACK (CORREGIDA PARA GUARDAR DATOS) ---
 elif st.session_state.paso == 'feedback':
     st.markdown("<div class='status-panel'>RESULTADO DE MISIÓN</div>", unsafe_allow_html=True)
     st.markdown("<div class='question-card' style='text-align:center;'>", unsafe_allow_html=True)
@@ -713,37 +719,79 @@ elif st.session_state.paso == 'feedback':
     puntaje = st.session_state.aciertos
     st.markdown(f"## {st.session_state.nombre}, lograste: {puntaje}/5")
 
+    # --- LÓGICA MISIÓN 1 ---
     if st.session_state.mision == 1:
         if puntaje >= 3:
             st.success("¡Misión 1 Superada!")
-            if not st.session_state.datos_enviados_m1:
-                enviar_a_google(st.session_state.nombre, st.session_state.curso, 1, puntaje)
+            
+            # GUARDAR DATOS M1: Solo si no se han enviado ya
+            if not st.session_state.get('datos_enviados_m1', False):
+                # Llamada corregida con 5 argumentos (incluyendo el power-up)
+                enviar_a_google(
+                    st.session_state.nombre, 
+                    st.session_state.curso, 
+                    1, 
+                    puntaje, 
+                    st.session_state.power_5050
+                )
                 st.session_state.datos_enviados_m1 = True
+                st.toast("Progreso de Misión 1 guardado 💾")
             
             if st.button("CONTINUAR A MISIÓN 2"):
                 pool_m2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
-                st.session_state.lista_examen = random.sample(pool_m2, 5)
-                # Limpiar llaves para que M2 empiece de cero
-                for k in list(st.session_state.keys()):
-                    if k.startswith(('q_opts_', 'rad_m', 'ocultas_fix_')): del st.session_state[k]
-                
-                st.session_state.update({'mision': 2, 'n_pregunta': 0, 'aciertos': 0, 'paso': 'examen', 't_inicio_pregunta': time.time()})
-                st.rerun()
+                if len(pool_m2) >= 5:
+                    st.session_state.lista_examen = random.sample(pool_m2, 5)
+                    # Limpieza selectiva para M2
+                    for k in list(st.session_state.keys()):
+                        if k.startswith(('q_opts_', 'rad_m', 'ocultas_fix_', 'q_cor_')): 
+                            del st.session_state[k]
+                    
+                    st.session_state.update({
+                        'mision': 2, 
+                        'n_pregunta': 0, 
+                        'aciertos': 0, 
+                        'paso': 'examen', 
+                        't_inicio_pregunta': time.time(),
+                        'usar_5050': False # Reset del uso para la nueva misión
+                    })
+                    st.rerun()
+                else:
+                    st.warning("No hay suficientes preguntas para la Misión 2.")
         else:
             st.error("No alcanzaste el mínimo (3/5).")
+            # GUARDAR FALLO M1 (Opcional, pero recomendado para registro)
+            if not st.session_state.get('datos_enviados_m1', False):
+                enviar_a_google(st.session_state.nombre, st.session_state.curso, 1, puntaje, st.session_state.power_5050)
+                st.session_state.datos_enviados_m1 = True
+
             if st.button("REINTENTAR DESDE EL INICIO"):
+                # Borramos todo para reiniciar limpio
                 for key in list(st.session_state.keys()): del st.session_state[key]
                 st.rerun()
 
+    # --- LÓGICA MISIÓN 2 ---
     elif st.session_state.mision == 2:
         if puntaje >= 3:
             st.balloons()
             st.success("¡FELICIDADES! HAS COMPLETADO EL JUEGO")
-        if not st.session_state.datos_enviados:
-            enviar_a_google(st.session_state.nombre, st.session_state.curso, 2, puntaje)
+        else:
+            st.warning("Juego terminado, pero no alcanzaste el puntaje ideal en esta misión.")
+
+        # GUARDAR DATOS M2
+        if not st.session_state.get('datos_enviados', False):
+            enviar_a_google(
+                st.session_state.nombre, 
+                st.session_state.curso, 
+                2, 
+                puntaje, 
+                st.session_state.power_5050
+            )
             st.session_state.datos_enviados = True
+            st.toast("Resultado final enviado con éxito 🚀")
         
         if st.button("FINALIZAR Y SALIR"):
+            # Limpieza total para el siguiente usuario
             for key in list(st.session_state.keys()): del st.session_state[key]
             st.rerun()
+
     st.markdown("</div>", unsafe_allow_html=True)
