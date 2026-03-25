@@ -457,7 +457,7 @@ def reset_juego():
         del st.session_state[key]
 	
 def enviar_a_google(nombre, curso, mision, aciertos):
-    url_script = "TU_URL_DE_GOOGLE_AQUI"
+    url_script = "https://script.google.com/macros/s/AKfycbzYQFJorxYOHQ8KPODNRQKizq0O7ddI7lkg3nBLJCRIvs6UdOKpwrBWDfn-XmDsPoVWnw/exec"
     
     # Creamos el paquete de datos EXACTAMENTE como lo espera tu script
     datos = {
