@@ -507,23 +507,29 @@ def enviar_a_google(nombre, curso, mision, aciertos, powerup):
 # --- 4. INICIALIZACIÓN DE ESTADO (EL CEREBRO DEL JUEGO) --- (Este fragmento pertenece a la Parte 3, pero es necesario para que el código funcione)
 # Asegúrate de que tus Partes 1, 2 y 3 estén correctas. Aquí sólo incluyo la inicialización de flags relevantes.
 
-# Reinicio y inicialización de estado
-if 'paso' not in st.session_state:
-    st.session_state.update({
-        'paso': 'registro',         
-        'nombre': '',               
-        'curso': '',                
-        'mision': 1,                
-        'n_pregunta': 0,            
-        'aciertos': 0,              
-        'power_5050': True,         
-        'usar_5050': False,         
-        'lista_examen': [],         
-        't_inicio_pregunta': 0,     
-        'examen_finalizado': False, 
-        'datos_enviados': False,       # Flag para evitar enviar datos duplicados al finalizar (Misión 2)
-        'datos_enviados_m1': False     # Flag para evitar enviar datos de Misión 1 duplicados
-    })
+# --- 4. ESTADO DE SESIÓN (UNIFICADO Y REFORZADO) ---
+
+def inicializar_estado():
+    if 'paso' not in st.session_state:
+        st.session_state.update({
+            'paso': 'registro',         # Pantalla inicial
+            'nombre': '',               
+            'curso': '',                
+            'mision': 1,                
+            'n_pregunta': 0,            
+            'aciertos': 0,              
+            'power_5050': True,         
+            'ocultar': [],              # Reemplaza a 'usar_5050' para mayor claridad
+            'lista_examen': [],         # Aquí se "anclan" las 5 preguntas
+            't_inicio_pregunta': time.time(),
+            'examen_finalizado': False, 
+            'datos_enviados': False,    # Evita duplicados en Misión 2
+            'datos_enviados_m1': False  # Evita duplicados en Misión 1
+        })
+
+# Ejecutamos la función de inicio
+inicializar_estado()
+
 
 # Asegúrate que la función reset_juego() (de la Parte 3) también incluye:
 # 'datos_enviados': False,       
@@ -533,74 +539,110 @@ if 'paso' not in st.session_state:
 # Asegúrate de tener la versión actualizada de crear_imagen y enviar_a_google
 # La función reset_juego() YA ESTÁ ACTUALIZADA EN LA RESPUESTA ANTERIOR.
 
-# --- 6. PANTALLAS (FLUJO DE JUEGO) ---
+
+
+# --- 5. FUNCIONES Y LÓGICA DE CARGA ---
+
+def preparar_mision_blindada(n_mision):
+    """
+    Selecciona las preguntas una sola vez y las guarda 
+    fírmemente en la sesión para que no 'salten'.
+    """
+    pool = [p for p in st.session_state.banco_completo if p['mision'] == n_mision]
+    # Sorteamos 5 preguntas y las dejamos fijas
+    st.session_state.lista_examen = random.sample(pool, min(5, len(pool)))
+    st.session_state.n_pregunta = 0
+    st.session_state.aciertos = 0
+    st.session_state.t_inicio_pregunta = time.time()
+    st.session_state.ocultar = []
+    # Marcamos que ya tenemos una lista fija
+    st.session_state.lista_lista = True
+
+def crear_imagen(texto, opciones, ocultas=[]):
+    """Genera la imagen del problema con formato de examen real"""
+    fig, ax = plt.subplots(figsize=(10, 5))
+    fig.patch.set_facecolor('white')
+    letras = ["A)", "B)", "C)", "D)"]
+    finales = []
+    
+    for i, opt in enumerate(opciones):
+        if letras[i][0] in ocultas:
+            finales.append(f"{letras[i]} [ ELIMINADA ]")
+        else:
+            finales.append(f"{letras[i]} {opt}")
+    
+    cuerpo = f"{texto}\n\n" + "\n".join(finales)
+    
+    # Alineación a la izquierda y espaciado generoso para lectura clara
+    ax.text(0.05, 0.9, cuerpo, fontsize=15, fontweight='bold', 
+            wrap=True, va='top', ha='left', linespacing=1.6, color='#2d0b2a')
+    
+    ax.axis('off')
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight', dpi=100)
+    plt.close(fig)
+    return buf
+
+def enviar_a_google(nombre, curso, mision, aciertos):
+    """Envío de datos al Sheets configurado"""
+    url_script = "TU_URL_AQUI" 
+    datos = {"nombre": nombre, "curso": curso, "mision": mision, "aciertos": aciertos}
+    try:
+        requests.post(url_script, json=datos, timeout=5)
+    except:
+        pass # Evita que la app se caiga si falla el internet de la escuela
+		
 
 # --- 6. PANTALLAS (FLUJO DE JUEGO) ---
 
-# --- PANTALLA 1: REGISTRO ---
+# --- PANTALLA 1: REGISTRO (VERSIÓN ANTICHOQUE) ---
 if st.session_state.paso == 'registro':
-    # --- Modificación en los estilos para la sección superior ---
-    # Los dos contenedores blancos de arriba ya son estilizados por 'question-card' o similar.
-    # La barra inferior es la que vamos a intervenir.
-
-    # Usamos un div con un estilo personalizado para la sección de título y campos.
-    # El estilo 'status-panel' ya se usa arriba. Ahora añadimos una sección inferior.
+    st.markdown("<div class='status-panel'>MATH QUEST: REGISTRO DE GUERRERO</div>", unsafe_allow_html=True)
     
-    st.markdown("<div class='status-panel'>MATH QUEST: REGISTRO DE GUERRERO / CURSO</div>", unsafe_allow_html=True)
-    
-    # Aquí podrías tener los dos contenedores blancos superiores si los usas de forma separada.
-    # Si no, simplemente vamos al formulario.
-
     with st.container():
-        # Usamos un div para envolver los campos y aplicar un estilo particular,
-        # similar a la estructura de 'question-card'.
-        # Vamos a añadir un borde inferior a este div para que sirva como "barra".
         st.markdown("<div class='input-container'>", unsafe_allow_html=True)
         
-        # Campo de entrada para el nombre del estudiante
+        # Campos de entrada
         nom = st.text_input("Nombre del Guerrero:", key="txt_nombre")
-        # Selector para la misión del curso
-        cur = st.selectbox("Misión del Curso:", ["908", "909", "910"], key="sel_curso")
+        cur = st.selectbox("Misión del Curso:", ["901", "902", "903", "904", "908", "909", "910"], key="sel_curso")
 
-        # Botón para iniciar la aventura
         if st.button("¡INICIAR AVENTURA!"):
             if nom: 
-                st.session_state.mision = 1 
+                # 1. Filtramos el banco de preguntas para la Misión 1
                 pool_m1 = [p for p in st.session_state.banco_completo if p['mision'] == 1]
-                num_preguntas_m1 = min(5, len(pool_m1))
                 
-                if num_preguntas_m1 > 0:
-                    st.session_state.lista_examen = random.sample(pool_m1, num_preguntas_m1)
+                if len(pool_m1) >= 5:
+                    # 2. SELECCIÓN ÚNICA: Elegimos las 5 preguntas AQUÍ y solo AQUÍ
+                    preguntas_seleccionadas = random.sample(pool_m1, 5)
                     
+                    # 3. ACTUALIZACIÓN MASIVA: Seteamos todo el estado de una vez
                     st.session_state.update({
                         'nombre': nom,
                         'curso': cur,
                         'paso': 'examen',          
-                        'n_pregunta': 0,           
-                        'aciertos': 0,             
+                        'mision': 1,
+                        'n_pregunta': 0,            
+                        'aciertos': 0,              
+                        'lista_examen': preguntas_seleccionadas, # Anclamos las preguntas
                         't_inicio_pregunta': time.time(),
-                        'power_5050': True,        
-                        'usar_5050': False,        
-                        'datos_enviados': False,    
-                        'datos_enviados_m1': False
+                        'power_5050': True,         
+                        'ocultar': [],
+                        'datos_enviados_m1': False,
+                        'datos_enviados': False
                     })
-                    claves_a_eliminar = [key for key in st.session_state.keys() if key.startswith(('q_opts_', 'q_cor_', 'inc_', 'ocultas_fix_', 'rad_valid_'))]
-                    for key in claves_a_eliminar:
-                        del st.session_state[key]
+                    
+                    # 4. LIMPIEZA DE MEMORIA: Borramos basura de sesiones anteriores
+                    for key in list(st.session_state.keys()):
+                        if key.startswith(('q_opts_', 'rad_m')):
+                            del st.session_state[key]
 
                     st.rerun() 
                 else:
-                    st.error("No hay suficientes preguntas disponibles para la Misión 1. Contacta al administrador.")
+                    st.error("Error técnico: El banco de preguntas no cargó correctamente.")
             else:
-                st.warning("Por favor, ingresa tu nombre para iniciar la aventura.") 
+                st.warning("Escribe tu nombre para poder registrar tu nota.") 
         
-        # --- MODIFICACIÓN CLAVE: Estilo de la barra inferior ---
-        # Añadimos un div con un borde inferior y un color sutil para que
-        # no parezca un campo de entrada, sino un separador o detalle visual.
-        st.markdown("<div class='registration-footer'></div>", unsafe_allow_html=True)
-
-        st.markdown("</div>", unsafe_allow_html=True) # Cierra el div 'input-container'
-
+        st.markdown("</div>", unsafe_allow_html=True)
 # --- PANTALLA 2: EXAMEN ---
 elif st.session_state.paso == 'examen':
     idx = st.session_state.n_pregunta 
@@ -695,7 +737,7 @@ elif st.session_state.paso == 'examen':
             
             valor_respuesta_usuario = opcion_elegida_completa.split(") ", 1)[1]
 
-            # --- LÓGICA DE COMPARACIÓN DE RESPUESTA ---
+    # --- LÓGICA DE COMPARACIÓN DE RESPUESTA ---
             if valor_respuesta_usuario == p['correcta_texto']:
                 st.session_state.aciertos += 1 
                 st.toast("¡Punto para ti!", icon="🔥") 
@@ -733,7 +775,6 @@ elif st.session_state.paso == 'examen':
         time.sleep(1) 
         st.rerun() 
 
-# --- PANTALLA 3: FEEDBACK (Resultado Final) ---
 # --- PANTALLA 3: FEEDBACK (Resultado Final) ---
 elif st.session_state.paso == 'feedback':
     st.markdown(f"<div class='status-panel'>RESULTADO FINAL</div>", unsafe_allow_html=True)
