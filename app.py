@@ -595,280 +595,155 @@ def enviar_a_google(nombre, curso, mision, aciertos):
 
 # --- 6. PANTALLAS (FLUJO DE JUEGO) ---
 
-# --- PANTALLA 1: REGISTRO (VERSIÓN ANTICHOQUE) ---
+# --- PANTALLA 1: REGISTRO ---
 if st.session_state.paso == 'registro':
     st.markdown("<div class='status-panel'>MATH QUEST: REGISTRO DE GUERRERO</div>", unsafe_allow_html=True)
     
     with st.container():
         st.markdown("<div class='input-container'>", unsafe_allow_html=True)
-        
-        # Campos de entrada
         nom = st.text_input("Nombre del Guerrero:", key="txt_nombre")
         cur = st.selectbox("Misión del Curso:", ["901", "902", "903", "904", "908", "909", "910"], key="sel_curso")
 
         if st.button("¡INICIAR AVENTURA!"):
             if nom: 
-                # 1. Filtramos el banco de preguntas para la Misión 1
                 pool_m1 = [p for p in st.session_state.banco_completo if p['mision'] == 1]
-                
                 if len(pool_m1) >= 5:
-                    # 2. SELECCIÓN ÚNICA: Elegimos las 5 preguntas AQUÍ y solo AQUÍ
                     preguntas_seleccionadas = random.sample(pool_m1, 5)
-                    
-                    # 3. ACTUALIZACIÓN MASIVA: Seteamos todo el estado de una vez
                     st.session_state.update({
-                        'nombre': nom,
-                        'curso': cur,
-                        'paso': 'examen',          
-                        'mision': 1,
-                        'n_pregunta': 0,            
-                        'aciertos': 0,              
-                        'lista_examen': preguntas_seleccionadas, # Anclamos las preguntas
-                        't_inicio_pregunta': time.time(),
-                        'power_5050': True,         
-                        'ocultar': [],
-                        'datos_enviados_m1': False,
-                        'datos_enviados': False
+                        'nombre': nom, 'curso': cur, 'paso': 'examen', 'mision': 1,
+                        'n_pregunta': 0, 'aciertos': 0, 'lista_examen': preguntas_seleccionadas,
+                        't_inicio_pregunta': time.time(), 'power_5050': True, 'ocultar': [],
+                        'datos_enviados_m1': False, 'datos_enviados': False, 'usar_5050': False
                     })
-                    
-                    # 4. LIMPIEZA DE MEMORIA: Borramos basura de sesiones anteriores
+                    # Limpieza total de llaves de sesiones previas
                     for key in list(st.session_state.keys()):
-                        if key.startswith(('q_opts_', 'rad_m')):
+                        if key.startswith(('q_opts_', 'rad_valid_', 'ocultas_fix_', 'q_cor_')):
                             del st.session_state[key]
-
                     st.rerun() 
                 else:
-                    st.error("Error técnico: El banco de preguntas no cargó correctamente.")
+                    st.error("Error: No hay suficientes preguntas en la Misión 1.")
             else:
-                st.warning("Escribe tu nombre para poder registrar tu nota.") 
-        
+                st.warning("Escribe tu nombre para iniciar.") 
         st.markdown("</div>", unsafe_allow_html=True)
+
 # --- PANTALLA 2: EXAMEN ---
 elif st.session_state.paso == 'examen':
     idx = st.session_state.n_pregunta 
-
-    # --- Verificación de Fin de Ronda/Misión ---
+    
+    # Seguridad: Si terminamos las preguntas, saltar a feedback
     if idx >= len(st.session_state.lista_examen):
-        st.session_state.paso = 'feedback'  
-        st.rerun()  
+        st.session_state.paso = 'feedback'
+        st.rerun()
 
     p = st.session_state.lista_examen[idx]
 
-    # --- Lógica para Anclar Opciones y Preparar 50/50 ---
+    # Preparar opciones (solo una vez por pregunta)
     if f"q_opts_{idx}" not in st.session_state:
-        opts_mezcladas = p['opciones'].copy()
-        random.shuffle(opts_mezcladas)
+        opts = p['opciones'].copy()
+        random.shuffle(opts)
+        letras = ["A)", "B)", "C)", "D)"]
+        st.session_state[f"q_opts_{idx}"] = [f"{letras[i]} {opts[i]}" for i in range(4)]
+        # Guardar respuesta correcta
+        indice_cor = opts.index(p['correcta_texto'])
+        st.session_state[f"q_cor_{idx}"] = ["A", "B", "C", "D"][indice_cor]
+        st.session_state[f"inc_{idx}"] = [L for L in ["A", "B", "C", "D"] if L != st.session_state[f"q_cor_{idx}"]]
 
-        letras = ["A)", "B)", "C)", "D)"] 
-
-        st.session_state[f"q_opts_{idx}"] = [f"{letras[i]} {opts_mezcladas[i]}" for i in range(4)]
-
-        try:
-            indice_correcta = opts_mezcladas.index(p['correcta_texto'])
-            st.session_state[f"q_cor_{idx}"] = ["A", "B", "C", "D"][indice_correcta]
-            cor_letra = st.session_state[f"q_cor_{idx}"]
-            st.session_state[f"inc_{idx}"] = [L for L in ["A", "B", "C", "D"] if L != cor_letra]
-            
-        except ValueError:
-            error_msg = f"Error: La respuesta correcta '{p['correcta_texto']}' no se encontró en las opciones mezcladas para la pregunta ID {p.get('id', 'N/A')}. Opciones actuales: {opts_mezcladas}"
-            print(error_msg) 
-            st.error(f"Error interno de configuración de pregunta. Por favor, contacta al administrador. (Pregunta ID: {p.get('id', 'N/A')})")
-            st.session_state[f"q_cor_{idx}"] = "A" 
-            st.session_state[f"inc_{idx}"] = ["B", "C", "D"] 
-
-    # --- UI: Panel de Estado Superior (Power-up) y Barra de Energía (Tiempo) ---
-    msg = "⚡ 50/50 DISPONIBLE" if st.session_state.power_5050 else "¡SIN POWER-UPS activados!"
+    # UI y Tiempo
+    msg = "⚡ 50/50 DISPONIBLE" if st.session_state.power_5050 else "¡POWER-UP USADO!"
     if st.session_state.usar_5050: msg = "🔥 MODO 50/50 ACTIVADO"
     st.markdown(f"<div class='status-panel'>{msg}</div>", unsafe_allow_html=True)
 
-    t_limite = p.get('t_max', 60) 
-    t_actual = time.time() - st.session_state.t_inicio_pregunta
-    porcentaje = max(0.0, (t_limite - t_actual) / t_limite) * 100 
-    st.markdown(f"<div class='energy-container'><div class='energy-bar' style='width:{porcentaje:.2f}%'></div></div>", unsafe_allow_html=True)
+    t_max = p.get('t_max', 60)
+    t_pasado = time.time() - st.session_state.t_inicio_pregunta
+    porcentaje = max(0.0, (t_max - t_pasado) / t_max)
+    st.progress(porcentaje)
 
-    # --- Lógica para Ocultar Opciones con Power-up 50/50 ---
-    ocultas_actuales = [] 
-    if st.session_state.usar_5050: # Si el power-up está activo
-        if f"ocultas_fix_{idx}" not in st.session_state: # Si aún no se han calculado las ocultas para esta pregunta
+    # 50/50 logic
+    ocultas = []
+    if st.session_state.usar_5050:
+        if f"ocultas_fix_{idx}" not in st.session_state:
             st.session_state[f"ocultas_fix_{idx}"] = random.sample(st.session_state[f"inc_{idx}"], 2)
-        ocultas_actuales = st.session_state[f"ocultas_fix_{idx}"]
+        ocultas = st.session_state[f"ocultas_fix_{idx}"]
 
-    # --- Renderizado de la Pregunta Completa (Imagen) ---
-    img_buf = crear_imagen(p['pregunta'], st.session_state[f"q_opts_{idx}"], ocultas_actuales)
-    st.markdown("<div class='question-card'>", unsafe_allow_html=True)
-    st.image(img_buf) 
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # --- Botón del Power-up 50/50 ---
-    col_izq, col_der = st.columns([3, 1]) 
-    with col_der:
-        if st.session_state.power_5050: 
-            if st.button("⚡ 50/50"):
-                st.session_state.usar_5050 = True # Activa el power-up
-                st.session_state.power_5050 = False # Marca como usado
-                st.rerun() # Recarga para actualizar la UI y ocultar opciones
-
-    # --- Selección de Respuesta por el Usuario y Filtro de Opciones Visibles ---
-    opciones_para_radio = []
-    letras_habilitadas = [] # Las letras que el usuario PUEDE seleccionar (A, B, C, D)
-    opciones_reales = st.session_state[f"q_opts_{idx}"] # Las opciones completas (ej: "A) 65 (moneda)")
+    # Imagen y Radio
+    st.image(crear_imagen(p['pregunta'], st.session_state[f"q_opts_{idx}"], ocultas))
     
-    # Filtramos las opciones para el radio button, excluyendo las ocultas por el 50/50
-    for i, opt_completo in enumerate(opciones_reales):
-        letra = opt_completo[0]
-        if letra not in ocultas_actuales:
-            opciones_para_radio.append(opt_completo) # Añade la opción visible
-            letras_habilitadas.append(letra)      # Guarda la letra habilitada
-            
-    # --- st.radio ahora usa las opciones filtradas ---
-    # Usamos la lista de LETRAS HABILITADAS para el índice del radio button
-    ans_letra_input = st.radio("TU ELECCIÓN:", letras_habilitadas, key=f"rad_valid_{idx}", index=None, horizontal=True)
-    
-    # --- Botón de ENVIAR RESPUESTA y Lógica de Fin de Tiempo ---
-    if st.button("ENVIAR RESPUESTA ➡️") or porcentaje <= 0.0:
-        opcion_elegida_completa = "" # Variable para guardar la opción completa que el usuario seleccionó
-        
-        if ans_letra_input: # Si se seleccionó una letra válida
-            # Buscamos la opción completa que empieza con la letra seleccionada
-            for opt in opciones_reales:
-                if opt.startswith(ans_letra_input + ")"):
-                    opcion_elegida_completa = opt
-                    break
-            
-            valor_respuesta_usuario = opcion_elegida_completa.split(") ", 1)[1]
-
-    # --- LÓGICA DE COMPARACIÓN DE RESPUESTA ---
-            if valor_respuesta_usuario == p['correcta_texto']:
-                st.session_state.aciertos += 1 
-                st.toast("¡Punto para ti!", icon="🔥") 
-            else:
-                st.toast("Incorrecto...", icon="❌")
-        else:
-            st.toast("Debes seleccionar una opción, o el tiempo se agotó.", icon="⚠️")
-            # Si se agota el tiempo sin seleccionar, se considera incorrecta.
-            # No se suma acierto, pero se avanza a la siguiente pregunta.
-
-        # --- Preparación para la Siguiente Pregunta o Transición de Misión ---
-        st.session_state.n_pregunta += 1 
-        st.session_state.t_inicio_pregunta = time.time() 
-        st.session_state.usar_5050 = False # Desactivar 50/50 para la siguiente pregunta
-
-        # --- Verificación de Fin de Ronda/Misión ---
-        if st.session_state.n_pregunta >= len(st.session_state.lista_examen):
-            
-            # --- Lógica de Transición entre Misiones ---
-            if st.session_state.mision == 1: # Si se completó la Misión 1
-                # Pasamos directamente a FEEDBACK. La pantalla de feedback decidirá si avanza a M2.
-                st.session_state.paso = 'feedback' 
-                st.rerun() # Recarga para mostrar el feedback de Misión 1
-                
-            else: # Si estábamos completando la Misión 2 (misión final)
-                st.session_state.paso = 'feedback' # Pasar a la pantalla de feedback final
-                st.rerun() # Recarga para mostrar feedback final
-        
-        # Si aún quedan preguntas en la misión actual, recargar para mostrar la siguiente.
-        if st.session_state.n_pregunta < len(st.session_state.lista_examen):
+    col1, col2 = st.columns([3, 1])
+    with col2:
+        if st.session_state.power_5050 and st.button("⚡ 50/50"):
+            st.session_state.usar_5050 = True
+            st.session_state.power_5050 = False
             st.rerun()
 
-    # --- Auto-refresh del Cronómetro ---
-    if porcentaje > 0:
-        time.sleep(1) 
-        st.rerun() 
+    # Radio dinámico (Usa 'mision' en la key para que no se hereden respuestas de M1 a M2)
+    letras_visibles = [opt[0] for opt in st.session_state[f"q_opts_{idx}"] if opt[0] not in ocultas]
+    ans = st.radio("TU ELECCIÓN:", letras_visibles, key=f"rad_m{st.session_state.mision}_{idx}", index=None, horizontal=True)
 
-# --- PANTALLA 3: FEEDBACK (Resultado Final) ---
-elif st.session_state.paso == 'feedback':
-    st.markdown(f"<div class='status-panel'>RESULTADO FINAL</div>", unsafe_allow_html=True)
-    st.markdown("<div class='question-card' style='text-align:center;'>", unsafe_allow_html=True)
-
-    puntaje = st.session_state.aciertos
-    mision_actual = st.session_state.mision
-
-    st.markdown(f"## Resultado: {puntaje}/5")
-
-    # --- Lógica de Aprobación y Mensajes, y Transición ---
-
-    # CASO 1: Misión 1 completada
-    if mision_actual == 1:
-        if puntaje >= 3:
-            st.success(f"¡Misión 1 Superada ({puntaje}/5)! ¿Deseas continuar a la Misión 2?")
+    # Lógica de envío
+    if st.button("ENVIAR RESPUESTA ➡️") or porcentaje <= 0:
+        if ans:
+            # Obtener el texto de la opción elegida
+            opciones_completas = st.session_state[f"q_opts_{idx}"]
+            texto_elegido = ""
+            for o in opciones_completas:
+                if o.startswith(ans):
+                    texto_elegido = o.split(") ", 1)[1]
             
-            # --- Guardamos el resultado de Misión 1 ---
-            if not st.session_state.get('datos_enviados_m1', False): 
-                st.toast("Guardando resultado Misión 1...", icon="💾")
-                enviar_a_google(
-                    st.session_state.nombre, 
-                    st.session_state.curso, 
-                    "Misión 1", 
-                    puntaje, 
-                    st.session_state.power_5050
-                )
-                st.session_state.datos_enviados_m1 = True
-                st.toast("Resultado Misión 1 guardado.", icon="✅")
-            
-            # --- Botón para Avanzar a Misión 2 ---
-            # Este botón ahora se muestra SOLO si Misión 1 fue aprobada y
-            # todavía no hemos avanzado a Misión 2.
-            if st.button("CONTINUAR A MISIÓN 2"):
-                # --- Preparar y Transicionar a Misión 2 ---
-                pool_m2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
-                num_preguntas_m2 = min(5, len(pool_m2))
-                
-                if num_preguntas_m2 > 0:
-                    st.session_state.lista_examen = random.sample(pool_m2, num_preguntas_m2)
-                    # Limpiar claves de preguntas de session_state ANTES de actualizar la misión
-                    claves_a_eliminar = [key for key in st.session_state.keys() if key.startswith(('q_opts_', 'q_cor_', 'inc_', 'ocultas_fix_', 'rad_valid_'))]
-                    for key in claves_a_eliminar:
-                        del st.session_state[key]
-                    
-                    # Actualizar estado para iniciar Misión 2
-                    st.session_state.update({
-                        'mision': 2,
-                        'n_pregunta': 0,
-                        'aciertos': 0,
-                        't_inicio_pregunta': time.time(),
-                        'paso': 'examen', # Cambiar el paso a 'examen' para cargar las preguntas de Mision 2
-                        'usar_5050': False # Asegura que el power-up esté desactivado al inicio de Mision 2
-                    })
-                    st.rerun() # Recarga para iniciar Misión 2
-                else:
-                    st.warning("No hay suficientes preguntas para la Misión 2. Finalizando el juego.")
-                    # Si no hay M2, forzamos el fin del juego y volvemos al registro
-                    reset_juego() 
-                    st.rerun()
+            if texto_elegido == p['correcta_texto']:
+                st.session_state.aciertos += 1
+                st.toast("¡Correcto!", icon="🔥")
+            else:
+                st.toast("Incorrecto", icon="❌")
         
-        else: # Misión 1 fallida
-            st.error("No has logrado los aciertos mínimos (3/5) para avanzar a la Misión 2.")
-            # Si falla M1, el juego termina para este intento. Solo queda el botón de reiniciar.
-
-    # CASO 2: Misión 2 completada (Final del juego)
-    elif mision_actual == 2:
-        if puntaje >= 3: # Misión 2 aprobada
-            st.balloons() 
-            st.success("¡Misión 2 Cumplida! ¡Felicidades, Guerrero!")
-            
-            # --- ACCIÓN DE GUARDADO FINAL (Misión 2) ---
-            if not st.session_state.get('datos_enviados', False): 
-                st.toast("Guardando tu victoria final en la base de datos...", icon="💾")
-                enviar_a_google(
-                    st.session_state.nombre, 
-                    st.session_state.curso, 
-                    "Misión 2 (Final)", 
-                    puntaje, 
-                    st.session_state.power_5050
-                )
-                st.session_state.datos_enviados = True 
-                st.toast("¡Datos finales guardados con éxito!", icon="✅")
-        else: # Misión 2 fallida
-            st.error("No has alcanzado la puntuación mínima (3/5) para aprobar la Misión 2.")
-            # Aquí el juego también termina.
-
-    # --- Botón para Reiniciar el Juego ---
-    # Este botón siempre es visible para reiniciar. Si se está en feedback de M1
-    # y se decide "Intentar de Nuevo" en lugar de "Continuar a Misión 2",
-    # esto reseteará todo sin avanzar.
-    if st.button("INTENTAR DE NUEVO"):
-        reset_juego() 
+        st.session_state.n_pregunta += 1
+        st.session_state.t_inicio_pregunta = time.time()
+        st.session_state.usar_5050 = False
         st.rerun()
 
+    # Auto-refresh
+    if porcentaje > 0:
+        time.sleep(1)
+        st.rerun()
+
+# --- PANTALLA 3: FEEDBACK ---
+elif st.session_state.paso == 'feedback':
+    st.markdown("<div class='status-panel'>RESULTADO DE MISIÓN</div>", unsafe_allow_html=True)
+    st.markdown("<div class='question-card' style='text-align:center;'>", unsafe_allow_html=True)
+    
+    puntaje = st.session_state.aciertos
+    st.markdown(f"## {st.session_state.nombre}, lograste: {puntaje}/5")
+
+    if st.session_state.mision == 1:
+        if puntaje >= 3:
+            st.success("¡Misión 1 Superada!")
+            if not st.session_state.datos_enviados_m1:
+                enviar_a_google(st.session_state.nombre, st.session_state.curso, 1, puntaje)
+                st.session_state.datos_enviados_m1 = True
+            
+            if st.button("CONTINUAR A MISIÓN 2"):
+                pool_m2 = [p for p in st.session_state.banco_completo if p['mision'] == 2]
+                st.session_state.lista_examen = random.sample(pool_m2, 5)
+                # Limpiar llaves para que M2 empiece de cero
+                for k in list(st.session_state.keys()):
+                    if k.startswith(('q_opts_', 'rad_m', 'ocultas_fix_')): del st.session_state[k]
+                
+                st.session_state.update({'mision': 2, 'n_pregunta': 0, 'aciertos': 0, 'paso': 'examen', 't_inicio_pregunta': time.time()})
+                st.rerun()
+        else:
+            st.error("No alcanzaste el mínimo (3/5).")
+            if st.button("REINTENTAR DESDE EL INICIO"):
+                for key in list(st.session_state.keys()): del st.session_state[key]
+                st.rerun()
+
+    elif st.session_state.mision == 2:
+        if puntaje >= 3:
+            st.balloons()
+            st.success("¡FELICIDADES! HAS COMPLETADO EL JUEGO")
+        if not st.session_state.datos_enviados:
+            enviar_a_google(st.session_state.nombre, st.session_state.curso, 2, puntaje)
+            st.session_state.datos_enviados = True
+        
+        if st.button("FINALIZAR Y SALIR"):
+            for key in list(st.session_state.keys()): del st.session_state[key]
+            st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
-    # ----- FIN DE LA PARTE 4 -----
